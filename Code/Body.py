@@ -16,6 +16,7 @@ class SwarmBody(motor_1F='P10', motor_1B='P11', motor_2F='P12', motor2B='P9'):
 
 
     #TODO Write the movement functions and design lidar implementation
+    #TODO Write functions for gyroscope
 
     def move_forward(self, dt):
         self.motor_1F.value(1)
@@ -39,4 +40,8 @@ class SwarmBody(motor_1F='P10', motor_1B='P11', motor_2F='P12', motor2B='P9'):
         return
     def get_lidar(self):
         return
-
+    def get_angle(self):
+        #get analog read of gyro minus the zero voltage point
+        #Divide this by the gyro sensitivity
+        #Add this to the current angle, keep track of global current angle
+        return
