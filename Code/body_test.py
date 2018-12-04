@@ -20,7 +20,7 @@ Motor2B = Pin('P9', mode=Pin.OUT)
 def forward():
     Motor1F.value(1)
     Motor2F.value(1)
-    
+
     time.sleep(tf)
     Motor1F.value(0)
     Motor2F.value(0)
@@ -60,28 +60,28 @@ def spin_anticlock():
 def motor_1_forward():
     Motor1F.value(1)
     Motor1B.value(0)
-    
+
     time.sleep(tt)
     Motor1F.value(0)
 
 def motor_1_back():
     Motor1F.value(0)
     Motor1B.value(1)
-    
+
     time.sleep(tt)
     Motor1B.value(0)
 
 def motor_2_forward():
     Motor2F.value(1)
     Motor2B.value(0)
-    
+
     time.sleep(tt)
     Motor2F.value(0)
 
 def motor_2_back():
     Motor2F.value(0)
     Motor2B.value(1)
-    
+
     time.sleep(tt)
     Motor2B.value(0)
 
@@ -94,7 +94,7 @@ def stop():
 def commands():
     print('\n')
     print("w/s => Left motor forwards/backwards.")
-    print("o/l => Right motor forwards/backwards.") 
+    print("o/l => Right motor forwards/backwards.")
     print("t/g => All motors forwards/backwards.")
     print("q => Stop all motors.")
     print('\n')
@@ -106,7 +106,7 @@ commands()
 while True:
 
     char = input('\n'"Enter Command Here: ")
-    
+
     print("Please Stand By.")
 
     if(char == "w"):
