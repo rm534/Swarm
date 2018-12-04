@@ -8,5 +8,13 @@ config_firmware = {
                     "user":"rm534",
                     "pwd":"2Be734"
                 }
-            }
+            },
+            "mqtt" : {
+                "user" : "robin",
+                "pwd" : "focker12",
+                "vhost" : "swarm",
+                "port" : 5672,
+                "server" : "35.164.26.30"
+                }
 }
+print(config_firmware["mqtt"])
