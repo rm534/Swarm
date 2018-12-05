@@ -2,35 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bfcefa29-3eb4-4c7d-9993-a97ebc4cb5d7" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Code/messaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/messaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Code/temp_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Code/temp_test.csv" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="DockManager">
-    <window id="1">
-      <content type="file-editors">
-        <state>
-          <leaf>
-            <file pinned="false" current-in-tab="true">
-              <entry file="file://$PROJECT_DIR$/Code/mqtt_firmware_test.py">
-                <provider selected="true" editor-type-id="text-editor">
-                  <state relative-caret-position="210">
-                    <caret line="14" selection-start-line="14" selection-end-line="19" selection-end-column="48" />
-                    <folding>
-                      <element signature="e#0#18#0" expanded="true" />
-                    </folding>
-                  </state>
-                </provider>
-              </entry>
-            </file>
-          </leaf>
-        </state>
-      </content>
-    </window>
   </component>
   <component name="FUSProjectUsageTrigger">
     <session id="-919211456">
@@ -73,11 +51,11 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/Code/messaging.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="381">
+            <state relative-caret-position="505">
               <caret line="34" column="56" lean-forward="true" selection-start-line="34" selection-start-column="56" selection-end-line="34" selection-end-column="56" />
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-                <marker date="1544020797895" expanded="true" signature="605:679" ph="..." />
+                <marker date="1544020881032" expanded="true" signature="605:640" ph="..." />
               </folding>
             </state>
           </provider>
@@ -293,11 +271,11 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/Code/messaging.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="381">
+        <state relative-caret-position="505">
           <caret line="34" column="56" lean-forward="true" selection-start-line="34" selection-start-column="56" selection-end-line="34" selection-end-column="56" />
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <marker date="1544020797895" expanded="true" signature="605:679" ph="..." />
+            <marker date="1544020881032" expanded="true" signature="605:640" ph="..." />
           </folding>
         </state>
       </provider>
