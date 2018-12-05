@@ -10,8 +10,8 @@ config_firmware = {
                 }
             },
             "mqtt" : {
-                "user" : "robin",
-                "pwd" : "focker12",
+                "user" : "mqtt",
+                "pwd" : "test",
                 "vhost" : "swarm",
                 "port" : 5672,
                 "server" : "35.164.26.30"
