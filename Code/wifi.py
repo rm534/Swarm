@@ -19,8 +19,11 @@ def setup():
 
 #Wifi connect function, reads available nets and compares to knowns nets
 #Connects if there is a known net
-def connect(wifi_object, known_nets=None):
-    available_nets = signal_order(wifi_object.scan())
+def connect(known_nets=None):
+    wifi = setup()
+    if wifi.isconnected():
+        wifi.disconnect()
+    available_nets = signal_order(wifi.scan())
     if known_nets == None:
         known_nets = config_firmware["wifi"]
     nets_to_try = []
@@ -37,15 +40,18 @@ def connect(wifi_object, known_nets=None):
                 user = net_to_use["user"]
                 pwd = net_to_use["pwd"]
                 sec = net_to_use["sec"]
-                wifi_object.ifconfig(id=0, config='dhcp')
-                if sec == WLAN.WPA2:
-                    wifi_object.connect(net_to_use['ssid'], (sec, pwd), timeout=10000)
+                wifi.ifconfig(id=0, config='dhcp')
+                print("ssid:", net_to_use['ssid'])
+                print("sec:", net_to_use['sec'])
+                if net_to_use["ssid"] == 'VM0134973_2GEXT':
+                    wifi.connect(net_to_use['ssid'], (sec, pwd), timeout=10000)
+                    while not wifi.isconnected():
+                        machine.idle()
+                    print("connected to:", net_to_use['ssid'])
                 elif sec == WLAN.WPA2_ENT:
-                    wlan.connect(ssid=net_to_use['ssid'], auth=(sec, user, pwd), identity='rob', ca_certs='none')
-                print("connected")
+                    wifi.connect(ssid=net_to_use['ssid'], auth=(sec, user, pwd), identity='rob', ca_certs='none')
                 return True
         else:
-            print("failed")
             return False
     except Exception as err:
         print(err)
@@ -55,5 +61,4 @@ def connect(wifi_object, known_nets=None):
 
 
 if __name__ == '__main__':
-    wifi = setup()
-    connect(wifi)
+    connect()
