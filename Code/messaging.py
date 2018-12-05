@@ -4,36 +4,36 @@ import machine
 import time
 from config import *
 
+
 class Messaging():
     def __init__(self, dev_ID, conf):
         connect()
         self.dev_ID = dev_ID
         self.conf = conf
+        self.init_mqtt()
         return
 
-    def connect_mqtt(self):
-        try:
-            print(self.dev_ID, self.conf["server"], self.conf["user"], self.conf["pwd"])
-            self.client = MQTTClient(client_id='Robin',server=self.conf["server"], user="robin", password="focker12", port=1883, ssl=True)
-            self.client.set_callback(None)
-            #self.client.subscribe(topic='demo.key')
-            self.client.connect(clean_session=True)
-
-        except Exception as err:
-            print("Error:",err)
-
-    def disconnect_mqtt(self):
-        self.client.disconnect()
+    def init_mqtt(self):
+        self.client = MQTTClient("device_id", "35.164.26.30", user="robin", password="focker12", port=1883)
+        self.client.set_callback(self.sub_cb)
+        self.client.connect()
+        self.client.subscribe(topic="demo.key")
 
     def sub_cb(self, topic, msg):
         print(msg)
 
     def send_msg(self, topic, msg):
-        print(self.client.connection_info())
         self.client.publish(topic=topic, msg=msg)
+        return
+
 
 if __name__ == '__main__':
-    messenger = Messaging('22',config_firmware["mqtt"])
-    messenger.connect_mqtt()
-    messenger.send_msg("demo.key", "TESTING")
-    messenger.disconnect_mqtt()
+    messenger = Messaging('22', config_firmware["mqtt"])
+
+    while True:
+        print("Sending ON")
+        messenger.send_msg(topic="demo.key", msg="22.5")
+        time.sleep(1)
+        print("Sending OFF")
+        messenger.send_msg(topic="demo.key", msg="22.1")
+        time.sleep(1)
