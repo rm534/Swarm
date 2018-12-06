@@ -32,8 +32,8 @@ if __name__ == '__main__':
 
     while True:
         print("Sending ON")
-        messenger.send_msg(topic="demo.key", msg="22.5")
+        messenger.send_msg(topic="demo.key", msg="hello")
         time.sleep(1)
         print("Sending OFF")
-        messenger.send_msg(topic="demo.key", msg="22.1")
+        messenger.send_msg(topic="demo.key", msg="how are you?")
         time.sleep(1)
