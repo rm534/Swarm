@@ -4,10 +4,22 @@ config_firmware = {
                     "user":"NA",
                     "pwd":"yn9ktYmxgdpp"
                 },
-                "eduroam": {
-                    "user":"rm534",
-                    "pwd":"2Be734"
+                "Robin":{
+                    "user":"NA",
+                    "pwd":"Hello123"
                 }
+#                "eduroam": {
+#                    "user":"rm534",
+#                    "pwd":"2Be734"
+#                },
+#                "UoE_Guest": {
+#                    "user":"NA",
+#                    "pwd:":"NA"
+#                },
+#                "UoE_Open": {
+#                    "user":"rm534",
+#                    "pwd":"2Be734"
+#                }
             },
             "mqtt" : {
                 "user" : "mqtt",
@@ -17,4 +29,4 @@ config_firmware = {
                 "server" : "35.164.26.30"
                 }
 }
-print(config_firmware["mqtt"])
+print(config_firmware["wifi"])
