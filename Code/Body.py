@@ -35,7 +35,7 @@ class SwarmBody():
         self.lidar_DIO3 = Pin(lidar_DIO3, mode=Pin.OUT)
         self.lidar_DIO4 = Pin(lidar_DIO4, mode=Pin.OUT)
         self.lidar_I2C = I2C(I2C_BUS_1, pins=(self.lidar_SDA, self.lidar_SCL))
-        self.lidar_I2C.init(I2C.MASTER, self.lidar_baudrate)
+        self.lidar_I2C.init(I2C.MASTER, baudrate=self.lidar_baudrate)
 
     def initialise_motor(self, motor_pin1, motor_pin2, motor_pin3, motor_pin4):
         self.motor_pin1 = motor_pin1
