@@ -1,4 +1,4 @@
-import pycom
+"""import pycom
 import time
 from machine import Pin
 
@@ -159,3 +159,10 @@ while True:
         commands()
 
 ## End of Script ##
+
+"""
+from Body import *
+
+if __name__ == "__main__":
+    body = SwarmBody()
+    body.run()
