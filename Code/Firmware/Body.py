@@ -1,5 +1,6 @@
 import pycom
 import time
+import utime
 import machine
 from machine import Pin
 from machine import I2C
@@ -9,6 +10,7 @@ from machine import PWM
 import mpu6050
 import sys
 import VL53L0X
+from tmp102 import _tmp102
 
 # Setting Constants for Serial Busses
 I2C_BUS_0 = const(0)
@@ -16,21 +18,27 @@ I2C_BUS_1 = const(1)
 LIDAR_DEFAULT_ADDR = const(0x29)
 LIDAR_ADDR_REGISTER = const(0x8A)
 LIDAR1_ADDR = const(0x18)
+TEMP_ADDR = const(0x48)
 
 
 # Class for movement and Sensing of Robot
 class SwarmBody():
     # Init function initialising pins and sensors
-    def __init__(self, motor_pin1='P10', motor_pin2='P11', motor_pin3='P12', motor_pin4='P6', lidar_SDA='P9',
+    def __init__(self, temp_SDA, temp_SCL, motor_pin1='P10', motor_pin2='P11', motor_pin3='P12', motor_pin4='P6',
+                 lidar_SDA='P9',
                  lidar_SCL='P10',
                  lidar_DIO1='P12', lidar_DIO2='P20', lidar_DIO3='P21', lidar_DIO4='P22', gyro_SDA='P7', gyro_SCL='P5',
                  temp_AD='P13'):
         # self.initialise_motor(motor_pin1, motor_pin2, motor_pin3, motor_pin4)
-        #self.initialise_gyro(gyro_SDA, gyro_SCL)
+        # self.initialise_gyro(gyro_SDA, gyro_SCL)
         self.initialise_lidar(lidar_SDA, lidar_SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
-        #self.initialise_temp(temp_AD)
+        # self.initialise_temp(temp_SDA, temp_SCL)
 
-    # TODO: Solar Panel VD code
+    def initialise_solar_panel_monitor(self, solar_panel_AD):
+        self.solar_panel_AD = solar_panel_AD
+        self.solar_panel_adc = machine.ADC()
+        self.solar_panel_APIN = self.solar_panel_adc.channel(pin=self.solar_panel_AD)
+
     # TODO: Battery Monitor code
     # Function for initialising all pin functionality for lidar
     def initialise_lidar(self, lidar_SDA, lidar_SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4,
@@ -84,9 +92,17 @@ class SwarmBody():
             pass
 
     # Function for initialising pin functionality for the temperature sensor
-    def initialise_temp(self, temp_AD):
-        self.temp_ADC = machine.ADC()
-        self.temp_AD = self.temp_ADC.channel(pin=temp_AD)
+    def initialise_temp(self, temp_SDA, temp_SCL, temp_baudrate=20000):
+        self.temp_SDA = temp_SDA
+        self.temp_SCL = temp_SCL
+        self.temp_baudrate = temp_baudrate
+        try:
+            self.temp_I2C = I2C(I2C_BUS_0, pins=(self.temp_SDA, self.temp_SCL))
+            self.temp_I2C.init(I2C.MASTER, baudrate=self.temp_baudrate)
+            self.temp_sensor = _tmp102.Tmp102(self.temp_I2C, TEMP_ADDR)
+        except:
+            print("[-] I2C Error gyro - Continue")
+            pass
 
     # Function for stopping all motor function
     def motor_stop(self):
@@ -135,7 +151,6 @@ class SwarmBody():
         self.motor_stop()
         return
 
-    # TODO: Write lidar function
     # Function to get lidar readings [TBC]
     def get_lidar(self, alarm):
         print("[+] getting lidar")
@@ -143,6 +158,10 @@ class SwarmBody():
         data = self.tof1.read()
         print(data)
 
+    #Function to get solar panel voltage throughout the voltage divider
+    def get_solar_panel_vol(self):
+        vol = self.solar_panel_APIN.value()
+        return vol
 
     # TODO: Write angle calculation funciton
     def get_angle(self):
@@ -159,15 +178,15 @@ class SwarmBody():
 
     # Function to get temperature readings
     def get_temp(self):
-        temp = self.temp_AD()
+        temp = self.temp_sensor.temperature()
         print("[+] Temp Reading: ", temp)
         return temp
 
     # Function to test timers for all different sensors
     def test_timer(self):
-        # self.gyro_timer = Timer.Alarm(self.get_gyro, ms=300, periodic=True)
-        self.lidar_timer = Timer.Alarm(self.get_lidar, s=1, periodic=True)
-        # self.temp_timer = Timer.Alarm(self.get_temp, s=2, periodic=True)
+         self.gyro_timer = Timer.Alarm(self.get_gyro, ms=300, periodic=True)
+         self.lidar_timer = Timer.Alarm(self.get_lidar, s=1, periodic=True)
+         self.temp_timer = Timer.Alarm(self.get_temp, s=2, periodic=True)
 
     # Function to test motor functionality
     def test_motor(self):
@@ -184,16 +203,38 @@ class SwarmBody():
         self.motor_stop()
         sys.exit()
 
+    def get_x_coord(self):
+        x = 0.5
+        return x
+
+    def get_y_coord(self):
+        y = 0.5
+        return y
+
+    def get_battery_state(self):
+        bat = 0.47
+        return bat
+
+
+    def get_state_info(self):
+        # Get information, Dummy Variables for now
+
+        temp = self.get_temp()
+        x = self.get_x_coord()
+        y = self.get_y_coord()
+        _time = utime.gmtime()
+        battery = self.get_battery_state()
+        return temp, x, y, _time, battery
+
 
 if __name__ == '__main__':
     body = SwarmBody()
-
 
     try:
         print("[+] Setting Timer")
         while True:
             body.get_lidar()
-        #body.test_timer()
+        # body.test_timer()
     except:
         print("[-] Error!")
         print("[-] Exiting Immediately")

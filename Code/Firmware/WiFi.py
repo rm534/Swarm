@@ -11,7 +11,7 @@
 # Importing network to use the WLAN class, importing config to access the known networks, machine and time are standard
 # system libraries.
 from network import *
-from config import *
+from Config import *
 import time
 import machine
 
@@ -32,7 +32,7 @@ def setup():
     return wlan
 
 
-# Wifi connect function, reads available nets and compares to known networks located in config.py file
+# Wifi connect function, reads available nets and compares to known networks located in Config.py file
 # Connects if there is a known net
 def connect(known_nets=None):
     wifi = setup()  # Setting up a WLAN object via setup() function defined above

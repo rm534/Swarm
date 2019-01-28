@@ -1,4 +1,5 @@
-import Body
+
+import Behaviour
 
 VERSION = 0.0
 VERSION_DATE = "Nov 2018"
@@ -16,11 +17,11 @@ def info():
 
 
 if __name__ == "__main__":
-    body = Body.SwarmBody()
-    try:
-        body.test_timer()
-    except:
+    Behaviour.SwarmBehaviour()
 
+    try:
+        pass
+    except:
         print("[-] Error")
         print("[-] Exiting Immediately")
-        body.stop()
+
