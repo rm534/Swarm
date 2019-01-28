@@ -1,26 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="bfcefa29-3eb4-4c7d-9993-a97ebc4cb5d7" name="Default Changelist" comment="Noticed temp sensor was I2C, wrote new initialising&#10;function and added a new library for TMP102&#10;Added solar panel voltage reader function&#10;Added more code structure, including network setup and behaviour dependencies&#10;Tested state info and added code for collecting and sending state information">
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/Swarm.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/tmp102/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/tmp102/_tmp102.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/tmp102/alert.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/tmp102/conversionrate.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/tmp102/convertors.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/tmp102/extendedmode.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/tmp102/oneshot.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/tmp102/shutdown.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/Behaviour.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Behaviour.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/Body.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Body.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/Network.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Network.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/Sensing.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/ingestor.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/ingestor.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/messaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Messenger.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/wifi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/WiFi.py" afterDir="false" />
+    <list default="true" id="bfcefa29-3eb4-4c7d-9993-a97ebc4cb5d7" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/Code/libraries/CircuitPython_VL53L0X_Library.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code/libraries/VL53L0X.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Code/libraries/VL53LOX.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/Code Design.pdf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docs/ReadMe.txt" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -185,6 +171,11 @@
               <item name="Code" type="462c0819:PsiDirectoryNode" />
               <item name="libraries" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="SwarmBot" type="b2602c69:ProjectViewProjectNode" />
+              <item name="SwarmBot" type="462c0819:PsiDirectoryNode" />
+              <item name="docs" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
@@ -264,7 +255,7 @@
       <option name="presentableId" value="Default" />
       <updated>1541678248213</updated>
       <workItem from="1548351547881" duration="6637000" />
-      <workItem from="1548675206555" duration="260000" />
+      <workItem from="1548675206555" duration="527000" />
     </task>
     <task id="LOCAL-00001" summary="hello">
       <created>1543493211415</created>
@@ -315,11 +306,18 @@
       <option name="project" value="LOCAL" />
       <updated>1548352290836</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Noticed temp sensor was I2C, wrote new initialising&#10;function and added a new library for TMP102&#10;Added solar panel voltage reader function&#10;Added more code structure, including network setup and behaviour dependencies&#10;Tested state info and added code for collecting and sending state information">
+      <created>1548675687042</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1548675687042</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="10199000" />
+    <option name="totallyTimeSpent" value="10466000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -332,7 +330,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="22" width="1440" height="878" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info active="true" content_ui="combo" x="1177" y="73" width="218" height="570" id="Project" order="0" type="FLOATING" visible="true" weight="0.14455917" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -382,7 +379,8 @@
     <MESSAGE value="Added Firmware Directory for more structure&#10;Added send_update function in messenger to gather, pack and send information via mqtt" />
     <MESSAGE value="Added mqtt library" />
     <MESSAGE value="Removed uneccessary files" />
-    <option name="LAST_COMMIT_MESSAGE" value="Removed uneccessary files" />
+    <MESSAGE value="Noticed temp sensor was I2C, wrote new initialising&#10;function and added a new library for TMP102&#10;Added solar panel voltage reader function&#10;Added more code structure, including network setup and behaviour dependencies&#10;Tested state info and added code for collecting and sending state information" />
+    <option name="LAST_COMMIT_MESSAGE" value="Noticed temp sensor was I2C, wrote new initialising&#10;function and added a new library for TMP102&#10;Added solar panel voltage reader function&#10;Added more code structure, including network setup and behaviour dependencies&#10;Tested state info and added code for collecting and sending state information" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Code/test.py" />
