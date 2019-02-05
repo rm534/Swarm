@@ -11,3 +11,5 @@ Whenever a new edit or a task is being undertaken this procedure can be used:
 2. Edit code until ready for commit
 3. Commit code from your branch and open a pull request with any necessary comments
 4. 'Code Master' will review pull request and merge with master branch, your branch will then be deleted and changes will be logged in the master branch
+
+![Schematic of Code Design](docs/CodeDesign.png)
