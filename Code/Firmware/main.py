@@ -1,10 +1,12 @@
 
-import Behaviour
+import SwarmBot
+import Config
+
 
 VERSION = 0.0
 VERSION_DATE = "Nov 2018"
 Authors = ["Robin", "Sally", "James", "Ian", "Ben", "Fern", "Nick", "Billy"]
-DEVICE_ID = "SB001"
+DEVICE_ID = Config.config_firmware["device"]["devid"]
 
 
 def info():
@@ -17,11 +19,13 @@ def info():
 
 
 if __name__ == "__main__":
-    Behaviour.SwarmBehaviour()
+    swarmbot = SwarmBot.SwarmBot()
 
     try:
+        swarmbot.alive()
         pass
     except:
         print("[-] Error")
-        print("[-] Exiting Immediately")
+        print("[-] Die Immediately")
+        swarmbot.die()
 

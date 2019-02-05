@@ -27,6 +27,12 @@ config_firmware = {
                 "vhost" : "swarm",
                 "port" : 5672,
                 "server" : "35.164.26.30"
-                }
+            },
+            "device" : {
+                "devid" : 0x25
+
+            }
+
+
 }
 print(config_firmware["wifi"])

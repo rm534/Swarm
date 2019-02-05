@@ -1,13 +1,11 @@
 import Body
 import Network
 
-class SwarmBehaviour():
+class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
     def __init__(self):
-        self.body = Body.SwarmBody()
-        self.network = Network.SwarmNetwork()
+        pass
 
-        return True
 
     def get_state(self):
-        state = self.body.get_state_info()
-
+        state = self.get_state_info()
+        return state
