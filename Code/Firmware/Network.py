@@ -37,6 +37,13 @@ class SwarmNetwork(Messenger.SwarmMessenger):
         data = self.pack_state_info(temp, x, y, battery)
         self.send_prepack_msg(data, RABBITMQ_TOPIC, STATUS_MESSAGE)
 
+    def _alarm_send_state(self, alarm):
+        self.send_state_wifi()
+
+    def alarm_send_state(self, time):
+        alarm = Timer.Alarm(self._alarm_send_state, time=100, periodic=True)
+        return alarm
+
 
 if __name__ == "__main__":
     network = SwarmNetwork()

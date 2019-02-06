@@ -294,8 +294,8 @@ class SwarmBody():
         alarm = Timer.Alarm(self._alarm_test, 0.05, periodic=True)
         return alarm
 
-    def set_alarm_pos_test(self):
-        alarm = Timer.Alarm(self._alarm_test_pos, 2, periodic=True)
+    def set_alarm_pos_test(self, time):
+        alarm = Timer.Alarm(self._alarm_test_pos, time, periodic=True)
         return alarm
 
     def set_alarm_test_thread(self):
