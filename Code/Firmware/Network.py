@@ -2,49 +2,42 @@ import Messenger
 import WiFi
 import Config
 import utime
-import ustruct
+from ustruct import pack
 from Body import *
-from Network import *
-import slogger as logging
+import slogger
+from machine import Timer
 
 RABBITMQ_TOPIC = "demo.key"
 STATE_PACK_CODE = ">ffff"
 STATUS_MESSAGE = 0x01
-logging.basic_config(level=logging.NOTSET)
-logger = logging.get_logger("NETWORK")
+slogger.basic_config(level=slogger.NOTSET)
+logger = slogger.get_logger("NETWORK")
 
 
-class SwarmNetwork():
+class SwarmNetwork(Messenger.SwarmMessenger):
     def __init__(self):
+        Messenger.SwarmMessenger.__init__(self)
         WiFi.connect()
-        self.messenger = Messenger.Messenger("22", Config.config_firmware["mqtt"])
-        logger.debug("__init__", "Network setup complete")
 
         return
 
-    def get_state_info(self):
-        # Get information, Dummy Variables for now
-
-        temp = 0.7
-        x = 2.3
-        y = 3.2
-        battery = 2.2
-        logger.debug("get_state_info", "state acquired | temp: {} x: {} y: {} battery: {}".format(temp, x, y, battery))
-        return temp, x, y, battery
+    def init_all_network(self):
+        WiFi.connect()
 
     def pack_state_info(self, temp, x, y, battery):
-        data = ustruct.pack(STATE_PACK_CODE, temp, x, y, battery)
-        logger.debug("pack_state_info", "state info packed successfully")
+        data = pack(STATE_PACK_CODE, temp, x, y, battery)
+
         return data
 
-    def send_state_wifi(self):
-        temp, x, y, battery = self.get_state_info()
-        data = self.pack_state_info(temp, x, y, battery)
-        try:
-            self.messenger.send_prepack_msg(data, RABBITMQ_TOPIC, STATUS_MESSAGE)
-            logger.debug("send_state_wifi", "sent state sucessfully")
-            return True
-        except:
-            logger.debug("send_state_wifi", "send failed")
+    def send_state_wifi(self, alarm):
+        self._send_state_wifi(temp=22, x=2.3, y=3.2, battery=3.3)
+        print("hello")
 
-            return False
+    def _send_state_wifi(self, temp, x, y, battery):
+        data = self.pack_state_info(temp, x, y, battery)
+        self.send_prepack_msg(data, RABBITMQ_TOPIC, STATUS_MESSAGE)
+
+
+if __name__ == "__main__":
+    network = SwarmNetwork()
+    network.send_state_wifi()

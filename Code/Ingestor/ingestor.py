@@ -42,19 +42,19 @@ class Ingestor():
         if message_type == 0x01:
             temp, x, y, battery = struct.unpack(">ffff", body[HEADER_BYTE_LENGTH:])
 
-            self.csv_write(mid, dev_ID, temp, x, y, battery)
+            self.csv_write(mid, dev_ID,ts,ms, temp, x, y, battery)
 
         return
 
-    def csv_write(self, mid, dev_ID, temp, x, y, battery):
+    def csv_write(self, mid, dev_ID,ts, ms, temp, x, y, battery):
         file = open('temp_test.csv', 'a')
-        header = ['MessageID', 'Device', 'Temperature', 'x', 'y', 'battery']
+        header = ['MessageID', 'Device',"ts", "ms", 'Temperature', 'x', 'y', 'battery']
 
         with file:
             writer = csv.DictWriter(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, fieldnames=header)
             writer.writeheader()
             writer.writerow(
-                {"MessageID": mid, "Device": dev_ID, "Temperature": temp, "x": x, "y": y, "battery": battery})
+                {"MessageID": mid, "Device": dev_ID,"ts":ts, "ms":ms, "Temperature": temp, "x": x, "y": y, "battery": battery})
         return
 
     def consume(self):

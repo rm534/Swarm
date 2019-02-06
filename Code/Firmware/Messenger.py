@@ -1,26 +1,29 @@
 from mqtt import *
 from Config import *
-import utime
-from machine import RTC, rng
 from ustruct import pack
+import utime
+import machine
 import Config
+import slogger as logging
 
 HEADER_PACK_FORMAT = ">QhLhh"
 STATUS_MESSAGE = 0x01
-logging.basic_config(level=logging.NOTSET)
-logger = logging.get_logger("MESSENGER")
 
-class Messenger():
-    def __init__(self, dev_ID, conf):
-        self.dev_ID = dev_ID
-        self.conf = conf
+
+class SwarmMessenger():
+    def __init__(self):
+        self.init_all_messenger()
         self.init_mqtt()
-        self.rtc = RTC()
-        self.dev_ID = Config.config_firmware["device"]["devid"]
+
         return
 
+    def init_all_messenger(self):
+
+        self.dev_ID = Config.config_firmware["device"]["devid"]
+        self.rtc = machine.RTC()
+
     def init_mqtt(self):
-        self.client = MQTTClient("device_id", "35.164.26.30", user="robin", password="focker12", port=1883)
+        self.client = MQTTClient(self.dev_ID, "34.221.207.211", user="robin", password="focker12", port=1883)
         self.client.set_callback(self.sub_cb)
         self.client.connect()
         self.client.subscribe(topic="demo.key")
@@ -29,26 +32,25 @@ class Messenger():
         print(msg)
 
     def make_header(self, message_type):
-        ts = utime.mktime()
         now = self.rtc.now()
-        ms = int(now[6])
-        mid = rng()
+        ts = utime.mktime(now)
 
-        return pack(HEADER_PACK_FORMAT, ts, ms, mid, self.dev_ID, message_type)
+        ms = int(now[6])
+        mid = machine.rng()
+
+        return pack(HEADER_PACK_FORMAT, ts, ms, mid, int(self.dev_ID), message_type)
 
     def send_prepack_msg(self, msg, topic, message_type):
-        header = self.make_header(message_type)
-        self.client.publish(topic=topic, msg=header+msg)
+        header = self.make_header(message_type=message_type)
+        self.client.publish(topic=topic, msg=header + msg)
 
     def send_msg(self, topic, msg):
         self.client.publish(topic=topic, msg=msg)
         return
 
 
-
-
 if __name__ == '__main__':
-    messenger = Messenger('22', config_firmware["mqtt"])
+    messenger = SwarmMessenger('22', config_firmware["mqtt"])
 
     while True:
         pass

@@ -10,7 +10,10 @@ from machine import PWM
 import mpu6050
 import sys
 import VL53L0X
-#from tmp102 import _tmp102
+import _thread
+# from tmp102 import _tmp102
+import math
+import MPU6050 as mpu6050
 
 # Setting Constants for Serial Busses
 I2C_BUS_0 = const(0)
@@ -27,59 +30,39 @@ TEMP_ADDR = const(0x48)
 # Class for movement and Sensing of Robot
 class SwarmBody():
     # Init function initialising pins and sensors
-    def __init__(self, temp_SDA="P9", temp_SCL="P21", motor_pin1='P10', motor_pin2='P11', motor_pin3='P12', motor_pin4='P6',
-                 lidar_SDA='P7',
-                 lidar_SCL='P22',
-                 lidar_DIO1='P2', lidar_DIO2='P3', lidar_DIO3='P4', lidar_DIO4='P5', gyro_SDA='P23', gyro_SCL='P22',
-                 temp_AD='P13'):
+    def __init__(self, motor_pin1='P10', motor_pin2='P11', motor_pin3='P12',
+                 motor_pin4='P6',
+                 SDA='P7',
+                 SCL='P22',
+                 lidar_DIO1='P2', lidar_DIO2='P3', lidar_DIO3='P4', lidar_DIO4='P5'):
+        self.initialise_I2C(SDA, SCL)
         # self.initialise_motor(motor_pin1, motor_pin2, motor_pin3, motor_pin4)
-        self.initialise_gyro(gyro_SDA, gyro_SCL)
-        #self.initialise_lidar(lidar_SDA, lidar_SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
-        #self.initialise_temp(temp_SDA, temp_SCL)
+        # self.initialise_gyro()
+        self.initialise_lidar(SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
+        # self.initialise_temp()
+        self.gyro_data = 0
+        self.robot_move_flag = 0
+        self.x = 0
+        self.y = 0
+        self.temp = 0
+        self.battery = 0
 
     def initialise_solar_panel_monitor(self, solar_panel_AD):
         self.solar_panel_AD = solar_panel_AD
         self.solar_panel_adc = machine.ADC()
         self.solar_panel_APIN = self.solar_panel_adc.channel(pin=self.solar_panel_AD)
 
+    def initialise_I2C(self, SDA, SCL, baudrate=9600):
+        self.baudrate = baudrate
+        self.SDA = SDA
+        self.SCL = SCL
+        self.I2C = I2C(2)
+        self.I2C.init(I2C.MASTER, baudrate=self.baudrate, pins=(self.SDA, self.SCL))
+
     # TODO: Battery Monitor code
     # Function for initialising all pin functionality for lidar
-    def _set_lidar(self, ID, lidar_DIO):
-        if ID==1:
-            self.lidar_DIO1.value(0)
-            self.lidar_DIO1 = Pin(lidar_DIO, mode=Pin.IN)
-            self.write_address(LIDAR1_ADDR)
-            self.tof1 = VL53L0X.VL53L0X(i2c=self.lidar_I2C, address=LIDAR1_ADDR)
-            device = self.lidar_I2C.scan()
-            print(device)
-        elif ID==2:
-            self.lidar_DIO2.value(0)
-            self.lidar_DIO2 = Pin(lidar_DIO, mode=Pin.IN)
-            self.write_address(LIDAR2_ADDR)
-            self.tof2 = VL53L0X.VL53L0X(i2c=self.lidar_I2C, address=LIDAR2_ADDR)
-            device = self.lidar_I2C.scan()
-            print(device)
-        elif ID==3:
-            self.lidar_DIO3.value(0)
-            self.lidar_DIO3 = Pin(lidar_DIO, mode=Pin.IN)
-            self.write_address(LIDAR3_ADDR)
-            self.tof3 = VL53L0X.VL53L0X(i2c=self.lidar_I2C, address=LIDAR3_ADDR)
-            device = self.lidar_I2C.scan()
-            print(device)
 
-        elif ID==4:
-            self.lidar_DIO4.value(0)
-            self.lidar_DIO4 = Pin(lidar_DIO, mode=Pin.IN)
-            self.write_address(LIDAR4_ADDR)
-            self.tof4 = VL53L0X.VL53L0X(i2c=self.lidar_I2C, address=LIDAR4_ADDR)
-            device = self.lidar_I2C.scan()
-            print(device)
-
-    def initialise_lidar(self, lidar_SDA, lidar_SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4,
-                         lidar_baudrate=9600):
-        self.lidar_SDA = lidar_SDA
-        self.lidar_SCL = lidar_SCL
-        self.lidar_baudrate = lidar_baudrate
+    def initialise_lidar(self, SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
 
         self.lidar_DIO1 = Pin(lidar_DIO1, mode=Pin.OUT)
         self.lidar_DIO2 = Pin(lidar_DIO2, mode=Pin.OUT)
@@ -89,22 +72,45 @@ class SwarmBody():
         self.lidar_DIO2.value(0)
         self.lidar_DIO3.value(0)
         self.lidar_DIO4.value(0)
-        self.lidar_I2C = I2C(2)
-        self.lidar_I2C.init(I2C.MASTER, baudrate=self.lidar_baudrate, pins=(self.lidar_SDA, self.lidar_SCL))
 
         self._set_lidar(ID=1, lidar_DIO=lidar_DIO1)
         self._set_lidar(ID=2, lidar_DIO=lidar_DIO2)
         self._set_lidar(ID=3, lidar_DIO=lidar_DIO3)
         self._set_lidar(ID=4, lidar_DIO=lidar_DIO4)
 
+    def _set_lidar(self, ID, lidar_DIO):
+        if ID == 1:
+            self.lidar_DIO1.value(0)
+            self.lidar_DIO1 = Pin(lidar_DIO, mode=Pin.IN)
+            self.write_address(LIDAR1_ADDR)
+            self.tof1 = VL53L0X.VL53L0X(i2c=self.I2C, address=LIDAR1_ADDR)
+            device = self.I2C.scan()
+            print(device)
+        elif ID == 2:
+            self.lidar_DIO2.value(0)
+            self.lidar_DIO2 = Pin(lidar_DIO, mode=Pin.IN)
+            self.write_address(LIDAR2_ADDR)
+            self.tof2 = VL53L0X.VL53L0X(i2c=self.I2C, address=LIDAR2_ADDR)
+            device = self.I2C.scan()
+            print(device)
+        elif ID == 3:
+            self.lidar_DIO3.value(0)
+            self.lidar_DIO3 = Pin(lidar_DIO, mode=Pin.IN)
+            self.write_address(LIDAR3_ADDR)
+            self.tof3 = VL53L0X.VL53L0X(i2c=self.I2C, address=LIDAR3_ADDR)
+            device = self.I2C.scan()
+            print(device)
 
-
-
-
-
+        elif ID == 4:
+            self.lidar_DIO4.value(0)
+            self.lidar_DIO4 = Pin(lidar_DIO, mode=Pin.IN)
+            self.write_address(LIDAR4_ADDR)
+            self.tof4 = VL53L0X.VL53L0X(i2c=self.I2C, address=LIDAR4_ADDR)
+            device = self.I2C.scan()
+            print(device)
 
     def write_address(self, new_addr):
-        self.lidar_I2C.writeto_mem(LIDAR_DEFAULT_ADDR, LIDAR_ADDR_REGISTER, new_addr & 0x7F)
+        self.I2C.writeto_mem(LIDAR_DEFAULT_ADDR, LIDAR_ADDR_REGISTER, new_addr & 0x7F)
 
     # Function for initialising all pin functionality for the motor driver
     def initialise_motor(self, motor_pin1, motor_pin2, motor_pin3, motor_pin4):
@@ -117,25 +123,39 @@ class SwarmBody():
         self.motor_stop()
 
     # Function for initialising all pin functionality for the gyro
-    def initialise_gyro(self, gyro_SDA, gyro_SCL, gyro_baudrate=20000):
-        self.gyro_SDA = gyro_SDA
-        self.gyro_SCL = gyro_SCL
-        self.gyro_baudrate = gyro_baudrate
 
-        self.gyro_I2C = I2C(I2C_BUS_0)
-        self.gyro_I2C.init(I2C.MASTER, baudrate=self.gyro_baudrate, pins=(self.gyro_SDA, self.gyro_SCL))
-        self.gyro = mpu6050.accel(self.gyro_I2C)
+    def initialise_gyro_new(self):
+        self.mpu = mpu6050.MPU6050()
+        self.mpu.dmpInitialize()
+        self.mpu.setDMPEnabled(True)
+
+        self.packetSize = self.mpu.dmpGetFIFOPacketSize()
+
+        i = 0  # iteration count
+        sum_yaw = 0  # summing totals to calculate the mean
+        current_yaw = 0  # variable to be updated for every new reading
+        fifoCount = self.mpu.getFIFOCount()  #
+        while fifoCount < self.packetSize:  # major oscillations without this
+            fifoCount = self.mpu.getFIFOCount()  #
+
+        for i in range(0, 600):
+            result = self.mpu.getFIFOBytes(self.packetSize)
+            q = self.mpu.dmpGetQuaternion(result)
+            g = self.mpu.dmpGetGravity(q)
+            ypr = self.mpu.dmpGetYawPitchRoll(q, g)
+            yaw = ypr['yaw'] * 180 / math.pi
+
+            fifoCount -= self.packetSize
+        for i in range(600, 700):
+            sum_yaw += yaw
+            if i == 700:
+                self.avg_yaw = sum_yaw / 100  # avg_yaw = the zero error
+
+        self.alarm_gyro = Timer.Alarm(self._alarm_get_angle, 0.05, periodic=True)
 
     # Function for initialising pin functionality for the temperature sensor
-    def initialise_temp(self, temp_SDA, temp_SCL, temp_baudrate=20000):
-        self.temp_SDA = temp_SDA
-        self.temp_SCL = temp_SCL
-        self.temp_baudrate = temp_baudrate
-        self.temp_I2C = I2C(I2C_BUS_0)
-        self.temp_I2C.init(I2C.MASTER, baudrate=self.temp_baudrate, pins=(self.temp_SDA, self.temp_SCL))
-        self.temp_sensor = _tmp102.Tmp102(self.temp_I2C, TEMP_ADDR)
-
-
+    def initialise_temp(self):
+        self.temp_sensor = _tmp102.Tmp102(self.I2C, TEMP_ADDR)
 
     # Function for stopping all motor function
     def motor_stop(self):
@@ -199,85 +219,100 @@ class SwarmBody():
         print("data_tof2:", data_tof2)
         print("data_tof3:", data_tof3)
         print("data_tof4:", data_tof4)
-        return data_tof1, data_tof2, data_tof3, data_tof4 #in mm
+        return data_tof1, data_tof2, data_tof3, data_tof4  # in mm
 
-    #Function to get solar panel voltage throughout the voltage divider
+    # Function to get solar panel voltage throughout the voltage divider
     def get_solar_panel_vol(self):
         vol = self.solar_panel_APIN.value()
         return vol
 
-    # TODO: Write angle calculation funciton
+    # TODO: Write angle calculation function
+    def _alarm_get_angle(self, alarm):
+        self.get_angle()
+
     def get_angle(self):
         # get analog read of gyro minus the zero voltage point
         # Divide this by the gyro sensitivity
         # Add this to the current angle, keep track of global current angle
-        return
 
-    # Function to get gyro reading
-    def get_gyro(self):
-        acc = self.gyro.get_values()
-        print("[+] Acc Reading: ", acc)
-        return acc
+        fifoCount = self.mpu.getFIFOCount()  #
+        while fifoCount < self.packetSize:  # major oscillations without this
+            fifoCount = self.mpu.getFIFOCount()  #
+
+        result = self.mpu.getFIFOBytes(self.packetSize)
+        q = self.mpu.dmpGetQuaternion(result)
+        g = self.mpu.dmpGetGravity(q)
+        ypr = self.mpu.dmpGetYawPitchRoll(q, g)
+        yaw = ypr['yaw'] * 180 / math.pi
+
+        current_yaw = yaw - self.avg_yaw  # ===  [ robot can only start moving at this point ] === #
+        self.robot_move_flag = 1
+        print(current_yaw)
+        self.gyro_data = current_yaw
+        return current_yaw
 
     # Function to get temperature readings
     def get_temp(self):
         temp = self.temp_sensor.temperature
+        self.temperature = temp
         print("[+] Temp Reading: ", temp)
         return temp
 
-    # Function to test timers for all different sensors
-    def test_timer(self):
-         self.gyro_timer = Timer.Alarm(self.get_gyro, ms=300, periodic=True)
-         self.lidar_timer = Timer.Alarm(self.get_lidar, s=1, periodic=True)
-         self.temp_timer = Timer.Alarm(self.get_temp, s=2, periodic=True)
-
-    # Function to test motor functionality
-    def test_motor(self):
-        self.move_forward(1, 1)
-        self.move_backward(1, 1)
-        self.rotate_clockwise(90, 2)
-        self.rotate_anti_clockwise(90, 2)
 
     # Function to stop all body functions, movement and sensing
     def stop(self):
-        self.gyro_timer.cancel()
-        self.lidar_timer.cancel()
-        self.temp_timer.cancel()
         self.motor_stop()
         sys.exit()
 
+    # TODO: implement the route method
     def get_pos(self):
-        #integrate route2 function -> change name possibly
-        angle = self.get_angle()
+        # integrate route2 function -> change name possibly
+        angle = self.gyro_data
         l1, l2, l3, l4 = self.get_lidar()
-        x, y = self.route2(angle, l1, l2, l3, l4)
-
+        x, y = Position.route2(angle, l1, l2, l3, l4)
+        print("x:{} || y:{}".format(x, y))
+        self.x = x
+        self.y = y
         return x, y
 
     def get_battery_state(self):
         bat = 0.47
+        self.battery = bat
         return bat
 
-
-    def get_state_info(self):
+    def _get_state_info(self):
         # Get information, Dummy Variables for now
+        return self.temp, self.x, self.y, self.battery
 
-        temp = self.get_temp()
-        x = self.get_x_coord()
-        y = self.get_y_coord()
-        _time = utime.gmtime()
-        battery = self.get_battery_state()
-        return temp, x, y, _time, battery
+    def _alarm_test(self, alarm):
+        self.get_gyro()
+
+    def _alarm_test_pos(self, alarm):
+        self.get_pos()
+
+    def set_alarm_gyro_test(self):
+        alarm = Timer.Alarm(self._alarm_test, 0.05, periodic=True)
+        return alarm
+
+    def set_alarm_pos_test(self):
+        alarm = Timer.Alarm(self._alarm_test_pos, 2, periodic=True)
+        return alarm
+
+    def set_alarm_test_thread(self):
+        alarm = Timer.Alarm(self.test_thread, 0.05, periodic=True)
+        return alarm
+
+    def test_thread(self, alarm):
+        thread = _thread.start_new_thread(self.get_gyro)
+        thread.exit()
 
 
 if __name__ == '__main__':
     body = SwarmBody()
-    body.get
-
 
     print("[+] Setting Timer")
     while True:
-        #body.get_lidar()
+        # body.get_lidar()
         body.get_gyro()
-        #body.get_temp()
+        # body.get_temp()
     # body.test_timer()
