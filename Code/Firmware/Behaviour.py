@@ -42,6 +42,17 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork,Bluetooth_Comms.SwarmB
 
         pass
 
+    #Outputs a map on the terminal
+    def Display_Map(self,Map):
+        tms = "";
+        for i in range (0,Tile_Num_X):#
+            if i != 0:
+                tms +="\n";
+            for j in range(0,Tile_Num_Y):
+                tms += str(Map[i][j])+",";
+        print(tms);
+
+
     def get_state(self):
         state = self._get_state_info()
 
