@@ -12,7 +12,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
         Network.SwarmNetwork.__init__(self)
         self.bluetooth = Bluetooth();
         self.Collision_Timer = 0;
-        self.Tile_Transmit_Timer = 0;
+        self.Tile_Transmit_Timer = 1;
         self.bl_threshold = -35;
         pass
 

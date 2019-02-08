@@ -7,13 +7,13 @@ from machine import I2C
 from machine import Timer
 from micropython import const
 from machine import PWM
-import mpu6050
+#import Code.Firmware.mpu6050 as
 import sys
-import VL53L0X
+import Code.Firmware.VL53L0X as VL53L0X
 import _thread
 # from tmp102 import _tmp102
 import math
-import MPU6050 as mpu6050
+import Code.Firmware.mpu6050 as mpu6050
 
 # Setting Constants for Serial Busses
 I2C_BUS_0 = const(0)
