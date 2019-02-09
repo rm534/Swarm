@@ -11,10 +11,10 @@ from machine import Timer
 
 class SwarmBot(Behaviour.SwarmBehaviour):
     def __init__(self):
-        slogger.basic_config(level=slogger.NOTSET)
-        self.logger = slogger.get_logger("NETWORK")
-        Behaviour.SwarmBehaviour.__init__(self)
-
+        #slogger.basic_config(level=slogger.NOTSET)
+        #self.logger = slogger.get_logger("NETWORK")
+        #Behaviour.SwarmBehaviour.__init__(self)
+        1==1;
     def alive(self):
         self.logger.debug("alive","Waking Up...")
         # get initial position

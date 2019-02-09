@@ -8,8 +8,8 @@ import Bluetooth_Comms
 
 class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
     def __init__(self):
-        Body.SwarmBody.__init__(self)
-        Network.SwarmNetwork.__init__(self)
+        #Body.SwarmBody.__init__(self)
+        #Network.SwarmNetwork.__init__(self)
         #Bluetooth_Comms.SwarmBluetooth.__init__(self)
 
         self.Collision_Timer = 0;
@@ -35,10 +35,10 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
         self.speed = 1;
         self.delta_dist = 1;
 
-        self.Map_Temp = [[0]*Tile_Num_X for _ in range(Tile_Num_Y)];
-        self.Map_Bounty = [[0]*Tile_Num_X for _ in range(Tile_Num_Y)];
-        self.Map_Assignement = [[0]*Tile_Num_X for _ in range(Tile_Num_Y)];
-        self.Map_Light = [[0]*Tile_Num_X for _ in range(Tile_Num_Y)];
+        self.Map_Temp = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
+        self.Map_Bounty = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
+        self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
+        self.Map_Light = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
         pass
 

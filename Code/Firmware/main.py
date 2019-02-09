@@ -3,12 +3,14 @@ import Body
 import pycom
 import Network
 from machine import Timer
-import Code.Firmware.SwarmBot
+#import Code.Firmware.SwarmBot
 import Config
 import Behaviour
 import Bluetooth_Comms
-import Code.Firmware.Behaviour
-import Code.Firmware.Bluetooth_Comms
+import SwarmBot
+import uos
+#import Code.Firmware.Behaviour
+#import Code.Firmware.Bluetooth_Comms
 
 #Test Edit
 
@@ -108,13 +110,13 @@ def current_full_main():
 
 def test1_transmit():
 	#Initialise a body object
-    #swarmbody = Body.SwarmBody();
+    swarmbody = Body.SwarmBody();
     #Initalise a bluetooth controller
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
     #Initialise a behaviour controller
     swarmbeh = Behaviour.SwarmBehaviour();
     #Sets initial destination
-    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+
 
     Timer = 150;
     rx = 0;
@@ -136,27 +138,30 @@ def test1_transmit():
     		swarmbt.Broadcast_Tile_Selection([rx,ry],1);
         elif Timer == 50:
     		#Transmit A Tile Deselection
-    		swarmbt.Broadcast_Tile_Selection([rx,ry],0);#
+    		swarmbt.Broadcast_Tile_Selection([rx,ry],0);
+        elif Timer == 0:
+            Timer = 32000;
     	Timer-=1;
 
 def test1_recieve():
 	#Initialise a body object
-    #swarmbody = Body.SwarmBody();
+    swarmbody = Body.SwarmBody();
     #Initalise a bluetooth controller
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
     #Initialise a behaviour controller
     swarmbeh = Behaviour.SwarmBehaviour();
     #Sets initial destination
-    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
 
     while 1==1:
-        swarmbt.Handle_Bluetooth_Behaviour()
+        swarmbt.Handle_Bluetooth_Behaviour(swarmbeh);
 
 
 if __name__ == "__main__":
     ##Swarmbot is initialised
-    swarmbot = SwarmBot.SwarmBot()
-    swarmbot.alive()
+    #swarmbot = SwarmBot.SwarmBot()
+    #swarmbot.alive()
+    #swarmbt = Bluetooth_Comms.SwarmBluetooth();
 
+    #swarmbeh = Behaviour.SwarmBehaviour();
     print("SwarmBot is Testing -_-");
     test1_recieve();
