@@ -1,13 +1,14 @@
 
-
+import Body
 import pycom
-import Code.Firmware.Network
+import Network
 from machine import Timer
 import Code.Firmware.SwarmBot
-import Code.Firmware.Config as Config
-
-#import Code.Firmware.Behaviour
-#import Code.Firmware.Bluetooth_Comms
+import Config
+import Behaviour
+import Bluetooth_Comms
+import Code.Firmware.Behaviour
+import Code.Firmware.Bluetooth_Comms
 
 #Test Edit
 
@@ -107,7 +108,7 @@ def current_full_main():
 
 def test1_transmit():
 	#Initialise a body object
-    swarmbody = Body.SwarmBody();
+    #swarmbody = Body.SwarmBody();
     #Initalise a bluetooth controller
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
     #Initialise a behaviour controller
@@ -115,32 +116,32 @@ def test1_transmit():
     #Sets initial destination
     swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
 
-	Timer = 150;
-	rx = 0;
-	ry = 0;
-	rx2 = 0;
-	ry2 = 0;
+    Timer = 150;
+    rx = 0;
+    ry = 0;
+    rx2 = 0;
+    ry2 = 0;
 	#Currently does one of each transmission type
-	while 1==1:
-		if Timer == 150:
-			#Transmit A Tile Update
-			rx2 = int((uos.urandom(1)[0]/256) * 10);
-			ry2 = int((uos.urandom(1)[0]/256) * 10);
-			lum = int((uos.urandom(1)[0]/256) * 10);
-			swarmbt.Start_Transmit_Tile_Update(rx2,ry2,lum,15);
-		elif Timer == 100:
-			rx = int((uos.urandom(1)[0]/256) * 10);
-			ry = int((uos.urandom(1)[0]/256) * 10);
-			#Transmit A Tile Selection
-			swarmbt.Broadcast_Tile_Selection([rx,ry],1);
-		elif Timer == 50;
-			#Transmit A Tile Deselection
-			swarmbt.Broadcast_Tile_Selection([rx,ry],0);#
-		Timer-=1;
+    while 1==1:
+        if Timer == 150:
+    		#Transmit A Tile Update
+        	rx2 = int((uos.urandom(1)[0]/256) * 10);
+        	ry2 = int((uos.urandom(1)[0]/256) * 10);
+        	lum = int((uos.urandom(1)[0]/256) * 10);
+        	swarmbt.Start_Transmit_Tile_Update(rx2,ry2,lum,15);
+        elif Timer == 100:
+    		rx = int((uos.urandom(1)[0]/256) * 10);
+    		ry = int((uos.urandom(1)[0]/256) * 10);
+    		#Transmit A Tile Selection
+    		swarmbt.Broadcast_Tile_Selection([rx,ry],1);
+        elif Timer == 50:
+    		#Transmit A Tile Deselection
+    		swarmbt.Broadcast_Tile_Selection([rx,ry],0);#
+    	Timer-=1;
 
 def test1_recieve():
 	#Initialise a body object
-    swarmbody = Body.SwarmBody();
+    #swarmbody = Body.SwarmBody();
     #Initalise a bluetooth controller
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
     #Initialise a behaviour controller
@@ -148,13 +149,14 @@ def test1_recieve():
     #Sets initial destination
     swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
 
-	while 1==1:
-		swarmbt.Handle_Bluetooth_Behaviour()
+    while 1==1:
+        swarmbt.Handle_Bluetooth_Behaviour()
 
 
 if __name__ == "__main__":
     ##Swarmbot is initialised
-    #swarmbot = SwarmBot.SwarmBot()
-    #swarmbot.alive()
+    swarmbot = SwarmBot.SwarmBot()
+    swarmbot.alive()
 
     print("SwarmBot is Testing -_-");
+    test1_recieve();

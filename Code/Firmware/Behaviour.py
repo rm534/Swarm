@@ -6,11 +6,11 @@ import Bluetooth_Comms
 
 
 
-class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork,Bluetooth_Comms.SwarmBluetooth):
+class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
     def __init__(self):
         Body.SwarmBody.__init__(self)
         Network.SwarmNetwork.__init__(self)
-        Bluetooth_Comms.SwarmBluetooth.__init__(self)
+        #Bluetooth_Comms.SwarmBluetooth.__init__(self)
 
         self.Collision_Timer = 0;
         self.Target_Destination = [0,0];
@@ -70,11 +70,11 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork,Bluetooth_Comms.SwarmB
         self.Map_Assignement[self.Target_Destination[0],self.Target_Destination[1]] = 0;
         Bluetooth_obj.Broadcast_Tile_Selection(self.Target_Destination,0);
         for i in range(0,self.Tile_Num_X):
-       			for j in range(0,self.Tile_Num_Y):
-       				bt = self.Map_Bounty[i][j];
-                    bt_p_light = bt + self.Map_Light[i][j] * (1/Swarmbot_obj.battery) *self.Light_Weighting;
-                    if Swarmbot_obj.battery < 10:
-                        bt_p_light = self.Map_Light[i][j] * (1/Swarmbot_obj.battery) *self.Light_Weighting;
+            for j in range(0,self.Tile_Num_Y):
+                bt = self.Map_Bounty[i][j];
+                bt_p_light = bt + self.Map_Light[i][j] * (1/Swarmbot_obj.battery) *self.Light_Weighting;
+                if Swarmbot_obj.battery < 10:
+                    bt_p_light = self.Map_Light[i][j] * (1/Swarmbot_obj.battery) *self.Light_Weighting;
                     #Finding distance between us and a target tiles
                     xl = i*self.Arena_Grid_Size_X - self.Internal_X;
                     yl = j*self.Arena_Grid_Size_Y - self.Internal_Y;
@@ -83,11 +83,11 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork,Bluetooth_Comms.SwarmB
                     bt_dmod = (bt_p_light/dist1)
                     #Unassign ourselves from our last target
 
-                    if bt_dmod > tempBounty and (self.Map_Assignement[i][j] != 1 or (self.Target_Destination[0] == i and self.Target_Destination[1] == j)):
-                        tempBounty = bt_dmod
-                        self.Target_Destination[0] = i;
-                        self.Target_Destination[1] = j;
-                        self.Map_Assignement[i][j] = 1;
+                if bt_dmod > tempBounty and (self.Map_Assignement[i][j] != 1 or (self.Target_Destination[0] == i and self.Target_Destination[1] == j)):
+                    tempBounty = bt_dmod
+                    self.Target_Destination[0] = i;
+                    self.Target_Destination[1] = j;
+                    self.Map_Assignement[i][j] = 1;
 
         ##Alerts other robos' of its tile intent.
         Bluetooth_obj.Broadcast_Tile_Selection(self.Target_Destination,1);
@@ -152,7 +152,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork,Bluetooth_Comms.SwarmB
                 self.Collision_Timer -= 1;
                 #The robot moves away from its current target
                 Swarmbot_obj.move_backward(self.speed,self.delta_dist);
-            else
+            else:
                 #If the collision timer is 1
                 #Choose a new Target_Destination
                 self.Choose_Target_Square(self.Map_Bounty);

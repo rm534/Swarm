@@ -103,7 +103,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                         if Collision_Timer == 0:
                             Collision_Timer = 20;
                         #Unless we are alreay in one, then we cancel it and restart normal movement
-                        else
+                        else:
                             Collision_Timer = 0;
                     print(bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL))
                     name = bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL);
