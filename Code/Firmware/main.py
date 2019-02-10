@@ -1,4 +1,5 @@
 
+from network import Bluetooth
 import Body
 import pycom
 import Network
@@ -135,10 +136,11 @@ def test1_transmit():
     		rx = int((uos.urandom(1)[0]/256) * 10);
     		ry = int((uos.urandom(1)[0]/256) * 10);
     		#Transmit A Tile Selection
-    		swarmbt.Broadcast_Tile_Selection([rx,ry],1);
+    		#swarmbt.Broadcast_Tile_Selection([rx,ry],1);
         elif Timer == 50:
     		#Transmit A Tile Deselection
-    		swarmbt.Broadcast_Tile_Selection([rx,ry],0);
+    	    #swarmbt.Broadcast_Tile_Selection([rx,ry],1);
+            1==1;
         elif Timer == 0:
             Timer = 32000;
     	Timer-=1;
@@ -155,6 +157,39 @@ def test1_recieve():
     while 1==1:
         swarmbt.Handle_Bluetooth_Behaviour(swarmbeh);
 
+def test0_transmit():
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    while 1==1:
+        swarmbt.Broadcast_Tile_Selection([2,2],0);
+
+
+
+def transmit_basic():
+    abluetooth = Bluetooth()
+
+    abluetooth.set_advertisement(name="a", manufacturer_data="l", service_data="99999")
+    abluetooth.advertise(True)
+    while True:
+        1==1;
+
+
+#To select a square then simulate moving towards it while makling transmission the entire timer
+def test2_both():
+	#Initialise a body object
+    swarmbody = Body.SwarmBody();
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+
+    while True:
+
+
+
+def test2_monitor():
+
 
 if __name__ == "__main__":
     ##Swarmbot is initialised
@@ -164,4 +199,4 @@ if __name__ == "__main__":
 
     #swarmbeh = Behaviour.SwarmBehaviour();
     print("SwarmBot is Testing -_-");
-    test1_recieve();
+    test1_transmit();

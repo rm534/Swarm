@@ -22,60 +22,55 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
     #We don't actually need to send temperature information in this message as other bots need not know
     def Start_Transmit_Tile_Update(self,RX,RY,Luminosity,Time_Steps):
         print("Tile Transmit Update" + str(RX)+"/"+str(RY));
-        #Enalbes Bluetooth
-        self.bluetooth.advertise(True)
-        #Sets the advertisment that we want, the method work up to 999, uses 001, 010, 100
+
+        #Sets the advertisment that we want, the method work up to 99, uses 01, 10
 
         if RX < 10:
-            RXM = "00"+str(RX);
-        elif RX < 100:
             RXM = "0"+str(RX);
         else:
             RXM = str(RX);
 
         if RY < 10:
-            RYM = "00"+str(RY);
-        elif RY < 100:
             RYM = "0"+str(RY);
         else:
             RYM = str(RY);
 
 
-        ss = RXM + "/" + RYM +"/"+str(Luminosity);
+        ss = RXM + RYM +str(Luminosity);
 
-        self.bluetooth.set_advertisement(name="ad_map", manufacturer_data="lopy_v1", service_data="g")
+        self.bluetooth.set_advertisement(name="a_mp", manufacturer_data="l", service_data=ss)
+        self.bluetooth.advertise(True)
         #Sets teh timer for how long we should transmit
-        self.Tile_Transmit_Timer = Time_Steps;
+        self.Tile_Transmit_Timer = 15;
+        return -1;
 
 
+    def test_transmit(self):
+        self.bluetooth.set_advertisement(name="a", manufacturer_data="l", service_data="99999")
+        self.bluetooth.advertise(True)
     #Broadcasts the selection of a tile as a robots destination
     def Broadcast_Tile_Selection(self,Target_Destination,State):
 
         RX = Target_Destination[0];
         RY = Target_Destination[1];
         print("Broadcasting Tile Selection" + str(RX)+"/"+str(RY));
-        #Enalbes Bluetooth
-        self.bluetooth.advertise(True)
-        #Sets the advertisment that we want, the method work up to 999, uses 001, 010, 100
+
+        #Sets the advertisment that we want, the method work up to 99, uses 01, 10
 
         if RX < 10:
-            RXM = "00"+str(RX);
-        elif RX < 100:
             RXM = "0"+str(RX);
         else:
             RXM = str(RX);
 
         if RY < 10:
-            RYM = "00"+str(RY);
-        elif RY < 100:
             RYM = "0"+str(RY);
         else:
             RYM = str(RY);
 
 
-        mes = RXM + "/" + RYM +"/"+str(State);
+        mes = RXM + RYM +str(State);
 
-        self.bluetooth.set_advertisement(name="ad_targ", manufacturer_data="lopy_v1", service_data="b")
+        self.bluetooth.set_advertisement(name="a_tg", manufacturer_data="l", service_data=mes)
         self.bluetooth.advertise(True)
         self.Tile_Transmit_Timer = 15;
         return -1;
@@ -119,7 +114,9 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                     name = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL);
                     mfg_data = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_MANUFACTURER_DATA)
                     adv_mes = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_SERVICE_DATA)
-                    
+                    print(adv_mes);
+                    if adv_mes:
+                        print("MES!")
 
                     if mfg_data:
                         print(ubinascii.hexlify(mfg_data))
@@ -129,33 +126,42 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                         print(adv_mes)
 
                         #If meesage is an intent update
-                        if name == "ad_targ":
+                        if name == "a_tg":
+                            print("target recieved!")
 
                             #do it
-                            mx = int(adv_mes[0]+adv_mes[1]+adv_mes[2])-48;
-                            my = int(adv_mes[4]+adv_mes[5]+adv_mes[6])-48;
-                            state = int(adv_mes[7])-48;
+                            hexd = ubinascii.hexlify(adv_mes);
+                            mx = (int(adv_mes[0])-48)*10+(int(adv_mes[1])-48);
+                            my = (int(adv_mes[2])-48)*10+(int(adv_mes[3])-48);
+                            state = int(adv_mes[4])-48;
+                            print(mx);
+                            print(my);
+                            print(state);
                             #If all of them are integers
                             if isinstance(mx,int) and isinstance(my,int) and isinstance(state,int):
                                 Swarmbehv_obj.Map_Assignement[mx][my] = state;
+                                Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Assignement);
 
 
-                        elif name == "ad_map":
+                        elif name == "a_mp":
+                            print("mapping recieved !")
                             #If message is a tile update
                             #Get coords of square
-                            cx = int(adv_mes[0]+adv_mes[1]+adv_mes[2])-48;
-                            cy = int(adv_mes[4]+adv_mes[5]+adv_mes[6])-48;
+                            cx = (int(adv_mes[0])-48)*10+(int(adv_mes[1])-48);
+                            cy = (int(adv_mes[2])-48)*10+(int(adv_mes[3])-48);
                             #create temp string
-                            for i in range(8,len(adv_mes)):
-                                lumin_s += adv_mes[i];
+                            lumin_s = 0;
+                            for i in range(4,len(adv_mes)):
+                                lumin_s += 10**(len(adv_mes)-i)*adv_mes[i];
                             #make temp float
                             lumin_s = float(lumin_s);
                             print(cx)
                             print(cy)
-                            print(temp)
+                            print(lumin_s)
                             #If cx and cy are integers
                             if isinstance(cx,int) and isinstance(cy,int):
                                 Swarmbehv_obj.Map_Light[cx][cy] = lumin_s;
                                 Swarmbehv_obj.Map_Bounty[cx][cy] = 0;
-                                Swarmbehv_obj.Area_Matrix[cx][cy] = 1;
-                                print(Swarmbehv_obj.Area_Matrix);
+                                #Swarmbehv_obj.Area_Matrix[cx][cy] = 1;
+                                #print(Swarmbehv_obj.Area_Matrix);
+                                Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Light);
