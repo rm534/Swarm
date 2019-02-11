@@ -39,7 +39,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
 
         ss = RXM + RYM +str(Luminosity);
-
+        #print(ss);
         self.bluetooth.set_advertisement(name="a_mp", manufacturer_data="l", service_data=ss)
         self.bluetooth.advertise(True)
         #Sets teh timer for how long we should transmit
@@ -136,8 +136,8 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
                         #If meesage is an intent update
                         if name == "a_tg":
-                            if print_boolean == True:
-                                print("target recieved!")
+                            #if print_boolean == True:
+                            print("target recieved!")
 
                             #do it
                             hexd = ubinascii.hexlify(adv_mes);

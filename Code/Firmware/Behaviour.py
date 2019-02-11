@@ -30,8 +30,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
         self.Internal_X = 0;
         self.Internal_Y = 0;
 
-        self.Last_Grid_Cell_X = 0;
-        self.Last_Grid_Cell_Y = 0;
+        self.Last_Grid_Cell_X = -1;
+        self.Last_Grid_Cell_Y = -1;
 
         self.Current_Grid_Cell_X = 0;
         self.Current_Grid_Cell_Y = 0;
