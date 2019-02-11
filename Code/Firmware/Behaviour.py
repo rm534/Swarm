@@ -97,7 +97,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
         #We can potentailly just make this external as internally there are some problems
         self.Map_Assignement[self.Target_Destination[0]][self.Target_Destination[1]] = 1;
         Bluetooth_obj.Broadcast_Tile_Selection(self.Target_Destination,1);
-
+        
 
         return [self.Target_Destination[0],self.Target_Destination[1]];
 
@@ -144,7 +144,9 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
             if self.Current_Grid_Cell_X == self.Target_Destination[0] and self.Current_Grid_Cell_Y == self.Target_Destination[1]:
                 self.Target_Destination = self.Choose_Target_Square(Bluetooth_obj,Swarmbot_obj);
                 print("Chosen new t dest!" + str(self.Target_Destination[0])+"/"+str(self.Target_Destination[1]));
-
+                self.Display_Map(self.Map_Assignement);
+                #Wipe grid to prevent poor comms trash buildup
+                self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
         self.Last_Grid_Cell_X = self.Current_Grid_Cell_X;
         self.Last_Grid_Cell_Y = self.Current_Grid_Cell_Y;
 
@@ -185,7 +187,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
                 self.Target_Destination = self.Choose_Target_Square(Bluetooth_obj,Swarmbot_obj);
                 print("Chosen new t dest!" + str(self.Target_Destination[0])+"/"+str(self.Target_Destination[1]));
                 self.Display_Map(self.Map_Assignement);
-
+                #Wipe grid to prevent poor comms trash buildup
+                self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
         self.Last_Grid_Cell_X = self.Current_Grid_Cell_X;
         self.Last_Grid_Cell_Y = self.Current_Grid_Cell_Y;

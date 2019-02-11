@@ -151,7 +151,8 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                             #If all of them are integers
                             if isinstance(mx,int) and isinstance(my,int) and isinstance(state,int):
                                 Swarmbehv_obj.Map_Assignement[mx][my] = state;
-                                Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Assignement);
+                                if print_boolean == True:
+                                    Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Assignement);
 
 
                         elif name == "a_mp":
@@ -177,4 +178,5 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                                 Swarmbehv_obj.Map_Bounty[cx][cy] = 0;
                                 #Swarmbehv_obj.Area_Matrix[cx][cy] = 1;
                                 #print(Swarmbehv_obj.Area_Matrix);
-                                Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Light);
+                                if print_boolean == True:
+                                    Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Light);
