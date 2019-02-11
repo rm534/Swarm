@@ -15,6 +15,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
         self.Collision_Timer = 0;
         self.Tile_Transmit_Timer = 2;
         self.bl_threshold = -35;
+        self.RepulsionTime = 200;
         pass
 
 
@@ -81,6 +82,9 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
     #Handles Transmission and Listening Decisions For a given cycle
     #Needs to be run each cycle
     def Handle_Bluetooth_Behaviour(self,Swarmbehv_obj,print_boolean):
+        if self.Collision_Timer > 0:
+            self.Collision_Timer-=1;
+
         #Transmit if transmission timer is active
         #print(str(self.Tile_Transmit_Timer));
         if self.Tile_Transmit_Timer > 1:
@@ -110,7 +114,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                     if bl_strength > self.bl_threshold:
                         #We start our collision reverse movement
                         if self.Collision_Timer == 0:
-                            self.Collision_Timer = 20;
+                            self.Collision_Timer = self.RepulsionTime;
                         #Unless we are alreay in one, then we cancel it and restart normal movement
                         else:
                             self.Collision_Timer = 0;

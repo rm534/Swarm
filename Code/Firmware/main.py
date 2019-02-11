@@ -206,6 +206,47 @@ def test2_both():
             Y -= 0.5;
 
 
+#Have the light on the pycom turn red if pycoms are too close and green if they are far enough apartself.
+#We will be using code from test 2
+def test3_both():
+    pycom.heartbeat(False)
+	#Initialise a body object
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    X = 0;
+    Y = 0;
+    print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+    while True:
+        #print(str(X)+"/"+str(Y));
+        swarmbeh.Set_InternalXY(X,Y);
+        swarmbeh.Increment_Bounty_Tiles(1);
+        swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+        swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
+        #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
+        if X < Xg:
+            X += 0.5;
+        else:
+            X -= 0.5;
+        if Y < Yg:
+            Y += 0.5;
+        else:
+            Y -= 0.5;
+
+        if swarmbt.Collision_Timer > 0:
+            #red Light
+            pycom.rgbled(0x7f0000)
+            print(swarmbt.Collision_Timer);
+        else:
+            #Green light
+            pycom.rgbled(0x007f00)
 
 def test2_monitor():
     1==1;
@@ -218,4 +259,4 @@ if __name__ == "__main__":
 
     #swarmbeh = Behaviour.SwarmBehaviour();
     print("SwarmBot is Testing -_-");
-    test2_both();
+    test3_both();
