@@ -21,6 +21,8 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
     #Transmits Information about a Tile that a robot is traversing
     #We don't actually need to send temperature information in this message as other bots need not know
     def Start_Transmit_Tile_Update(self,RX,RY,Luminosity,Time_Steps):
+        #This statment may be not good, current unsure
+        #self.bluetooth.stopscan();
         print("Tile Transmit Update" + str(RX)+"/"+str(RY));
 
         #Sets the advertisment that we want, the method work up to 99, uses 01, 10
@@ -78,18 +80,20 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
     #Handles Transmission and Listening Decisions For a given cycle
     #Needs to be run each cycle
-    def Handle_Bluetooth_Behaviour(self,Swarmbehv_obj):
+    def Handle_Bluetooth_Behaviour(self,Swarmbehv_obj,print_boolean):
         #Transmit if transmission timer is active
         #print(str(self.Tile_Transmit_Timer));
         if self.Tile_Transmit_Timer > 1:
             self.Tile_Transmit_Timer-=1;
+            #self.bluetooth.stopscan();
             #print("Decrementing")
         #If stopping transmission
         elif self.Tile_Transmit_Timer == 1:
             self.bluetooth.advertise(False)
             self.Tile_Transmit_Timer-=1;
             #Start Scanning
-            self.bluetooth.start_scan(-1);
+            if self.bluetooth.isscanning() == False:
+                self.bluetooth.start_scan(-1);
             #print("Starting A Scan")
         #If not transmitting
         else:
@@ -110,33 +114,40 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                         #Unless we are alreay in one, then we cancel it and restart normal movement
                         else:
                             self.Collision_Timer = 0;
-                    print(self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL))
+                    if print_boolean == True:
+                        print(self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL))
                     name = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL);
                     mfg_data = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_MANUFACTURER_DATA)
                     adv_mes = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_SERVICE_DATA)
-                    print(adv_mes);
+                    if print_boolean == True:
+                        print(adv_mes);
                     if adv_mes:
-                        print("MES!")
+                        if print_boolean == True:
+                            print("MES!")
 
                     if mfg_data:
-                        print(ubinascii.hexlify(mfg_data))
+                        if print_boolean == True:
+                            print(ubinascii.hexlify(mfg_data))
 
                     if adv_mes and name:
-                        print(ubinascii.hexlify(adv_mes))
-                        print(adv_mes)
+                        if print_boolean == True:
+                            print(ubinascii.hexlify(adv_mes))
+                            print(adv_mes)
 
                         #If meesage is an intent update
                         if name == "a_tg":
-                            print("target recieved!")
+                            if print_boolean == True:
+                                print("target recieved!")
 
                             #do it
                             hexd = ubinascii.hexlify(adv_mes);
                             mx = (int(adv_mes[0])-48)*10+(int(adv_mes[1])-48);
                             my = (int(adv_mes[2])-48)*10+(int(adv_mes[3])-48);
                             state = int(adv_mes[4])-48;
-                            print(mx);
-                            print(my);
-                            print(state);
+                            if print_boolean == True:
+                                print(mx);
+                                print(my);
+                                print(state);
                             #If all of them are integers
                             if isinstance(mx,int) and isinstance(my,int) and isinstance(state,int):
                                 Swarmbehv_obj.Map_Assignement[mx][my] = state;
@@ -144,7 +155,8 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
 
                         elif name == "a_mp":
-                            print("mapping recieved !")
+                            if print_boolean == True:
+                                print("mapping recieved !")
                             #If message is a tile update
                             #Get coords of square
                             cx = (int(adv_mes[0])-48)*10+(int(adv_mes[1])-48);
@@ -155,9 +167,10 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                                 lumin_s += 10**(len(adv_mes)-i)*adv_mes[i];
                             #make temp float
                             lumin_s = float(lumin_s);
-                            print(cx)
-                            print(cy)
-                            print(lumin_s)
+                            if print_boolean == True:
+                                print(cx)
+                                print(cy)
+                                print(lumin_s)
                             #If cx and cy are integers
                             if isinstance(cx,int) and isinstance(cy,int):
                                 Swarmbehv_obj.Map_Light[cx][cy] = lumin_s;
