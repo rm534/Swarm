@@ -32,8 +32,8 @@ class SwarmBody():
     # Init function initialising pins and sensors
     def __init__(self, motor_pin1='P10', motor_pin2='P11', motor_pin3='P12',
                  motor_pin4='P6',
-                 SDA='P7',
-                 SCL='P22',
+                 SDA='P9',
+                 SCL='P10',
                  lidar_DIO1='P2', lidar_DIO2='P3', lidar_DIO3='P4', lidar_DIO4='P5'):
 
         #self.initialise_I2C(SDA, SCL)
@@ -42,7 +42,7 @@ class SwarmBody():
         # self.initialise_gyro()
 
         #self.initialise_lidar(SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
-        
+
         # self.initialise_temp()
         self.gyro_data = 0
         self.robot_move_flag = 0

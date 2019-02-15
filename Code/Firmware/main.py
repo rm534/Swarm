@@ -10,6 +10,15 @@ import Behaviour
 import Bluetooth_Comms
 import SwarmBot
 import uos
+
+import time
+from machine import Timer
+
+from math import atan
+from math import pi
+from machine import PWM
+
+from machine import Pin
 #import Code.Firmware.Behaviour
 #import Code.Firmware.Bluetooth_Comms
 
@@ -224,6 +233,7 @@ def test3_both():
     print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
     while True:
         #print(str(X)+"/"+str(Y));
+
         swarmbeh.Set_InternalXY(X,Y);
         swarmbeh.Increment_Bounty_Tiles(1);
         swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
@@ -250,6 +260,416 @@ def test3_both():
 
 def test2_monitor():
     1==1;
+
+
+## Setup Timer ##
+
+chrono = Timer.Chrono()
+
+## Speed Parameters ##
+DCw = 0.7
+DCv = 1
+
+w = 200
+v = 0.425
+
+## Starting Coordinates ##
+org = (0, 0)
+ang_org = 0
+
+
+## Set Pycom Heartbeat ##
+pycom.heartbeat(True)
+
+
+## Motor Setups ##
+#Motor 1
+Motor1F = Pin('P11', mode =Pin.OUT)
+Motor1B = Pin('P12', mode =Pin.OUT)
+# pwm.channel(0, pin ='P5', duty_cycle = DC)
+
+#Motor 2
+Motor2F = Pin('P21', mode =Pin.OUT)
+Motor2B = Pin('P20', mode =Pin.OUT)
+# pwm.channel(0, pin ='P7', duty_cycle = DC)
+
+# Standby Pin always on
+#Pin('P22', mode =Pin.OUT).value(1)
+
+## PWM ##
+pwm = PWM(0, frequency = 500)
+
+## Functions ##
+def stop_all():
+    Motor1F.value(0)
+    Motor2F.value(0)
+    Motor1B.value(0)
+    Motor2B.value(0)
+
+    # PWM
+    Pin('P6', mode =Pin.OUT).value(0)
+    Pin('P7', mode =Pin.OUT).value(0)
+
+
+
+## Movement with Timer ##
+def forward():
+    chrono.start()
+    Motor1F.value(1)
+    Motor2F.value(1)
+
+    pwm.channel(0, pin ='P6', duty_cycle = DCv)
+    pwm.channel(0, pin ='P7', duty_cycle = DCv)
+
+
+def back():
+    chrono.start()
+
+    Motor1B.value(1)
+    Motor2B.value(1)
+
+    pwm.channel(0, pin ='P6', duty_cycle = DCv)
+    pwm.channel(0, pin ='P7', duty_cycle = DCv)
+
+
+def clockwise():
+    chrono.start()
+    Motor1B.value(1)
+    Motor2F.value(1)
+
+    pwm.channel(0, pin ='P6', duty_cycle = DCw)
+    pwm.channel(0, pin ='P7', duty_cycle = DCw)
+
+
+def anti_clockwise():
+    chrono.start()
+    Motor1F.value(1)
+    Motor2B.value(1)
+
+    pwm.channel(0, pin ='P6', duty_cycle = DCw)
+    pwm.channel(0, pin ='P7', duty_cycle = DCw)
+
+
+
+
+def commands():
+    print("Enter Coordinates for robot to move to.")
+    print("Enter Current Coordinates to return to angle 0.")
+
+
+
+def best_route(COMM, org, ang_org):
+    """
+    Returns 1 for forwards 0 for backwards.
+    Returns 1 for clockwise and 0 for anticlockwise.
+    """
+
+    deltaX = (COMM[0] - org[0])
+    deltaY = (COMM[1] - org[1])
+
+    dist = ((deltaX)**2 + (deltaY)**2)**0.5
+
+    print(deltaX)
+    print(deltaY)
+
+    if deltaY == 0:
+        if deltaX == 0:
+            ang_desired = 0
+
+        elif deltaX > 0:
+            ang_desired = 90
+
+        elif deltaX < 0:
+            ang_desired = 270
+
+
+    elif deltaX == 0:
+        if deltaY > 0:
+            ang_desired = 0
+
+        elif deltaY < 0:
+            ang_desired = 180
+
+
+    else:
+        if deltaX > 0 and deltaY > 0:
+            n = 0
+
+        elif deltaX > 0 and deltaY < 0:
+            n = -180
+
+        elif deltaX < 0 and deltaY < 0:
+            n = 180
+
+        elif deltaX < 0 and deltaY > 0:
+            n = -360
+
+        ang_desired = abs(abs(atan(deltaX / deltaY) * (180/pi)) + n)
+
+
+    ang_mov = ang_desired - ang_org
+
+
+    if ang_desired < ang_org:
+        ang_mov = ang_mov + 360
+
+    else:
+        ang_mov = abs(ang_mov)
+
+
+    if ang_mov <= 90:
+        #clockwise_ang(ang_mov)
+        #forward()
+        rot = 1
+        direct = 1
+
+
+    elif ang_mov > 90 and ang_mov <= 180:
+
+        if ang_desired >= 180 and ang_desired < 360:
+            ang_desired = ang_desired - 180
+
+        elif ang_desired < 180 and ang_desired >= 0:
+            ang_desired = ang_desired + 180
+
+        ang_mov = abs(180 - ang_mov)
+
+        #anti_clockwise_ang(ang_mov)
+        #back()
+        rot = 0
+        direct = 0
+
+
+    elif ang_mov > 180 and ang_mov <= 270:
+
+        if ang_desired >= 180 and ang_desired < 360:
+            ang_desired = ang_desired - 180
+
+        elif ang_desired < 180 and ang_desired >= 0:
+            ang_desired = ang_desired + 180
+
+        ang_mov = abs(180 - ang_mov)
+
+        #clockwise_ang(ang_mov)
+        #back()
+        rot = 1
+        direct = 0
+
+
+    elif ang_mov > 270:
+
+        ang_mov = 360 - ang_mov
+
+        #anti_clockwise(ang_mov)
+        #forward()
+        rot = 0
+        direct = 1
+
+    return (rot, ang_mov), (direct, dist), ang_desired
+
+
+
+
+
+
+#Colson testng
+def test4_collson():
+        DCv = 0.6;
+        pycom.heartbeat(False)
+    	#Initialise a body object
+        swarmbody = Body.SwarmBody();
+        swarmbody.battery = 100;
+        #Initalise a bluetooth controller
+        swarmbt = Bluetooth_Comms.SwarmBluetooth();
+        #Initialise a behaviour controller
+        swarmbeh = Behaviour.SwarmBehaviour();
+        #Choose an initial destination
+        swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+        X = 0;
+        Y = 0;
+        print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+        lastcol = True;
+        while True:
+            #print(str(X)+"/"+str(Y));
+
+            swarmbeh.Set_InternalXY(X,Y);
+            swarmbeh.Increment_Bounty_Tiles(1);
+            swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+            swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
+            Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
+            Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
+            #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
+
+            if X < Xg:
+                X += 0.5;
+            else:
+                X -= 0.5;
+            if Y < Yg:
+                Y += 0.5;
+            else:
+                Y -= 0.5;
+                #stop_all();
+            if swarmbt.Collision_Timer > 0:
+                if lastcol == False:
+                    stop_all();
+                    back();
+                    print("back")
+                #red Light
+                lastcol = True;
+                pycom.rgbled(0x7f0000)
+                print(swarmbt.Collision_Timer);
+                #back();
+
+            else:
+                if lastcol == True:
+                    stop_all();
+                    lastcol = False;
+                    forward();
+                    print("forward")
+                lastcol = False;
+                #Green light
+                pycom.rgbled(0x007f00)
+                #forward();
+                #print("forward")
+
+def test5_ldar():
+
+
+    DCv = 0.6;
+    pycom.heartbeat(False)
+	#Initialise a body object
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+
+    #swarmbody.initialise_lidar(swarmbody.SDA, swarmbody.SCL, swarmbody.lidar_DIO1, swarmbody.lidar_DIO2, swarmbody.lidar_DIO3, swarmbody.lidar_DIO4)
+    X = 0;
+    Y = 0;
+    print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+    lastcol = True;
+    ldtmer = 0;
+    mml = 150;
+    while True:
+        #print(str(X)+"/"+str(Y));
+
+        swarmbeh.Set_InternalXY(X,Y);
+        swarmbeh.Increment_Bounty_Tiles(1);
+        swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+        swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
+        #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
+
+        if X < Xg:
+            X += 0.5;
+        else:
+            X -= 0.5;
+        if Y < Yg:
+            Y += 0.5;
+        else:
+            Y -= 0.5;
+            #stop_all();
+        l1, l2, l3, l4 = swarmbody.get_lidar();
+
+
+
+        if l1 < mml or l2 < mml or l3 < mml or l4 < mml:
+            ldtmer = 10;
+
+        if ldtmer > 0:
+            if lastcol == False:
+                stop_all();
+                back();
+                print("back")
+            #red Light
+            lastcol = True;
+            pycom.rgbled(0x7f0000)
+            print(ldtmer);
+            #back();
+            ldtmer-=1;
+        else:
+            if lastcol == True:
+                stop_all();
+                lastcol = False;
+                #forward();
+                print("forward")
+            lastcol = False;
+            #Green light
+            pycom.rgbled(0x007f00)
+            #forward();
+            #print("forward")
+
+    #Makng movement based on read coords
+def test6_movement():
+    1==1;
+    DCv = 0.6;
+    pycom.heartbeat(False)
+	#Initialise a body object
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    X = 0;
+    Y = 0;
+    print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+    lastcol = True;
+    while True:
+        #print(str(X)+"/"+str(Y));
+
+        swarmbeh.Set_InternalXY(X,Y);
+        swarmbeh.Increment_Bounty_Tiles(1);
+        swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+        swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
+
+        #Rotate to face drecrton
+
+        #Turn on motor untl dest reached
+
+
+
+        if X < Xg:
+            X += 0.5;
+        else:
+            X -= 0.5;
+        if Y < Yg:
+            Y += 0.5;
+        else:
+            Y -= 0.5;
+        stop_all();
+        if swarmbt.Collision_Timer > 0:
+            if lastcol == False:
+                stop_all();
+                #back();
+                print("back")
+            #red Light
+            lastcol = True;
+            pycom.rgbled(0x7f0000)
+            print(swarmbt.Collision_Timer);
+            #back();
+
+        else:
+            if lastcol == True:
+                stop_all();
+                lastcol = False;
+                #forward();
+                print("forward")
+            lastcol = False;
+            #Green light
+            pycom.rgbled(0x007f00)
+            #forward();
+            #print("forward")
+
 
 if __name__ == "__main__":
     ##Swarmbot is initialised

@@ -15,7 +15,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
         self.Collision_Timer = 0;
         self.Tile_Transmit_Timer = 2;
         self.bl_threshold = -35;
-        self.RepulsionTime = 200;
+        self.RepulsionTime = 2000;
         pass
 
 
@@ -109,15 +109,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                 adv = self.bluetooth.get_adv()
                 if adv:
                     # try to get the complete name
-                    bl_strength = adv[3];
-                    #If the strength is past the bl_threshold
-                    if bl_strength > self.bl_threshold:
-                        #We start our collision reverse movement
-                        if self.Collision_Timer == 0:
-                            self.Collision_Timer = self.RepulsionTime;
-                        #Unless we are alreay in one, then we cancel it and restart normal movement
-                        else:
-                            self.Collision_Timer = 0;
+
                     if print_boolean == True:
                         print(self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL))
                     name = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL);
@@ -134,6 +126,18 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                             print(ubinascii.hexlify(mfg_data))
 
                     if adv_mes and name:
+                        bl_strength = adv[3];
+                        #If the strength is past the bl_threshold
+                        if bl_strength > self.bl_threshold:
+                            #We start our collision reverse movement
+                            if self.Collision_Timer == 0:
+                                self.Collision_Timer = self.RepulsionTime;
+                            #Ths code wll be req n future
+                            #Unless we are alreay in one, then we cancel it and restart normal movement
+                            #else:
+                                #self.Collision_Timer = 0;
+
+
                         if print_boolean == True:
                             print(ubinascii.hexlify(adv_mes))
                             print(adv_mes)
@@ -141,7 +145,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                         #If meesage is an intent update
                         if name == "a_tg":
                             #if print_boolean == True:
-                            print("target recieved!")
+                            print("target recieved!" + str(bl_strength))
 
                             #do it
                             hexd = ubinascii.hexlify(adv_mes);
@@ -177,7 +181,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                                 print(cy)
                                 print(lumin_s)
                             #If cx and cy are integers
-                            if isinstance(cx,int) and isinstance(cy,int):
+                            if isinstance(cx,int) and isinstance(cy,int) and cx > 0 and cy > 0:
                                 Swarmbehv_obj.Map_Light[cx][cy] = lumin_s;
                                 Swarmbehv_obj.Map_Bounty[cx][cy] = 0;
                                 #Swarmbehv_obj.Area_Matrix[cx][cy] = 1;
