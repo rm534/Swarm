@@ -18,6 +18,9 @@ from math import atan
 from math import pi
 from machine import PWM
 
+from math import sin
+from math import cos
+
 from machine import Pin
 #import Code.Firmware.Behaviour
 #import Code.Firmware.Bluetooth_Comms
@@ -250,13 +253,21 @@ def test3_both():
         else:
             Y -= 0.5;
 
+
+
+
+
+
         if swarmbt.Collision_Timer > 0:
             #red Light
             pycom.rgbled(0x7f0000)
-            print(swarmbt.Collision_Timer);
+            #print(swarmbt.Collision_Timer);
         else:
             #Green light
             pycom.rgbled(0x007f00)
+
+
+
 
 def test2_monitor():
     1==1;
@@ -291,6 +302,7 @@ Motor1B = Pin('P12', mode =Pin.OUT)
 #Motor 2
 Motor2F = Pin('P21', mode =Pin.OUT)
 Motor2B = Pin('P20', mode =Pin.OUT)
+PWM2 = 'P7'
 # pwm.channel(0, pin ='P7', duty_cycle = DC)
 
 # Standby Pin always on
@@ -357,20 +369,28 @@ def commands():
     print("Enter Current Coordinates to return to angle 0.")
 
 
-
 def best_route(COMM, org, ang_org):
     """
-    Returns 1 for forwards 0 for backwards.
-    Returns 1 for clockwise and 0 for anticlockwise.
+    Plans most efficient route from one coordinate to another.
+
+    Returns:
+    1. Rotational Tuple
+       0 == Anticlockwise
+       1 == Clockwise
+       Angle to move
+
+    2. Distance Tuple
+       0 == Anticlockwise
+       1 == Clockwise
+       Distance to move
+
+    3. Robot's absolute angle after movement.
     """
 
     deltaX = (COMM[0] - org[0])
     deltaY = (COMM[1] - org[1])
 
     dist = ((deltaX)**2 + (deltaY)**2)**0.5
-
-    print(deltaX)
-    print(deltaY)
 
     if deltaY == 0:
         if deltaX == 0:
@@ -418,10 +438,12 @@ def best_route(COMM, org, ang_org):
 
 
     if ang_mov <= 90:
-        #clockwise_ang(ang_mov)
-        #forward()
+
         rot = 1
         direct = 1
+
+        # Clockwise
+        # Forwards
 
 
     elif ang_mov > 90 and ang_mov <= 180:
@@ -434,10 +456,11 @@ def best_route(COMM, org, ang_org):
 
         ang_mov = abs(180 - ang_mov)
 
-        #anti_clockwise_ang(ang_mov)
-        #back()
         rot = 0
         direct = 0
+
+        # Anticlockwise
+        # Backwards
 
 
     elif ang_mov > 180 and ang_mov <= 270:
@@ -450,27 +473,85 @@ def best_route(COMM, org, ang_org):
 
         ang_mov = abs(180 - ang_mov)
 
-        #clockwise_ang(ang_mov)
-        #back()
         rot = 1
         direct = 0
+
+        # Clockwise
+        # Backwards
 
 
     elif ang_mov > 270:
 
         ang_mov = 360 - ang_mov
 
-        #anti_clockwise(ang_mov)
-        #forward()
         rot = 0
         direct = 1
 
+        # Anticlockwise
+        # Forwards
+
     return (rot, ang_mov), (direct, dist), ang_desired
 
+def ang_mov_through(lin_mov, ang_desired):
+    """
+    Calculates the acute angle from the robots absolute angle.
+    So it's position between two coordinates can be calculated.
+
+    Returns floating point number.
+    """
+    # Converts absolute angle if robot is reversing.
+    if lin_mov[0] == 1:
+        pass
+
+    elif lin_mov[0] == 0:
+        if ang_desired < 180 and ang_desired >= 0:
+            ang_desired = (ang_desired + 180)
+
+        elif ang_desired >= 180 and ang_desired < 360:
+            ang_desired = (ang_desired - 180)
 
 
+    if ang_desired <= 90 and ang_desired >= 0:
+        return ang_desired
+
+    elif ang_desired < 180 and ang_desired > 90:
+        return (90 - (ang_desired - 90))
+
+    elif ang_desired < 270 and ang_desired >= 180:
+        return (ang_desired - 180)
+
+    elif ang_desired <= 360 and ang_desired >= 270:
+        return (90 - (ang_desired - 270))
 
 
+def current_loc(COMM, org, ang_mov_thoug):
+    """
+    Returns current X and Y coordinates as a tuple
+    to the nearest 1cm.
+    """
+
+    deltaX = (COMM[0] - org[0])
+    deltaY = (COMM[1] - org[1])
+
+
+    c_time = chrono.read()
+
+    if deltaX >= 0:
+        c_x_loc = round(v*c_time*sin(ang_mov_thoug*(pi/180)) + org[0], 2)
+
+
+    elif deltaX <= 0:
+        c_x_loc = round(-v*c_time*sin(ang_mov_thoug*(pi/180)) + org[0], 2)
+
+
+    if deltaY >= 0:
+        c_y_loc = round(v*c_time*cos(ang_mov_thoug*(pi/180)) + org[1], 2)
+
+
+    elif deltaY <= 0:
+        c_y_loc = round(-v*c_time*cos(ang_mov_thoug*(pi/180)) + org[1], 2)
+
+    return (c_x_loc, c_y_loc)
 
 #Colson testng
 def test4_collson():
@@ -531,6 +612,9 @@ def test4_collson():
                 pycom.rgbled(0x007f00)
                 #forward();
                 #print("forward")
+
+
+
 
 def test5_ldar():
 
@@ -669,6 +753,132 @@ def test6_movement():
             pycom.rgbled(0x007f00)
             #forward();
             #print("forward")
+
+
+def test7_both_int():
+    pycom.heartbeat(False)
+	#Initialise a body object
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    X = 0;
+    Y = 0;
+    print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+    while True:
+        swarmbeh.Set_InternalXY(X,Y);
+        swarmbeh.Increment_Bounty_Tiles(1);
+        swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+        swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
+        #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
+        if X < Xg:
+            X += 0.5;
+        else:
+            X -= 0.5;
+        if Y < Yg:
+            Y += 0.5;
+        else:
+            Y -= 0.5;
+
+
+
+
+
+
+        if swarmbt.Collision_Timer > 0:
+            #red Light
+            pycom.rgbled(0x7f0000)
+            #print(swarmbt.Collision_Timer);
+        else:
+            #Green light
+            pycom.rgbled(0x007f00)
+
+
+
+
+            #
+                    #print(str(X)+"/"+str(Y));
+        X = input('\n'"Enter X - Coordinate Here: ")
+        Y = input("Enter Y - Coordinate Here: ")
+
+        if X == "position" or Y == "position":
+            print('\n'"Current Coordinate: ", org)
+            print("Current Angle: ", ang_org)
+            continue
+
+        elif X == "command" or Y == "command":
+            commands()
+            continue
+
+        elif X == "" or Y == "":
+            continue
+
+
+        COMM = (float(X), float(Y))
+
+        result = best_route(COMM, org, ang_org)
+
+        ang_desired = result[2]
+
+
+        ## Rotational Movement ##
+        rot_mov = result[0]
+
+        t_rot = rot_mov[1] / w
+
+        if rot_mov[0] == 1:
+            clockwise()
+
+        elif rot_mov[0] == 0:
+            anti_clockwise()
+        # Does nothing while rotating.
+        if chrono.read() < t_rot:
+            #Reset the while
+            break;
+        else:
+            stop_all()
+            chrono.stop()
+            chrono.reset()
+            time.sleep(1)  # Delay for stability.
+
+        ## Linear Movement ##
+        lin_mov = result[1]
+
+        t_lin = lin_mov[1] / v
+
+        ang_mov_thoug = ang_mov_through(lin_mov, ang_desired)
+
+        if lin_mov[0] == 1:
+            forward()
+
+        elif lin_mov[0] == 0:
+            back()
+        #if driving there
+        if chrono.read() < t_lin:
+            c_loc = current_loc(COMM, org, ang_mov_thoug)
+            #update internal coords
+            X = c_loc[0];
+            Y = c_loc[1];
+            print("Robot's current Position is:", c_loc)
+            #unlear
+            #time.sleep(sr)
+            break;
+        else:
+            stop_all()
+            chrono.stop()
+            chrono.reset()
+
+        #Do we want to do this every cycle?
+        ## Updates New Position and Absolute Angle ##
+        #org = COMM
+        #ang_org = ang_desired
+
 
 
 if __name__ == "__main__":
