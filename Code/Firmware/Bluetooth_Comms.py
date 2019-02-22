@@ -145,7 +145,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                         #If meesage is an intent update
                         if name == "a_tg":
                             #if print_boolean == True:
-                            print("target recieved!" + str(bl_strength))
+                            #print("target recieved!" + str(bl_strength))
 
                             #do it
                             hexd = ubinascii.hexlify(adv_mes);
