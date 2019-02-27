@@ -231,27 +231,27 @@ def test3_both():
     swarmbeh = Behaviour.SwarmBehaviour();
     #Choose an initial destination
     swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
-    X = 0;
-    Y = 0;
+    X = 150;
+    Y = 150;
     print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
     while True:
         #print(str(X)+"/"+str(Y));
 
-        swarmbeh.Set_InternalXY(X,Y);
+        swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
         swarmbeh.Increment_Bounty_Tiles(1);
         swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
         swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
-        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
-        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
         #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
         if X < Xg:
-            X += 0.5;
+            X += 1;
         else:
-            X -= 0.5;
+            X -= 1;
         if Y < Yg:
-            Y += 0.5;
+            Y += 1;
         else:
-            Y -= 0.5;
+            Y -= 1;
 
 
 
