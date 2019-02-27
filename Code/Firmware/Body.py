@@ -30,7 +30,6 @@ LIDAR4_ADDR = const(0x18)
 TEMP_ADDR = const(0x48)
 
 
-
 # Class for movement and Sensing of Robot
 class SwarmBody():
     # Init function initialising pins and sensors
@@ -41,10 +40,8 @@ class SwarmBody():
                  lidar_DIO1='P2', lidar_DIO2='P3', lidar_DIO3='P4', lidar_DIO4='P5'):
         self.initialise_gyro()
         self.initialise_rest(SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
-
         self.initialise_motor(motor1F, motor1B, motor2F, motor2B)
 
-        #
         self.gyro_data = 1.2
         self.robot_move_flag = 0
         self.x = 0
@@ -110,8 +107,6 @@ class SwarmBody():
         while True:
             self.l1, self.l2, self.l3, self.l4 = self.get_lidar()
 
-
-
     def _set_lidar(self, ID, lidar_DIO):
         if ID == 1:
             self.lidar_DIO1.value(0)
@@ -156,6 +151,8 @@ class SwarmBody():
         self.pwm1 = "P6"
         self.pwm2 = "P7"
         self.duty_cycle = 0.7
+        self.w = 211.934
+        self.v = 0.401
         self.chrono = Timer.Chrono()
         self.motor_stop()
 
@@ -203,7 +200,7 @@ class SwarmBody():
                         self.gyro_data = current_yaw
                 except IOError:
                     print("[-] re-initialising")
-                    self.initialise_gyro_new(0,0)
+                    self.initialise_gyro_new(0, 0)
             fifoCount -= packetSize
 
     # Function for initialising pin functionality for the temperature sensor
@@ -218,7 +215,7 @@ class SwarmBody():
         self.linear_movement(route[1], 0.3)
 
     def rotational_movement(self, rot_mov, w):
-        t_rot = rot_mov[1]/w
+        t_rot = rot_mov[1] / w
         if rot_mov[0] == 1:
             self.rotate_clockwise()
         elif rot_mov[0] == 0:
@@ -229,12 +226,12 @@ class SwarmBody():
         self.chrono.stop()
 
     def linear_movement(self, lin_mov, v):
-        t_lin = lin_mov[1]/v
+        t_lin = lin_mov[1] / v
         if lin_mov[0] == 1:
             self.move_forward()
         elif lin_mov[0] == 0:
             self.move_backward()
-        while self.chrono.read()<t_lin:
+        while self.chrono.read() < t_lin:
             pass
         self.motor_stop()
         self.chrono.stop()
@@ -255,7 +252,6 @@ class SwarmBody():
         self.motor_PWM.channel(0, pin=self.pwm1, duty_cycle=self.duty_cycle)
         self.motor_PWM.channel(0, pin=self.pwm2, duty_cycle=self.duty_cycle)
         print("hello")
-
 
         return
 
@@ -306,7 +302,6 @@ class SwarmBody():
         data_tof4 /= 10
         return data_tof1, data_tof2, data_tof3, data_tof4  # in cm
 
-
     # Function to get solar panel voltage throughout the voltage divider
     def get_solar_panel_vol(self):
         vol = self.solar_panel_APIN.value()
@@ -352,11 +347,10 @@ class SwarmBody():
     # TODO: implement the route method
     def get_pos(self, zone):
 
-
-        if angle > 180:
-            angle = 180
-        if angle < -180:
-            anlge = -180
+        if self.gyro_data > 180:
+            self.gyro_data = 180
+        if self.gyro_data < -180:
+            self.gyro_data = -180
         print("front: ", self.l1)
         print("back: ", self.l2)
         print("right: ", self.l3)
@@ -364,10 +358,11 @@ class SwarmBody():
         print("angle:", self.gyro_data * -1)
         print("temp: ", self.temp)
 
-        print(Position.find_coordinate(self.gyro_data * -1, self.l1 + 8.0, self.l2 + 8.0, self.l3 + 5.5, self.l4 + 5.5, zone))
-        pos = Position.find_coordinate(angle, l1, l2, l3, l4, zone)
-         self.x = pos[0]
-         self.y = pos[1]
+        print(Position.find_coordinate(self.gyro_data * -1, self.l1 + 8.0, self.l2 + 8.0, self.l3 + 5.5, self.l4 + 5.5,
+                                       zone))
+        pos = Position.find_coordinate(self.gyro_data, self.l1, self.l2, self.l3, self.l4, zone)
+        self.x = pos[0]
+        self.y = pos[1]
 
     def get_battery_state(self):
         bat = 0.47
@@ -376,52 +371,70 @@ class SwarmBody():
 
     def _get_state_info(self):
         # Get information, Dummy Variables for now
-        return self.temperature, self.x, self.y, self.battery
+        return self.temp, self.x, self.y, self.battery
 
-    def _alarm_test(self, alarm):
-        self.get_gyro()
+    # PID Control function - input the x and y desired coordinate and the starting coordinate (x, y) and starting angle and does rotation and linear movement
+    def PID_control(self, error_prior=0, integral=0, KP=100, KI=0, KD=0, bias=0,
+                    iteration_time=0.1, t_rot=20, x_des=None, y_des=None, starting_coordinate=(0, 0), starting_angle=0):
+        if x_des == None or y_des == None:
 
-    def _alarm_test_pos(self, alarm):
-        self.get_pos()
+            return
+        else:
+            desired_coordinate = (float(x_des), float(y_des))
 
-    def set_alarm_gyro_test(self):
-        alarm = Timer.Alarm(self._alarm_test, 0.05, periodic=True)
-        return alarm
+        result = Position.best_route(desired_coordinate, starting_coordinate, starting_angle)
 
-    def set_alarm_pos_test(self, time):
-        alarm = Timer.Alarm(self._alarm_test_pos, time, periodic=True)
-        return alarm
+        rot_mov = result[0]
+        ang_mov = rot_mov[1]
 
-    def set_alarm_test_thread(self):
-        alarm = Timer.Alarm(self.test_thread, 0.05, periodic=True)
-        return alarm
+        ang_desired = result[2]
+        while t_rot > 0.05:
+            # output of best route bit is angle that it needs to rotate by (ang_mov)
+            # Therefore, error is ang_mov - angle it has turned while at that coordinate (ang_turned)
 
-    def test_thread(self, alarm):
-        thread = _thread.start_new_thread(self.get_gyro)
-        thread.exit()
+            # current_angle = angle  #need to get current readings from gyro (incorporate in body)
+            ang_turned = self.gyro_data - starting_angle  # need to check for + and - angles
+
+            error = ang_mov - ang_turned
+            integral = integral + (error * iteration_time)
+            derivative = (error - error_prior) / iteration_time
+            output = KP * error + KI * integral + KD * derivative + bias  # bias to prevent output being 0
+            error_prior = error
+            time.sleep(iteration_time)
+
+            t_rot = output / self.w  # w
+
+            ## Rotational Movement ##
+
+            if rot_mov[0] == 1:
+                if error < 0:
+                    self.rotate_anti_clockwise()
+                self.rotate_clockwise()
+
+            elif rot_mov[0] == 0:
+                if error < 0:
+                    self.rotate_clockwise()
+                self.rotate_anti_clockwise()
+
+            # while (chrono.read() < t_rot):
+            #        pass
+
+            # chrono.stop() #this taken outside of loop so that time keeps updating
+        self.motor_stop()
 
 
 if __name__ == '__main__':
     # network = Network.SwarmNetwork()
     body = SwarmBody()
+    #Example PID control
+    body.PID_control(x_des=22, y_des=22, starting_coordinate=(0, 0), starting_angle=0)
 
-    #body.move_forward()
-    #time.sleep(10)
     print("[+] Setting Timer")
-    #body.__init__()
-    #while body._get_pos != 1 or body.gyro_data == 0:
-        #pass
     while True:
         time.sleep(3)
         print("still in main")
 
         if body._get_pos == 1 and body.gyro_data != 0:
             body.get_pos(1)
-        #temp, x, y, battery = body._get_state_info()
-        #body.forward()
-        # network._send_state_wifi(temp, x, y, battery)
 
-        # body.get_lidar()
-        # body.get_gyro()
-        # body.get_temp()
-    # body.test_timer()
+

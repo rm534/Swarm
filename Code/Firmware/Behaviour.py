@@ -12,7 +12,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         Body.SwarmBody.__init__(self)
         Network.SwarmNetwork.__init__(self)
         Bluetooth_Comms.SwarmBluetooth.__init__(self)
-        self.get_
+
         self.Collision_Timer = 0;
         self.Target_Destination = [0,0];
         self.Light_Weighting = 10;

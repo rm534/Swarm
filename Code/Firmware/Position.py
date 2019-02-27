@@ -195,17 +195,41 @@ def find_coordinate(yaw, front, back, right, left, zone):
     #print(coordinate)
     return coordinate
 
-def best_route(COMM, org, ang_org):
-    """
-    Returns 1 for forwards 0 for backwards.
-    Returns 1 for clockwise and 0 for anticlockwise.
-    """
 
-    deltaX = (COMM[0] - org[0])
-    deltaY = (COMM[1] - org[1])
+def best_route(desired_coordinate, starting_coordinate, starting_angle):
+    """
+    Plans most efficient route from one coordinate to another.
+
+    Returns:
+    1. Rotational Tuple
+       0 == Anticlockwise
+       1 == Clockwise
+       Angle to move
+
+    2. Distance Tuple
+       0 == Anticlockwise
+       1 == Clockwise
+       Distance to move
+
+    3. Robot's absolute angle after movement.
+    """
+########################################
+
+    # Converts starting_angle  from -180 => +180 system
+    # to 0 => 360 system.
+
+    if starting_angle <= 0 and starting_angle >= -180:
+        starting_angle = abs(starting_angle)
+
+    elif starting_angle > 0 and starting_angle <= 180:
+        starting_angle = (360 - starting_angle)
+
+########################################
+
+    deltaX = (desired_coordinate[0] - starting_coordinate[0])
+    deltaY = (desired_coordinate[1] - starting_coordinate[1])
 
     dist = ((deltaX)**2 + (deltaY)**2)**0.5
-    T = dist/v
 
     if deltaY == 0:
         if deltaX == 0:
@@ -242,22 +266,23 @@ def best_route(COMM, org, ang_org):
         ang_desired = abs(abs(atan(deltaX / deltaY) * (180/pi)) + n)
 
 
-    ang_mov = ang_desired - ang_org
+    ang_mov = ang_desired - starting_angle
 
 
-    if ang_desired < ang_org:
+    if ang_desired < starting_angle:
         ang_mov = ang_mov + 360
 
     else:
         ang_mov = abs(ang_mov)
 
 
-
     if ang_mov <= 90:
-        #clockwise_ang(ang_mov)
-        #forward()
+
         rot = 1
         direct = 1
+
+        # Clockwise
+        # Forwards
 
 
     elif ang_mov > 90 and ang_mov <= 180:
@@ -270,10 +295,11 @@ def best_route(COMM, org, ang_org):
 
         ang_mov = abs(180 - ang_mov)
 
-        #anti_clockwise_ang(ang_mov)
-        #back()
         rot = 0
         direct = 0
+
+        # Anticlockwise
+        # Backwards
 
 
     elif ang_mov > 180 and ang_mov <= 270:
@@ -286,19 +312,59 @@ def best_route(COMM, org, ang_org):
 
         ang_mov = abs(180 - ang_mov)
 
-        #clockwise_ang(ang_mov)
-        #back()
         rot = 1
         direct = 0
+
+        # Clockwise
+        # Backwards
 
 
     elif ang_mov > 270:
 
         ang_mov = 360 - ang_mov
 
-        #anti_clockwise(ang_mov)
-        #forward()
         rot = 0
         direct = 1
 
+        # Anticlockwise
+        # Forwards
+
+##################################################
+
+    # Converts ang_desired from 0 => 360 system
+    # to -180 => +180 system.
+
+    if ang_desired >= 0 and ang_desired < 180:
+        ang_desired = -(ang_desired)
+
+    elif ang_desired > 180 and ang_desired < 360:
+        ang_desired = abs(ang_desired - 360)
+
+##################################################
+
     return (rot, ang_mov), (direct, dist), ang_desired
+
+
+## Conversion Testing Functions ##
+def conversion(ang_desired):
+    """
+    Converts from -180 => +180 system
+    to 0 => 360 system.
+    """
+    if ang_desired <= 0 and ang_desired >= -180:
+        return abs(ang_desired)
+
+    elif ang_desired > 0 and ang_desired <= 180:
+        return (360 - ang_desired)
+
+
+def conversion_2(ang_desired):
+    """
+    Converts from 0 => 360 system
+    to -180 => 180 system.
+    """
+    if ang_desired >= 0 and ang_desired < 180:
+        return -(ang_desired)
+
+    elif ang_desired > 180 and ang_desired < 360:
+        return abs(ang_desired - 360)
