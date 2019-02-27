@@ -14,7 +14,7 @@ class SwarmBot(Behaviour.SwarmBehaviour):
         # generate blank maps
         # choose target square
 
-        self.choose_target_square()
+        self.Choose_Target_Square()
         self.Handle_Bluetooth_Behaviour()
         self.Check_New_Grid_Cell_Handle_NOSENSORS()
         # move towards destination
