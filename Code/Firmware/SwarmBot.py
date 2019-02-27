@@ -1,25 +1,22 @@
-import Body
-import Network
+import logging
 import Behaviour
-import machine
-import slogger
-import mpu6050
-import sys
-import VL53L0X
-from ustruct import pack
 from machine import Timer
 
 class SwarmBot(Behaviour.SwarmBehaviour):
     def __init__(self):
-        slogger.basic_config(level=slogger.NOTSET)
-        self.logger = slogger.get_logger("NETWORK")
         Behaviour.SwarmBehaviour.__init__(self)
 
+        1==1;
     def alive(self):
-        self.logger.debug("alive","Waking Up...")
+        logging.debug("alive","Waking Up...")
+
         # get initial position
         # generate blank maps
         # choose target square
+
+        self.choose_target_square()
+        self.Handle_Bluetooth_Behaviour()
+        self.Check_New_Grid_Cell_Handle_NOSENSORS()
         # move towards destination
         # if arrived -> choose target...
         self.logger.debug("alive","Let me get my wake up routine done")
