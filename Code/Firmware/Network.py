@@ -16,8 +16,9 @@ logger = slogger.get_logger("NETWORK")
 
 class SwarmNetwork(Messenger.SwarmMessenger):
     def __init__(self):
-        Messenger.SwarmMessenger.__init__(self)
         WiFi.connect()
+        Messenger.SwarmMessenger.__init__(self)
+
 
         return
 
@@ -36,6 +37,7 @@ class SwarmNetwork(Messenger.SwarmMessenger):
     def _send_state_wifi(self, temp, x, y, battery):
         data = self.pack_state_info(temp, x, y, battery)
         self.send_prepack_msg(data, RABBITMQ_TOPIC, STATUS_MESSAGE)
+        logger.debug("_send_state_", "sent state successfully")
 
     def _alarm_send_state(self, alarm):
         self.send_state_wifi()

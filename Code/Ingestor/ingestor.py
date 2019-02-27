@@ -28,7 +28,7 @@ class Ingestor():
 
     def init_csv(self):
         file = open('temp_test.csv', 'w')
-        header = ['Temperature/C']
+        header = ['MessageID', 'Device', "ts", "ms", 'Temperature', 'x', 'y', 'battery']
         with file:
             writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             writer.writerow(header)
@@ -48,11 +48,10 @@ class Ingestor():
 
     def csv_write(self, mid, dev_ID,ts, ms, temp, x, y, battery):
         file = open('temp_test.csv', 'a')
-        header = ['MessageID', 'Device',"ts", "ms", 'Temperature', 'x', 'y', 'battery']
 
+        header = ['MessageID', 'Device', "ts", "ms", 'Temperature', 'x', 'y', 'battery']
         with file:
             writer = csv.DictWriter(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL, fieldnames=header)
-            writer.writeheader()
             writer.writerow(
                 {"MessageID": mid, "Device": dev_ID,"ts":ts, "ms":ms, "Temperature": temp, "x": x, "y": y, "battery": battery})
         return

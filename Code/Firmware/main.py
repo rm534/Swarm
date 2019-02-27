@@ -50,5 +50,5 @@ def info():
     print("+------------------------+")
 
 if __name__ == "__main__":
-    swarmbot = SwarmBot.SwarmBot()
-    swarmbot.alive()
+    #swarmbot = SwarmBot.SwarmBot()
+    #swarmbot.alive()
