@@ -114,16 +114,17 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
     def Check_New_Grid_Cell_Handle(self,Swarmbot_obj,Bluetooth_obj):
         1==1;
         #If we are in a new Grid Cell
-
         self.Current_Grid_Cell_X = math.floor(self.Internal_X/self.Arena_Grid_Size_X);
         self.Current_Grid_Cell_Y = math.floor(self.Internal_Y/self.Arena_Grid_Size_Y);
         if self.Current_Grid_Cell_X != self.Last_Grid_Cell_X or self.Current_Grid_Cell_Y != self.Last_Grid_Cell_Y:
+            print("New Cell!"+str(self.Current_Grid_Cell_X)+"/"+str(self.Current_Grid_Cell_Y))
             #We get the temp of the Cell & Light
 
             Current_Grid_Cell_Temp = Swarmbot_obj.get_temp();
             Current_Grid_Cell_Luminosity = Swarmbot_obj.get_solar_panel_vol();
             #Find Our Definite coords
-            Real_X,Real_Y = Swarmbot_obj.get_pos();
+            Real_X = self.Internal_X;
+            Real_Y = self.Internal_Y;
 
             #convert coords into a grid square
             Real_Grid_Square_X = math.floor(Real_X/self.Arena_Grid_Size_X);
@@ -148,6 +149,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
                 self.Display_Map(self.Map_Assignement);
                 #Wipe grid to prevent poor comms trash buildup
                 self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
+
         self.Last_Grid_Cell_X = self.Current_Grid_Cell_X;
         self.Last_Grid_Cell_Y = self.Current_Grid_Cell_Y;
 
