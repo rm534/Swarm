@@ -7,11 +7,11 @@ import math
 
 
 
-class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
+class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.SwarmBluetooth):
     def __init__(self):
-        #Body.SwarmBody.__init__(self)
-        #Network.SwarmNetwork.__init__(self)
-        #Bluetooth_Comms.SwarmBluetooth.__init__(self)
+        Body.SwarmBody.__init__(self)
+        Network.SwarmNetwork.__init__(self)
+        Bluetooth_Comms.SwarmBluetooth.__init__(self)
 
         self.Collision_Timer = 0;
         self.Target_Destination = [0,0];
@@ -110,19 +110,21 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
 
     #Checks if the robot is in a new grid cell and if so executes required code
 
-    #NEEDS TO BE UPDATED WITH NOSENSOR CHANGES
+
     def Check_New_Grid_Cell_Handle(self,Swarmbot_obj,Bluetooth_obj):
         1==1;
         #If we are in a new Grid Cell
         self.Current_Grid_Cell_X = math.floor(self.Internal_X/self.Arena_Grid_Size_X);
         self.Current_Grid_Cell_Y = math.floor(self.Internal_Y/self.Arena_Grid_Size_Y);
-        if self.Current_Grid_Cell_X != self.Last_Grid_Cell_X and self.Current_Grid_Cell_Y != self.Last_Grid_Cell_Y:
+        if self.Current_Grid_Cell_X != self.Last_Grid_Cell_X or self.Current_Grid_Cell_Y != self.Last_Grid_Cell_Y:
+            print("New Cell!"+str(self.Current_Grid_Cell_X)+"/"+str(self.Current_Grid_Cell_Y))
             #We get the temp of the Cell & Light
 
             Current_Grid_Cell_Temp = Swarmbot_obj.get_temp();
             Current_Grid_Cell_Luminosity = Swarmbot_obj.get_solar_panel_vol();
             #Find Our Definite coords
-            Real_X,Real_Y = Swarmbot_obj.get_pos();
+            Real_X = self.Internal_X;
+            Real_Y = self.Internal_Y;
 
             #convert coords into a grid square
             Real_Grid_Square_X = math.floor(Real_X/self.Arena_Grid_Size_X);
@@ -144,9 +146,10 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
             if self.Current_Grid_Cell_X == self.Target_Destination[0] and self.Current_Grid_Cell_Y == self.Target_Destination[1]:
                 self.Target_Destination = self.Choose_Target_Square(Bluetooth_obj,Swarmbot_obj);
                 print("Chosen new t dest!" + str(self.Target_Destination[0])+"/"+str(self.Target_Destination[1]));
-                self.Display_Map(self.Map_Bounty);
+                self.Display_Map(self.Map_Assignement);
                 #Wipe grid to prevent poor comms trash buildup
                 self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
+
         self.Last_Grid_Cell_X = self.Current_Grid_Cell_X;
         self.Last_Grid_Cell_Y = self.Current_Grid_Cell_Y;
 
@@ -156,38 +159,37 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork):
         #If we are in a new Grid Cell
         self.Current_Grid_Cell_X = math.floor(self.Internal_X/self.Arena_Grid_Size_X);
         self.Current_Grid_Cell_Y = math.floor(self.Internal_Y/self.Arena_Grid_Size_Y);
-        if self.Current_Grid_Cell_X != self.Last_Grid_Cell_X and self.Current_Grid_Cell_Y != self.Last_Grid_Cell_Y:
-            if self.Current_Grid_Cell_X >= 0 and self.Current_Grid_Cell_Y >= 0:
-                print("New Cell!"+str(self.Current_Grid_Cell_X)+"/"+str(self.Current_Grid_Cell_Y))
-                #We get the temp of the Cell & Light
+        if self.Current_Grid_Cell_X != self.Last_Grid_Cell_X or self.Current_Grid_Cell_Y != self.Last_Grid_Cell_Y:
+            print("New Cell!"+str(self.Current_Grid_Cell_X)+"/"+str(self.Current_Grid_Cell_Y))
+            #We get the temp of the Cell & Light
 
-                Current_Grid_Cell_Temp = int((uos.urandom(1)[0]/256) * 10);
-                Current_Grid_Cell_Luminosity = int((uos.urandom(1)[0]/256) * 10);
-                #Find Our Definite coords
-                Real_X = self.Internal_X;
-                Real_Y = self.Internal_Y;
+            Current_Grid_Cell_Temp = int((uos.urandom(1)[0]/256) * 10);
+            Current_Grid_Cell_Luminosity = int((uos.urandom(1)[0]/256) * 10);
+            #Find Our Definite coords
+            Real_X = self.Internal_X;
+            Real_Y = self.Internal_Y;
 
-                #convert coords into a grid square
-                Real_Grid_Square_X = math.floor(Real_X/self.Arena_Grid_Size_X);
-                Real_Grid_Square_Y = math.floor(Real_Y/self.Arena_Grid_Size_Y);
-                #Probably a good place to correct our internal coords
-                self.Internal_X = Real_X;
-                self.Internal_Y = Real_Y;
+            #convert coords into a grid square
+            Real_Grid_Square_X = math.floor(Real_X/self.Arena_Grid_Size_X);
+            Real_Grid_Square_Y = math.floor(Real_Y/self.Arena_Grid_Size_Y);
+            #Probably a good place to correct our internal coords
+            self.Internal_X = Real_X;
+            self.Internal_Y = Real_Y;
 
-                #Update your internal grid map
-                self.Map_Bounty[Real_Grid_Square_X][Real_Grid_Square_Y] = 0;
-                self.Map_Temp[Real_Grid_Square_X][Real_Grid_Square_Y] = Current_Grid_Cell_Temp;
-                self.Map_Light[Real_Grid_Square_X][Real_Grid_Square_Y] = Current_Grid_Cell_Luminosity;
-                #Transmit the new information, starts transmission
+            #Update your internal grid map
+            self.Map_Bounty[Real_Grid_Square_X][Real_Grid_Square_Y] = 0;
+            self.Map_Temp[Real_Grid_Square_X][Real_Grid_Square_Y] = Current_Grid_Cell_Temp;
+            self.Map_Light[Real_Grid_Square_X][Real_Grid_Square_Y] = Current_Grid_Cell_Luminosity;
+            #Transmit the new information, starts transmission
 
-                Bluetooth_obj.Start_Transmit_Tile_Update(Real_Grid_Square_X,Real_Grid_Square_Y,Current_Grid_Cell_Luminosity,15);
+            Bluetooth_obj.Start_Transmit_Tile_Update(Real_Grid_Square_X,Real_Grid_Square_Y,Current_Grid_Cell_Luminosity,15);
 
 
             #If the grid cell we are in is the target then we choose a new Target_Destination
             if self.Current_Grid_Cell_X == self.Target_Destination[0] and self.Current_Grid_Cell_Y == self.Target_Destination[1]:
                 self.Target_Destination = self.Choose_Target_Square(Bluetooth_obj,Swarmbot_obj);
                 print("Chosen new t dest!" + str(self.Target_Destination[0])+"/"+str(self.Target_Destination[1]));
-                self.Display_Map(self.Map_Bounty);
+                self.Display_Map(self.Map_Assignement);
                 #Wipe grid to prevent poor comms trash buildup
                 self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
