@@ -231,27 +231,27 @@ def test3_both():
     swarmbeh = Behaviour.SwarmBehaviour();
     #Choose an initial destination
     swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
-    X = 0;
-    Y = 0;
+    X = 150;
+    Y = 150;
     print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
     while True:
         #print(str(X)+"/"+str(Y));
 
-        swarmbeh.Set_InternalXY(X,Y);
+        swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
         swarmbeh.Increment_Bounty_Tiles(1);
         swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
         swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
-        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
-        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
         #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
         if X < Xg:
-            X += 0.5;
+            X += 1;
         else:
-            X -= 0.5;
+            X -= 1;
         if Y < Yg:
-            Y += 0.5;
+            Y += 1;
         else:
-            Y -= 0.5;
+            Y -= 1;
 
 
 
@@ -755,6 +755,8 @@ def test6_movement():
             #print("forward")
 
 
+#This code is an integration of the behavioural code with internal coord Code
+#It does not really perform as intended
 def test7_both_int():
 
     ## Set Pycom Heartbeat ##
@@ -1133,19 +1135,26 @@ def test7_both_int():
     swarmbeh.Map_Bounty[8][8] = 5000;
     swarmbeh.Map_Bounty[8][0] = 5000;
     j = 0;
+    #####HMMMMMMMM !
+    X = 150;
+    Y = 150;
+    swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
+    Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
+    Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
+
     while True:
         j+=1;
         print(j)
-        swarmbeh.Set_InternalXY(X,Y);
+        swarmbeh.Set_InternalXY(X - (0.5*swarmbeh.Arena_Grid_Size_X/1000),Y - (0.5*swarmbeh.Arena_Grid_Size_Y/1000));
         #swarmbeh.Increment_Bounty_Tiles(1);
 
 
-        swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+        #swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
         swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
         old_xg = Xg;
         old_yg = Yg;
-        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X/3000;
-        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y/3000;
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X/1000 + (0.5*swarmbeh.Arena_Grid_Size_X/1000);
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y/1000 + (0.5*swarmbeh.Arena_Grid_Size_Y/1000);
         #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
         if swarmbt.Collision_Timer > 0:
             #red Light
@@ -1214,13 +1223,14 @@ def test7_both_int():
                 #print(chrono.read())
                 c_loc = current_loc(COMM, org, ang_mov_thoug)
                 #update internal coords
-                X = c_loc[0]*3000;
-                Y = c_loc[1]*3000;
+                X = c_loc[0]*1000;
+                Y = c_loc[1]*1000;
                 print("Robot's current Position is:", c_loc)
 
 
 
-
+#This function is james original movement Code
+#You input a destination and it goes to it.
 def test8_moveput():
 
     #
@@ -1607,6 +1617,7 @@ def test8_moveput():
         org = COMM
         ang_org = ang_desired
 
+
 if __name__ == "__main__":
     ##Swarmbot is initialised
     #swarmbot = SwarmBot.SwarmBot()
@@ -1615,4 +1626,4 @@ if __name__ == "__main__":
 
     #swarmbeh = Behaviour.SwarmBehaviour();
     print("SwarmBot is Testing -_-");
-    test7_both_int();
+    test3_both();
