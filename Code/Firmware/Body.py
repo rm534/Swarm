@@ -38,8 +38,8 @@ class SwarmBody():
 
         #self.initialise_I2C(SDA, SCL)
 
-        # self.initialise_motor(motor_pin1, motor_pin2, motor_pin3, motor_pin4)
-        # self.initialise_gyro()
+        #self.initialise_motor(motor_pin1, motor_pin2, motor_pin3, motor_pin4)
+        #self.initialise_gyro_new()
 
         #self.initialise_lidar(SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
 

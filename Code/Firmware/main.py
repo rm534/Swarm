@@ -1615,4 +1615,4 @@ if __name__ == "__main__":
 
     #swarmbeh = Behaviour.SwarmBehaviour();
     print("SwarmBot is Testing -_-");
-    test7_both_int();
+    test5_ldar();
