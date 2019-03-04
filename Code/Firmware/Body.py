@@ -105,8 +105,8 @@ class SwarmBody():
         self.lidar_DIO4.value(0)
         self.set_lidar(lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
         self._get_pos = 1
-        while True:
-            self.l1, self.l2, self.l3, self.l4 = self.get_lidar()
+        #while True:
+         #   self.l1, self.l2, self.l3, self.l4 = self.get_lidar()
 
     def _set_lidar(self, ID, lidar_DIO):
         if ID == 1:

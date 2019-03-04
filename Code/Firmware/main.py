@@ -658,7 +658,14 @@ def test5_ldar():
         else:
             Y -= 0.5;
             #stop_all();
-        l1, l2, l3, l4 = swarmbody.l1,swarmbody.l2,swarmbody.l3,swarmbody.l4,;
+        #l1, l2, l3, l4 = swarmbody.l1,swarmbody.l2,swarmbody.l3,swarmbody.l4,;
+        #Waiting for Lidar to initialise
+        while swarmbody._get_pos != 1:
+            pass
+            time.sleep(1)
+            print("waiting for Lidar")
+
+        l1, l2, l3, l4 = swarmbody.get_lidar()
         print(str(l1) + " " + str(l2) + " " + str(l3) + " " + str(l4))
 
 
