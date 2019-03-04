@@ -680,7 +680,7 @@ def test5_ldar():
             if lastcol == True:
                 stop_all();
                 lastcol = False;
-                #forward();
+                forward();
                 print("forward")
             lastcol = False;
             #Green light
@@ -1626,4 +1626,4 @@ if __name__ == "__main__":
 
     #swarmbeh = Behaviour.SwarmBehaviour();
     print("SwarmBot is Testing -_-");
-    test3_both();
+    #test5_ldar();
