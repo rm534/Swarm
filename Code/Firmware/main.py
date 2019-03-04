@@ -1136,9 +1136,9 @@ def test7_both_int():
     #####HMMMMMMMM !
     X = 150;
     Y = 150;
-swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
-Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
-Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
+    swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
+    Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
+    Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
 
     while True:
         j+=1;
@@ -1623,4 +1623,4 @@ if __name__ == "__main__":
 
     #swarmbeh = Behaviour.SwarmBehaviour();
     print("SwarmBot is Testing -_-");
-    test3_both();
+    test7_both_int();
