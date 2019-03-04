@@ -231,27 +231,27 @@ def test3_both():
     swarmbeh = Behaviour.SwarmBehaviour();
     #Choose an initial destination
     swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
-    X = 150;
-    Y = 150;
+    X = 0;
+    Y = 0;
     print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
     while True:
         #print(str(X)+"/"+str(Y));
 
-        swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
+        swarmbeh.Set_InternalXY(X,Y);
         swarmbeh.Increment_Bounty_Tiles(1);
         swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
         swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
-        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
-        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
         #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
         if X < Xg:
-            X += 1;
+            X += 0.5;
         else:
-            X -= 1;
+            X -= 0.5;
         if Y < Yg:
-            Y += 1;
+            Y += 0.5;
         else:
-            Y -= 1;
+            Y -= 0.5;
 
 
 
@@ -279,7 +279,7 @@ chrono = Timer.Chrono()
 
 ## Speed Parameters ##
 DCw = 0.7
-DCv = 1
+DCv = 0.2
 
 w = 200
 v = 0.425
@@ -658,8 +658,8 @@ def test5_ldar():
         else:
             Y -= 0.5;
             #stop_all();
-        l1, l2, l3, l4 = swarmbody.get_lidar();
-
+        l1, l2, l3, l4 = swarmbody.l1,swarmbody.l2,swarmbody.l3,swarmbody.l4,;
+        print(str(l1) + " " + str(l2) + " " + str(l3) + " " + str(l4))
 
 
         if l1 < mml or l2 < mml or l3 < mml or l4 < mml:
@@ -680,14 +680,133 @@ def test5_ldar():
             if lastcol == True:
                 stop_all();
                 lastcol = False;
-                forward();
+                #forward();
                 print("forward")
             lastcol = False;
             #Green light
             pycom.rgbled(0x007f00)
             #forward();
             #print("forward")
+def test10_LIDAR():
+    ## Set Pycom Heartbeat ##
+    pycom.heartbeat(True)
 
+
+    ## Setup Timer ##
+    chrono = Timer.Chrono()
+    chrono2 = Timer.Chrono()
+
+
+    ## Starting Coordinates ##
+    org = (0, 0)
+    ang_org = 0
+
+
+    ## Sample Rate [S] ##
+    sr = 0.1
+
+
+    ##  Initial Speed Parameters ##
+    # PWM DC
+    DCw = 0.7
+    DCv = 0.4
+
+    # Speed
+    w = 200   # [Deg/s]
+    v = 0.425 # [m/s]
+
+
+    ## Motor Setups ##
+    # Motor 1
+    Motor1F = Pin('P11', mode =Pin.OUT)
+    Motor1B = Pin('P12', mode =Pin.OUT)
+    PWM1 = 'P6'
+    # PWM on 'P6'
+
+    # Motor 2
+    Motor2F = Pin('P21', mode =Pin.OUT)
+    Motor2B = Pin('P20', mode =Pin.OUT)
+    PWM2 = 'P7'
+    # PWM on'P7'
+
+
+    ## PWM Setup ##
+    pwm = PWM(0, frequency = 500)
+
+    ## Functions ##
+    def stop_all():
+        Motor1F.value(0)
+        Motor2F.value(0)
+        Motor1B.value(0)
+        Motor2B.value(0)
+
+        # Stop PWM
+        Pin(PWM1, mode = Pin.OUT).value(0)
+        Pin(PWM2, mode = Pin.OUT).value(0)
+
+
+
+    ## Defining Functions ##
+    def forward():
+        chrono.start()
+        Motor1F.value(1)
+        Motor2F.value(1)
+
+        pwm.channel(0, pin = PWM1, duty_cycle = DCv)
+        pwm.channel(0, pin = PWM2, duty_cycle = DCv)
+
+
+    def back():
+        chrono.start()
+
+        Motor1B.value(1)
+        Motor2B.value(1)
+
+        pwm.channel(0, pin = PWM1, duty_cycle = DCv)
+        pwm.channel(0, pin = PWM2, duty_cycle = DCv)
+
+    swarmbody = Body.SwarmBody();
+    lastcol = True;
+    ldtmer = 0;
+    ldlim = 0.7; # 2 second move
+    mml = 15;
+    while True:
+        print(ldtmer);
+        ldtmer+=1;
+    """
+    while True:
+        l1, l2, l3, l4 = swarmbody.l1,swarmbody.l2,swarmbody.l3,swarmbody.l4,;
+        print(str(l1) + " " + str(l2) + " " + str(l3) + " " + str(l4))
+
+
+        if l1 < mml or l2 < mml or l3 < mml or l4 < mml:
+            ldtmer = 10;
+            chrono2.reset()
+            chrono2.start()
+
+        if chrono2.read()<ldlim:
+            if lastcol == False:
+                stop_all();
+                back();
+                print("back")
+            #red Light
+            lastcol = True;
+            #pycom.rgbled(0x7f0000)
+            #print(chrono2.read());
+            #back();
+            #ldtmer-=1;
+        else:
+            if lastcol == True:
+                stop_all();
+                lastcol = False;
+                forward();
+                print("forward")
+            lastcol = False;
+            chrono2.stop()
+
+            #Green light
+            #pycom.rgbled(0x007f00)
+    """
     #Makng movement based on read coords
 def test6_movement():
     1==1;
@@ -755,8 +874,6 @@ def test6_movement():
             #print("forward")
 
 
-#This code is an integration of the behavioural code with internal coord Code
-#It does not really perform as intended
 def test7_both_int():
 
     ## Set Pycom Heartbeat ##
@@ -1135,26 +1252,19 @@ def test7_both_int():
     swarmbeh.Map_Bounty[8][8] = 5000;
     swarmbeh.Map_Bounty[8][0] = 5000;
     j = 0;
-    #####HMMMMMMMM !
-    X = 150;
-    Y = 150;
-    swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
-    Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
-    Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
-
     while True:
         j+=1;
         print(j)
-        swarmbeh.Set_InternalXY(X - (0.5*swarmbeh.Arena_Grid_Size_X/1000),Y - (0.5*swarmbeh.Arena_Grid_Size_Y/1000));
+        swarmbeh.Set_InternalXY(X,Y);
         #swarmbeh.Increment_Bounty_Tiles(1);
 
 
-        #swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+        swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
         swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
         old_xg = Xg;
         old_yg = Yg;
-        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X/1000 + (0.5*swarmbeh.Arena_Grid_Size_X/1000);
-        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y/1000 + (0.5*swarmbeh.Arena_Grid_Size_Y/1000);
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X/3000;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y/3000;
         #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
         if swarmbt.Collision_Timer > 0:
             #red Light
@@ -1223,14 +1333,13 @@ def test7_both_int():
                 #print(chrono.read())
                 c_loc = current_loc(COMM, org, ang_mov_thoug)
                 #update internal coords
-                X = c_loc[0]*1000;
-                Y = c_loc[1]*1000;
+                X = c_loc[0]*3000;
+                Y = c_loc[1]*3000;
                 print("Robot's current Position is:", c_loc)
 
 
 
-#This function is james original movement Code
-#You input a destination and it goes to it.
+
 def test8_moveput():
 
     #
@@ -1618,6 +1727,7 @@ def test8_moveput():
         ang_org = ang_desired
 
 
+
 if __name__ == "__main__":
     ##Swarmbot is initialised
     #swarmbot = SwarmBot.SwarmBot()
@@ -1626,4 +1736,5 @@ if __name__ == "__main__":
 
     #swarmbeh = Behaviour.SwarmBehaviour();
     print("SwarmBot is Testing -_-");
-    #test5_ldar();
+    test10_LIDAR();
+    pass
