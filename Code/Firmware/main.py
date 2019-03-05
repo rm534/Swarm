@@ -777,9 +777,19 @@ def test10_LIDAR():
     ldtmer = 0;
     ldlim = 0.7; # 2 second move
     mml = 15;
+    """
     while True:
         print(ldtmer);
         ldtmer+=1;
+        while swarmbody._get_pos != 1:
+            pass
+            time.sleep(1)
+            print("waiting for Lidar")
+
+        l1, l2, l3, l4 = swarmbody.get_lidar()
+        print(str(l1) + " " + str(l2) + " " + str(l3) + " " + str(l4))
+
+
     """
     while True:
         l1, l2, l3, l4 = swarmbody.l1,swarmbody.l2,swarmbody.l3,swarmbody.l4,;
@@ -794,7 +804,7 @@ def test10_LIDAR():
         if chrono2.read()<ldlim:
             if lastcol == False:
                 stop_all();
-                back();
+                swarmbody.move_backward();
                 print("back")
             #red Light
             lastcol = True;
@@ -806,14 +816,14 @@ def test10_LIDAR():
             if lastcol == True:
                 stop_all();
                 lastcol = False;
-                forward();
+                swarmbody.move_forward();
                 print("forward")
             lastcol = False;
             chrono2.stop()
 
             #Green light
             #pycom.rgbled(0x007f00)
-    """
+
     #Makng movement based on read coords
 def test6_movement():
     1==1;
