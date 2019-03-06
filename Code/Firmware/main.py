@@ -882,7 +882,8 @@ def test12_behav_sensors():
 
     #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
     #START THIS ON A NEW THREAD , all future calls must be thread calls
-    body.PID_control(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0)
+    #If PID_control reaches its destination or ends a collision we need to kill it
+    PID_thread = _thread.start_new_thread(body.PID_control,(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0))
 
     #Start the main Loop
     while True:
@@ -891,14 +892,19 @@ def test12_behav_sensors():
         if swarmbody.Arrival_Flag == True
             swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
             #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
-
-            body.PID_control(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0)
+            #For safety kill the PID THREAD
+            zone = swarmbody.get_zone???();
+            swarmbody.get_pos(zone);
+            PID_thread.kill();
+            PID_thread = _thread.start_new_thread(body.PID_control,(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0))
 
         elif swarmbody.Collision_Flag = True:
             swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
             #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
-
-            body.PID_control(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0)
+            zone = swarmbody.get_zone???();
+            swarmbody.get_pos(zone);
+            PID_thread.kill();
+            PID_thread = _thread.start_new_thread(body.PID_control,(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0))
         #Run bluetooth and other code
         else:
             swarmbeh.Set_InternalXY(swarmbody.x,swarmbody.y);
