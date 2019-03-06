@@ -804,7 +804,7 @@ def test10_LIDAR():
         if chrono2.read()<ldlim:
             if lastcol == False:
                 stop_all();
-                swarmbody.move_backward();
+                back();
                 print("back")
             #red Light
             lastcol = True;
@@ -816,7 +816,7 @@ def test10_LIDAR():
             if lastcol == True:
                 stop_all();
                 lastcol = False;
-                swarmbody.move_forward();
+                forward();
                 print("forward")
             lastcol = False;
             chrono2.stop()
@@ -825,6 +825,89 @@ def test10_LIDAR():
             #pycom.rgbled(0x007f00)
 
     #Makng movement based on read coords
+
+#Similar collision testing but integrated with the body code
+def test11_Lidar_Integrated():
+    swarmbody = Body.SwarmBody();
+    lastcol = True;
+    #ldtmer = 0;
+    ldlim = 0.7; # 2 second move
+    mml = 15;
+    swarmbody.duty_cycle = 0.3;
+    while True:
+        l1, l2, l3, l4 = swarmbody.l1,swarmbody.l2,swarmbody.l3,swarmbody.l4,;
+        print(str(l1) + " " + str(l2) + " " + str(l3) + " " + str(l4))
+
+
+        if l1 < mml or l2 < mml or l3 < mml or l4 < mml:
+            ldtmer = 10;
+            chrono2.reset()
+            chrono2.start()
+
+        if chrono2.read()<ldlim:
+            if lastcol == False:
+                stop_all();
+                swarmbody.move_back();
+                print("back")
+            lastcol = True;
+
+        else:
+            if lastcol == True:
+                stop_all();
+                lastcol = False;
+                swarmbody.move_forward();
+                print("forward")
+            lastcol = False;
+            chrono2.stop()
+
+
+#Running robot behaviour with sensors working
+def test12_behav_sensors():
+    #pycom.heartbeat(False)
+	#Initialise a body object
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    X = 0;
+    Y = 0;
+    print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+    #Get initial Position
+    zone = swarmbody.get_zone???();
+    swarmbody.get_pos(zone);
+
+    #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
+    #START THIS ON A NEW THREAD , all future calls must be thread calls
+    body.PID_control(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0)
+
+    #Start the main Loop
+    while True:
+
+        #If we have arrived at our destination
+        if swarmbody.Arrival_Flag == True
+            swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+            #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
+
+            body.PID_control(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0)
+
+        elif swarmbody.Collision_Flag = True:
+            swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+            #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
+
+            body.PID_control(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0)
+        #Run bluetooth and other code
+        else:
+            swarmbeh.Set_InternalXY(swarmbody.x,swarmbody.y);
+            swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+            swarmbeh.Check_New_Grid_Cell_Handle(swarmbody,swarmbt);
+
+
+
+
 def test6_movement():
     1==1;
     DCv = 0.6;
