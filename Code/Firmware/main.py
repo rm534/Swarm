@@ -877,13 +877,12 @@ def test12_behav_sensors():
     Y = 0;
     print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
     #Get initial Position
-    zone = swarmbody.get_zone???();
-    swarmbody.get_pos(zone);
+    position = swarmbody.get_pos();
 
     #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
     #START THIS ON A NEW THREAD , all future calls must be thread calls
     #If PID_control reaches its destination or ends a collision we need to kill it
-    PID_thread = _thread.start_new_thread(body.PID_control,(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0))
+    PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
 
     #Start the main Loop
     while True:
@@ -893,18 +892,16 @@ def test12_behav_sensors():
             swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
             #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
             #For safety kill the PID THREAD
-            zone = swarmbody.get_zone???();
-            swarmbody.get_pos(zone);
+            position = swarmbody.get_pos();
             PID_thread.kill();
-            PID_thread = _thread.start_new_thread(body.PID_control,(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0))
+            PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
 
-        elif swarmbody.Collision_Flag = True:
+        elif swarmbody.Collision_Flag == True:
             swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
             #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
-            zone = swarmbody.get_zone???();
-            swarmbody.get_pos(zone);
+            position = swarmbody.get_pos();
             PID_thread.kill();
-            PID_thread = _thread.start_new_thread(body.PID_control,(x_des=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(swarmbody.x, swarmbody.y), starting_angle=0))
+            PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
         #Run bluetooth and other code
         else:
             swarmbeh.Set_InternalXY(swarmbody.x,swarmbody.y);
