@@ -22,6 +22,8 @@ from math import sin
 from math import cos
 
 from machine import Pin
+
+import _thread
 #import Code.Firmware.Behaviour
 #import Code.Firmware.Bluetooth_Comms
 
@@ -1274,33 +1276,118 @@ def test12_behav_sensors():
     #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
     #START THIS ON A NEW THREAD , all future calls must be thread calls
     #If PID_control reaches its destination or ends a collision we need to kill it
-    PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
+    PID_thread = _thread.start_new_thread(swarmbody.PID_movement,(swarmbeh.Target_Destination[0],swarmbeh.Target_Destination[1],(position[0], position[1]),position[2]))
 
     #Start the main Loop
     while True:
 
         #If we have arrived at our destination
-        if swarmbody.Arrival_Flag == True
+        if swarmbody.Arrival_Flag == True:
             swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
             #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
             #For safety kill the PID THREAD
             position = swarmbody.get_pos();
             PID_thread.kill();
-            PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
+            #PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
 
         elif swarmbody.Collision_Flag == True:
             swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
             #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
             position = swarmbody.get_pos();
             PID_thread.kill();
-            PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
+            #PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
         #Run bluetooth and other code
         else:
             swarmbeh.Set_InternalXY(swarmbody.x,swarmbody.y);
             swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
             swarmbeh.Check_New_Grid_Cell_Handle(swarmbody,swarmbt);
 
+#A test to see if the robot can move to four coordinates, this before integrating behaviour
+def test_13_four_coords():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.8;
 
+
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(60, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(60, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(70, 70, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(70, 80, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+
+        else:
+            print("don't worry! I'm 22!!")
+
+def test_14_integration_testing():
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+
+
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbt.test_transmit();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    Check = False;
+    while Check == False:
+        if swarmbody._get_pos == 1 and swarmbody.gyro_data != 0:
+            X = 0;
+            Y = 0;
+            #print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #Get initial Position
+            position = swarmbody.get_pos();
+            Check = True;
+    #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
+    #START THIS ON A NEW THREAD , all future calls must be thread calls
+    #If PID_control reaches its destination or ends a collision we need to kill it
+    print("begin, coords, X:" + str((swarmbeh.Target_Destination[0]+5)*10) + " Y: " + str((swarmbeh.Target_Destination[1]+5)*10));
+    PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
+    #PID_thread = _thread.start_new_thread(swarmbody.PID_movement,(50,50,(position[0], position[1]),position[2]))
 
 
 
@@ -1695,6 +1782,8 @@ if __name__ == "__main__":
     #swarmbot = SwarmBot.SwarmBot()
     #swarmbot.alive()
     #swarmbt = Bluetooth_Comms.SwarmBluetooth();
+
+    test_14_integration_testing();
 
     #swarmbeh = Behaviour.SwarmBehaviour();
     #print("SwarmBot is Testing -_-");

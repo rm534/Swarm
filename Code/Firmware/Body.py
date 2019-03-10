@@ -425,7 +425,7 @@ class SwarmBody():
                     else:
                         closest = 0
 
-                    body.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
+                    self.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
 
 
     def get_battery_state(self):
@@ -654,28 +654,28 @@ if __name__ == '__main__':
             position = body.get_pos()
             #break
             print("Coordinate: (",position[0],",",position[1],")")
-            complete = True
+            #complete = True
             print("Reached the coordinate! wooooo")
             body.PID_movement(60, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
             position = body.get_pos()
             #break
             print("Coordinate: (",position[0],",",position[1],")")
-            complete = True
+            #complete = True
             print("Reached the coordinate! wooooo")
             body.PID_movement(60, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
             position = body.get_pos()
             #break
             print("Coordinate: (",position[0],",",position[1],")")
-            complete = True
+            #complete = True
             print("Reached the coordinate! wooooo")
             body.PID_movement(70, 70, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
             position = body.get_pos()
             #break
             print("Coordinate: (",position[0],",",position[1],")")
-            complete = True
+            #complete = True
             print("Reached the coordinate! wooooo")
             body.PID_movement(70, 80, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
