@@ -10,7 +10,7 @@ import math
 class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.SwarmBluetooth):
     def __init__(self):
         Body.SwarmBody.__init__(self)
-        #Network.SwarmNetwork.__init__(self)
+        Network.SwarmNetwork.__init__(self)
         Bluetooth_Comms.SwarmBluetooth.__init__(self)
 
         self.Collision_Timer = 0;

@@ -29,6 +29,17 @@ LIDAR3_ADDR = const(0x17)
 LIDAR4_ADDR = const(0x18)
 TEMP_ADDR = const(0x48)
 
+# self, error_prior=0, integral=0, KP=3, KI=5, KD=0.01, bias=0,
+#                          iteration_time=0.05, error=20, tol=1,
+# Constants for PID controller
+KP = (1.5, 1)
+KI = (0, 0)
+KD = (0, 0)
+bias = (0, 0)
+iteration_time = (0.1, 1)
+V = 40.1
+W = 200.934
+
 
 # Class for movement and Sensing of Robot
 class SwarmBody():
@@ -41,7 +52,6 @@ class SwarmBody():
         self.initialise_gyro()
         self.initialise_rest(SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
         self.initialise_motor(motor1F, motor1B, motor2F, motor2B)
-
 
         self.gyro_data = 0
         self.robot_move_flag = 0
@@ -105,8 +115,8 @@ class SwarmBody():
         self.lidar_DIO4.value(0)
         self.set_lidar(lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
         self._get_pos = 1
-        #while True:
-         #   self.l1, self.l2, self.l3, self.l4 = self.get_lidar()
+        # while True:
+        # self.l1, self.l2, self.l3, self.l4 = self.get_lidar()
 
     def _set_lidar(self, ID, lidar_DIO):
         if ID == 1:
@@ -151,7 +161,7 @@ class SwarmBody():
         self.motor_PWM = PWM(0, frequency=500)
         self.pwm1 = "P6"
         self.pwm2 = "P7"
-        self.duty_cycle = 0.4
+        self.duty_cycle = 0.5
         self.w = 200.934
         self.v = 0.401
         self.chrono = Timer.Chrono()
@@ -252,7 +262,7 @@ class SwarmBody():
         self.motor2F.value(1)
         self.motor_PWM.channel(0, pin=self.pwm1, duty_cycle=self.duty_cycle)
         self.motor_PWM.channel(0, pin=self.pwm2, duty_cycle=self.duty_cycle)
-        print("hello")
+        #print("hello")
 
         return
 
@@ -292,7 +302,7 @@ class SwarmBody():
 
     # Function to get lidar readings [TBC]
     def get_lidar(self):
-        #print("[+] getting lidar")
+        # print("[+] getting lidar")
         self.tof1.start()
         self.tof2.start()
         self.tof3.start()
@@ -350,24 +360,73 @@ class SwarmBody():
         sys.exit()
 
     # TODO: implement the route method
-    def get_pos(self, zone):
+    # def get_pos(self, zone):
+    #
+    #     if self.gyro_data > 180:
+    #         self.gyro_data = 180
+    #     if self.gyro_data < -180:
+    #         self.gyro_data = -180
+    #     print("front: ", self.l1)
+    #     print("back: ", self.l2)
+    #     print("right: ", self.l3)
+    #     print("left: ", self.l4)
+    #     print("angle:", self.gyro_data * -1)
+    #     print("temp: ", self.temp)
+    #
+    #     print(Position.find_coordinate(self.gyro_data * -1, self.l1 + 8.0, self.l2 + 8.0, self.l3 + 5.5, self.l4 + 5.5,
+    #                                    zone))
+    #     pos = Position.find_coordinate(self.gyro_data, self.l1, self.l2, self.l3, self.l4, zone)
+    #     self.x = pos[0]
+    #     self.y = pos[1]
 
-        if self.gyro_data > 180:
-            self.gyro_data = 180
-        if self.gyro_data < -180:
-            self.gyro_data = -180
-        print("front: ", self.l1)
-        print("back: ", self.l2)
-        print("right: ", self.l3)
-        print("left: ", self.l4)
-        print("angle:", self.gyro_data * -1)
-        print("temp: ", self.temp)
+    def get_pos(self):   ## The one for the 90 degree increment code
 
-        print(Position.find_coordinate(self.gyro_data * -1, self.l1 + 8.0, self.l2 + 8.0, self.l3 + 5.5, self.l4 + 5.5,
-                                       zone))
-        pos = Position.find_coordinate(self.gyro_data, self.l1, self.l2, self.l3, self.l4, zone)
-        self.x = pos[0]
-        self.y = pos[1]
+        do_function = True
+
+        while do_function:
+
+            angle = self.gyro_data * -1
+            l1,l2,l3,l4 = self.get_lidar()
+
+            if angle > 180:     #
+                angle = 180     #  Hopefully this shouldn't
+            if angle < -180:    #  happen again
+                angle = -180    #
+
+            # print("front: ", l1)
+            # print("back: ", l2)
+            # print("right: ", l3)
+            # print("left: ", l4)
+            # print("angle:", angle)
+
+            if (angle <= 10 and angle >= -10) or (angle >= 80 and angle <=100) or (angle >=170 or angle<=170) or (angle >=-100 and angle <= -80):
+
+                pos = Position.coordinate_2(angle, l1 + 8.0, l2 + 8.0, l3 + 5.5, l4 + 5.5)
+
+                if pos[0] != 1000:        ## this means no error occured in the coordinate code
+                    self.x = pos[0]
+                    self.y = pos[1]
+                    do_function = False   ## exit function because successful coordinate has been found
+                    print("Angle:",angle) ## just for when we want to observe the gyro
+                    return pos
+
+                if pos[0] == 1000:        ## this means a coordinate could not be found
+
+                    # See which 90-degree increment robot is currently closest to then use PID to rotate to that
+                    diffs = [abs(90-angle), abs(-90-angle),abs(180-angle),abs(0-angle)]
+                    min_val = min(diffs)
+
+                    if min_val == diffs[0]:
+                        closest = 90
+                    elif min_val == diffs[1]:
+                        closest = -90
+                    elif min_val == diffs[2]:
+                        closest = 180
+                    else:
+                        closest = 0
+
+                    body.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
+
 
     def get_battery_state(self):
         bat = 0.47
@@ -378,67 +437,37 @@ class SwarmBody():
         # Get information, Dummy Variables for now
         return self.temp, self.x, self.y, self.battery
 
-    ##PID Control function - input the x and y desired coordinate and the starting coordinate (x, y) and starting angle and does rotation and linear movement
-    def PID_control(self, error_prior=0, integral=0, KP=2, KI=0, KD=0, bias=0,
-                    iteration_time=0.1, error=20, tol = 1, x_des=None, y_des=None, starting_coordinate=(0, 0), starting_angle=0):
-        if x_des == None or y_des == None:
+    def PID_control_rotate_zero(self, closest_angle, error_prior=0, integral=0, error=20, tol=1):
 
-            return
-        else:
-            desired_coordinate = (float(x_des), float(y_des))
+        # result = Position.best_route(desired_coordinate, starting_coordinate, starting_angle)
 
-        result = Position.best_route(desired_coordinate, starting_coordinate, starting_angle)
+        ang_desired = closest_angle
 
-        rot_mov = result[0]
-        ang_mov = rot_mov[1]
+        count = 0
 
-        ang_desired = result[2]
-
-        while abs(error) > tol:  #error is more accurate than t_rot (as t_rot is based on an estimate)
-            # output of best route bit is angle that it needs to rotate by (ang_mov)
-            # Therefore, error is ang_mov - angle it has turned while at that coordinate (ang_turned)
-
-            # current_angle = angle  #need to get current readings from gyro (incorporate in body)
-            #ang_turned = self.gyro_data - starting_angle  # need to check for + and - angles
+        while abs(error) > tol and count < 15:  # error is more accurate than t_rot (as t_rot is based on an estimate)
 
             error = ang_desired - (-self.gyro_data)
-            integral = integral + (error * iteration_time)
-            derivative = (error - error_prior) / iteration_time
+            integral = integral + (error * iteration_time[0])
+            derivative = (error - error_prior) / iteration_time[0]
 
-            output = KP * error + KI * integral + KD * derivative + bias  # bias to prevent output being 0
+            output = KP[0] * error + KI[0] * integral + KD[0] * derivative + bias[0]  # bias to prevent output being 0
             error_prior = error
 
-            t_rot = abs(output) / self.w  # w
-            print(ang_desired)
-            #print(error)
-            #print(t_rot)
+            t_rot = abs(output) / W
+            # print(ang_desired)
+            # print(error)
+            # print(t_rot)
 
             ## Rotational Movement ##
 
-            # if rot_mov[0] == 1:
-            #     if error > 0:
-            #         self.rotate_anti_clockwise()
-            #     else:
-            #         self.rotate_clockwise()
-            #
-            # elif rot_mov[0] == 0:
-            #     if error > 0:
-            #         self.rotate_clockwise()
-            #     else:
-            #         self.rotate_anti_clockwise()
+            if error > 0:
+                self.rotate_anti_clockwise()
 
-            if rot_mov[0] == 1:
-                if error > 0:
-                    self.rotate_clockwise()
-                else:
-                    self.rotate_anti_clockwise()
+            else:
+                self.rotate_clockwise()
 
-            elif rot_mov[0] == 0:
-                if error > 0:
-                    self.rotate_anti_clockwise()
-                else:
-                    self.rotate_clockwise()
-
+            count += 1
 
             time.sleep(t_rot)
             self.motor_stop()
@@ -446,86 +475,216 @@ class SwarmBody():
 
         self.motor_stop()
 
+        time.sleep(0.1)  # put in for testing
+
+    ##PID Control function - input the x and y desired coordinate and the starting coordinate (x, y) and starting angle and does rotation and linear movement
+    def PID_control_rotate(self, best_route_result, error_prior=0, integral=0, error=20, tol=1):
+
+        # result = Position.best_route(desired_coordinate, starting_coordinate, starting_angle)
+
+        #rot_mov = best_route_result[0]
+
+        # ang_mov = rot_mov[1]
+
+        ang_desired = best_route_result[2]
+        print('best_route_result =', best_route_result)
+
+        while abs(error) > tol:  # error is more accurate than t_rot (as t_rot is based on an estimate)
+
+            error = (ang_desired - (-self.gyro_data))
+            integral = integral + (error * iteration_time[0])
+            derivative = (error - error_prior) / iteration_time[0]
+
+            #Should never need to rotate more than 90 , celo
+            if abs(error) > 90:
+                if error < 0:
+                    error = -90;
+                if error > 0:
+                    error = 90;
+
+            output = KP[0] * error + KI[0] * integral + KD[0] * derivative + bias[0]  # bias to prevent output being 0
+            error_prior = error
+
+            t_rot = abs(output) / W
+            #print(ang_desired)
+            #print("Error: ",error)
+            # print(t_rot)
+
+            ## Rotational Movement ##
+
+            if best_route_result[0][0] == 1:
+                if error > 0:
+                    self.rotate_anti_clockwise()
+                else:
+                    self.rotate_clockwise()
 
 
+            elif best_route_result[0][0] == 0:
+                if error > 0:
+                    self.rotate_anti_clockwise()
+                else:
+                    self.rotate_clockwise()
+            print('ang_desired main', ang_desired)
+            #print(error)
 
-    # PID Control function - input the x and y desired coordinate and the starting coordinate (x, y) and starting angle and does rotation and linear movement
-#     def PID_control(self, error_prior=0, integral=0, KP=1, KI=0, KD=0, bias=0,
-#                     iteration_time=0.01, error=20, x_des=None, y_des=None, starting_coordinate=(0, 0), starting_angle=0):
-#         if x_des == None or y_des == None:
-#
-#             return
-#         else:
-#             desired_coordinate = (float(x_des), float(y_des))
-#
-#         result = Position.best_route(desired_coordinate, starting_coordinate, starting_angle)
-#
-#         rot_mov = result[0]
-#         ang_mov = rot_mov[1]
-#
-#         ang_desired = result[2]
-#         print(ang_desired)
-#
-#         while abs(error) > 4:
-#             # output of best route bit is angle that it needs to rotate by (ang_mov)
-#             # Therefore, error is ang_mov - angle it has turned while at that coordinate (ang_turned)
-#
-#             # current_angle = angle  #need to get current readings from gyro (incorporate in body)
-#             #ang_turned = self.gyro_data - starting_angle  # need to check for + and - angles
-#
-#             error = ang_desired - (-self.gyro_data)#ang_mov - ang_turned
-#             integral = integral + (error * iteration_time)
-#             derivative = (error - error_prior) / iteration_time
-#             output = KP * error + KI * integral + KD * derivative + bias  # bias to prevent output being 0
-#             error_prior = error
-#
-#
-#             t_rot = output / self.w  # w
-#
-#             ## Rotational Movement ##
-#             #print(error)
-#
-# #put 0s at top of motor defs to cut any signal before all 1's or if error changes from positvie to negative then stop_all.
-#
-#             if rot_mov[0] == 1:
-#                 if error > 0:
-#                     self.rotate_anti_clockwise()
-#                 else:
-#                     self.rotate_clockwise()
-#
-#             elif rot_mov[0] == 0:
-#                 if error > 0:
-#                     self.rotate_clockwise()
-#                 else:
-#                     self.rotate_anti_clockwise()
-#
-#             # while (chrono.read() < t_rot):
-#             time.sleep(t_rot)
-#
-#             # chrono.stop() #this taken outside of loop so that time keeps updating
-#         self.motor_stop()
+            time.sleep(t_rot/5)
+            self.motor_stop()
+            time.sleep(0.1)
 
+        self.motor_stop()
 
+        time.sleep(0.1)  # put in for testing
 
+    def NO_PID_LINEAR(self, best_route_result):
+        ##LINEAR MOVEMENT PART##!!!!!!!!!!!!
 
+        lin_mov = best_route_result[1]
+        dist = lin_mov[1]
 
+        if abs(dist) > 20:
 
+            if lin_mov[0] == 1:
+                self.move_forward()
 
+            elif lin_mov[0] == 0:
+                self.move_backward()
+
+            time.sleep(2)  # zone identification will need readings not too dissimilar so that it doesn't reject all zone options
+            self.motor_stop()
+
+            time.sleep(0.1)
+
+    def PID_LINEAR(self, best_route_result, error_prior2, integral2=0):
+
+        lin_mov = best_route_result[1]
+        dist = lin_mov[1]
+
+        error2 = dist  # or dist-dist_prior
+        integral2 = integral2 + (error2 * iteration_time[1])
+        derivative2 = (error2 - error_prior2) / iteration_time[1]
+        output2 = KP[1] * error2 + KI[1] * integral2 + KD[1] * derivative2 + bias[1]  # bias to prevent output being 0
+        self.error_prior2 = error2
+
+        ## Linear Movement ##
+
+        t_lin = output2 / V  # output2 is in cm
+
+        if lin_mov[0] == 1:
+            if error2 < 0:
+                self.move_backward()
+            else:
+                self.move_forward()
+
+        elif lin_mov[0] == 0:
+            if error2 < 0:
+                self.move_forward()
+            else:
+                self.move_backward()
+
+        # dist_prior=dist
+        time.sleep(t_lin)
+
+        self.motor_stop()
+
+        time.sleep(0.1)
+
+    def PID_movement(self, x_des, y_des,
+                    starting_coordinate=(0, 0), starting_angle=0):
+
+        best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
+                                                starting_angle)  # Decide how to extract variables from this for use below
+
+        while best_route_result[1][1] > 20:
+
+            #print('Step0.5')
+            #print('ang_desired =', best_route_result[2])
+            self.PID_control_rotate(best_route_result)
+            #print('Step1')
+            self.NO_PID_LINEAR(best_route_result)
+            #print('Step2')  # NON-Linear movement for set time
+            #self.PID_control_rotate_zero(closest_angle)  # Rotate back to zero
+            starting_coordinate = self.get_pos()  # Find position
+            #print('Step3')
+            print('starting_coordinate =', starting_coordinate)
+            best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
+                                                    self.gyro_data)  # Get new best route
+            # Update distance
+            #print('Step4')
+            time.sleep(1)
+
+        count = 0
+        while best_route_result[1][1] > 4:
+            #print('Step4.5')
+            #print('ang_desired =', best_route_result[2])
+            self.PID_control_rotate(best_route_result)
+            #print('Step5')
+            if count == 0:
+                #print('Step5.1')
+                self.PID_LINEAR(best_route_result,0)
+                count = 1
+            else:
+                #print('Step5.2')
+                self.PID_LINEAR(best_route_result,self.error_prior2)
+            #print('Step6')
+            #self.PID_control_rotate_zero(closest_angle)
+            starting_coordinate = self.get_pos()
+            print('starting_coordinate =', starting_coordinate)
+            #print('Step7')
+            best_route_result = Position.best_route((x_des, y_des), starting_coordinate, self.gyro_data)
+            print("linear",best_route_result[1][0])
+            #print('Step8')
 
 
 if __name__ == '__main__':
     # network = Network.SwarmNetwork()
     body = SwarmBody()
-    #Example PID control
-
+    body.duty_cycle = 0.8;
+    complete = False
     print("[+] Setting Timer")
-    while True:
+
+    while complete == False:
         time.sleep(1)
-        print("still in main")
 
         if body._get_pos == 1 and body.gyro_data != 0:
-            body.get_pos(1)
-            #break
 
-    body.PID_control(x_des=10, y_des=80, starting_coordinate=(0, 0), starting_angle=0)
-    body.get_pos(1)
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(60, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(60, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(70, 70, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(70, 80, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+        else:
+            print("don't worry! I'm 22!!")

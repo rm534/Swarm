@@ -28,31 +28,32 @@ def coordinate_2(yaw, F, B, R, L):   ## this coordinate code is based on robot o
             x = B*cos(a)
             y = R*cos(a)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if (F*cos(a) < 150) and (R*cos(a) < 150):
             zone = 2
             x = 300 - F*cos(a)
             y = R*cos(a)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if (F*cos(a) < 150) and (L*cos(a) < 150):
             zone = 3
             x = 300 - F*cos(a)
             y = 300 - L*cos(a)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if (B*cos(a) < 150) and (L*cos(a) < 150):
             zone = 4
             x = B*cos(a)
             y = 300 - L*cos(a)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         else:
-            print("Coordinate couldn't be found.")
+            return 1000,1000,yaw
+
 
 
     #  Angle close to 90 degrees
@@ -69,31 +70,32 @@ def coordinate_2(yaw, F, B, R, L):   ## this coordinate code is based on robot o
             x = L*cos(b)
             y = B*cos(b)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if R*cos(b) < 150 and B*cos(b) < 150:
             zone = 2
             x = 300 - R*cos(b)
             y = B*cos(b)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if F*cos(b) < 150 and R*cos(b) < 150:
             zone = 3
             x = 300 - R*cos(b)
             y = 300 - F*cos(b)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if F*cos(b) < 150 and L*cos(b) < 150:
             zone = 4
             x = L*cos(b)
             y = 300 - F*cos(b)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         else:
-            print("Coordinate couldn't be found.")
+            return 1000,1000,yaw
+
 
 
     #   Angle close to 180 degrees
@@ -110,31 +112,32 @@ def coordinate_2(yaw, F, B, R, L):   ## this coordinate code is based on robot o
             x = F*cos(c)
             y = L*cos(c)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if L*cos(c) < 150 and B*cos(c) < 150:
             zone = 2
             x = 300 - B*cos(c)
             y = L*cos(c)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if B*cos(c) < 150 and R*cos(c) < 150:
             zone = 3
             x = 300 - B*cos(c)
             y = 300 - R*cos(c)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if F*cos(c) < 150 and R*cos(c) < 150:
             zone = 4
             x = F*cos(c)
             y = 300 - R*cos(c)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         else:
-            print("Coordinate couldn't be found.")
+            return 1000,1000,yaw
+
 
     #  Angle close to -90 degrees
     # ========================================================
@@ -150,34 +153,34 @@ def coordinate_2(yaw, F, B, R, L):   ## this coordinate code is based on robot o
             x = R*cos(d)
             y = F*cos(d)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if F*cos(d) < 150 and L*cos(d) < 150:
             zone = 2
             x = 300 - L*cos(d)
             y = F*cos(d)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if B*cos(d) < 150 and L*cos(d) < 150:
             zone = 3
             x = 300 - L*cos(d)
             y = 300 - B*cos(d)
 
-            return round(x),round(y)
+            return round(x),round(y),yaw
 
         if B*cos(d) < 150 and R*cos(d) < 150:
             zone = 4
             x = R*cos(d)
             y = 300 - B*cos(d)
 
-            return round(x),round(y)
+            return 1000,1000,yaw
 
         else:
-            print("Coordinate couldn't be found.")
+            return 1000,1000,yaw
 
     else:
-        print("Coordinate couldn't be found.")
+        return 1000,1000,yaw
 
 
 def ZoneIdentification(lastzone, yaw, F, B, R, L):
@@ -389,6 +392,9 @@ def find_coordinate(yaw, front, back, right, left, zone):
     #print(coordinate)
     return coordinate
 
+#if ang_mov > 90 KILL
+
+
 
 
 
@@ -481,6 +487,7 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
 
         rot = 1
         direct = 1
+        print('ang_mov <= 90:')
 
         # Clockwise
         # Forwards
@@ -498,6 +505,7 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
 
         rot = 0
         direct = 0
+        print('ang_mov > 90 and ang_mov <= 180')
 
         # Anticlockwise
         # Backwards
@@ -515,6 +523,12 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
 
         rot = 1
         direct = 0
+        print('ang_mov > 180 and ang_mov <= 270:)')
+
+        # if ang_mov >90:
+        #     ang_desired = ang_desired - 180
+        #     rot =0
+        #     direct = 1
 
         # Clockwise
         # Backwards
@@ -526,6 +540,7 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
 
         rot = 0
         direct = 1
+        print ('ang_mov > 270:')
 
         # Anticlockwise
         # Forwards
@@ -535,17 +550,32 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
     # Converts ang_desired from 0 => 360 system
     # to -180 => +180 system.
 
+    print('Before Conversion =', ang_desired)
+
     ang_desired = ang_desired - 90
 
     if ang_desired < 0:
         ang_desired = ang_desired + 360
 
-    if ang_desired >= 0 and ang_desired < 180:
+    if ang_desired >= 0 and ang_desired <= 180:
         ang_desired = -(ang_desired)
 
-    elif ang_desired > 180 and ang_desired < 360:
+    elif ang_desired > 180 and ang_desired <= 360:
         ang_desired = abs(ang_desired - 360)
 
 ##################################################
 
+
+
+    if ang_mov >180 and ang_mov <= 270 and rot==1 and direct==0:
+
+        ang_desired = ang_desired - 180
+        rot =0
+        direct = 1
+
+    #if ang_mov
+
     return (rot, ang_mov), (direct, dist), ang_desired
+
+
+    #if ang_mov > 180 then switch rot and direct and do ang_mov - 180
