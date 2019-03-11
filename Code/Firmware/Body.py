@@ -528,7 +528,8 @@ class SwarmBody():
             print('ang_desired main', ang_desired)
             #print(error)
 
-            time.sleep(t_rot/5)
+            #time.sleep(t_rot/5)
+            time.sleep(t_rot)
             self.motor_stop()
             time.sleep(0.1)
 
@@ -605,11 +606,11 @@ class SwarmBody():
         time.sleep(0.1)
 
     def PID_movement(self, x_des, y_des,
-                    starting_coordinate=(0, 0), starting_angle=0):
+                    starting_coordinate=(0, 0), starting_angle=0,count_coordinate = 0):
 
         best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
                                                 starting_angle)  # Decide how to extract variables from this for use below
-
+        count_coordinate = 0
         while best_route_result[1][1] > 20:
 
             #print('Step0.5')
@@ -626,12 +627,12 @@ class SwarmBody():
             ######NEW BIT ADDED IN BELOW
 
             count_coordinate = 0
-            while (abs(starting_coordinate0[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate0[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
+            while (abs(starting_coordinate[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
                 time.sleep(0.5)
                 count_coordinate += 1
 
-            if count_coordinate == 10
+            if count_coordinate == 10:
                 starting_coordinate = previous_coordinate #go from last known point
                 #t_lin = t_lin-2 #as time moved is 2 seconds. Added in function instead
                 self.PID_control_rotate(best_route_result)
@@ -639,7 +640,7 @@ class SwarmBody():
 
                 starting_coordinate = self.get_pos()
 
-                while starting_coordinate=(1000,1000)
+                while starting_coordinate==(1000,1000):
                     self.move_forward()
                     time.sleep(2)
                     starting_coordinate = self.get_pos()
@@ -676,12 +677,12 @@ class SwarmBody():
             ######NEW BIT ADDED IN BELOW
 
             count_coordinate = 0
-            while (abs(starting_coordinate0[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate0[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
+            while (abs(starting_coordinate[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
                 time.sleep(0.5)
                 count_coordinate += 1
 
-            while count_coordinate == 10 and starting_coordinate=(1000,1000)
+            while count_coordinate == 10 and starting_coordinate==(1000,1000):
                 self.move_forward()
                 time.sleep(2)
                 starting_coordinate = self.get_pos()
@@ -700,7 +701,7 @@ class SwarmBody():
 if __name__ == '__main__':
     # network = Network.SwarmNetwork()
     body = SwarmBody()
-    body.duty_cycle = 0.8;
+    body.duty_cycle = 0.5;
     complete = False
     print("[+] Setting Timer")
 
