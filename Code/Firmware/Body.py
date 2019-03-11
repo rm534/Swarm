@@ -64,6 +64,7 @@ class SwarmBody():
         self.temp = 0
         self.battery = 0
         self._get_pos = 0
+        self.Arrival_Flag = False
 
     def initialise_rest(self, SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
         _thread.start_new_thread(self._initialise_rest, (SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4))
@@ -633,6 +634,8 @@ class SwarmBody():
             best_route_result = Position.best_route((x_des, y_des), starting_coordinate, self.gyro_data)
             print("linear",best_route_result[1][0])
             #print('Step8')
+        self.Arrival_Flag = True;
+        return True;
 
 
 if __name__ == '__main__':

@@ -1389,6 +1389,60 @@ def test_14_integration_testing():
     PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
     #PID_thread = _thread.start_new_thread(swarmbody.PID_movement,(50,50,(position[0], position[1]),position[2]))
 
+def test_15_full_nt():
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+
+
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbt.test_transmit();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    Check = False;
+    while Check == False:
+        if swarmbody._get_pos == 1 and swarmbody.gyro_data != 0:
+            X = 0;
+            Y = 0;
+            #print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #Get initial Position
+            position = swarmbody.get_pos();
+            Check = True;
+    #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
+    #START THIS ON A NEW THREAD , all future calls must be thread calls
+    #If PID_control reaches its destination or ends a collision we need to kill it
+    print("begin, coords, X:" + str((swarmbeh.Target_Destination[0]+5)*10) + " Y: " + str((swarmbeh.Target_Destination[1]+5)*10));
+    PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
+    #PID_thread = _thread.start_new_thread(swarmbody.PID_movement,(50,50,(position[0], position[1]),position[2]))
+
+    while True:
+        #If we have arrived at our destination
+        if swarmbody.Arrival_Flag == True:
+            swarmbody.Arrival_Flag = False;
+            swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+            #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
+            #For safety kill the PID THREAD
+            position = swarmbody.get_pos();
+            PID_thread.kill();
+            PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
+
+        elif swarmbody.Collision_Flag == True:
+            swarmbody.Collision_Flag = False;
+            swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+            #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
+            position = swarmbody.get_pos();
+            PID_thread.kill();
+            PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
+        #Run bluetooth and other code
+        else:
+            swarmbeh.Set_InternalXY(swarmbody.x,swarmbody.y);
+            swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+            swarmbeh.Check_New_Grid_Cell_Handle(swarmbody,swarmbt);
+
+
+
 
 
 def test8_moveput():
