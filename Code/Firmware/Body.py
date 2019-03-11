@@ -589,6 +589,21 @@ class SwarmBody():
 
         time.sleep(0.1)
 
+    def open_loop_control(self, best_route_result):
+
+        t_lin = (best_route_result[1][1] / V) - 2
+
+        if lin_mov[0] == 1:
+            self.move_forward()
+
+        elif lin_mov[0] == 0:
+            self.move_backward()
+
+        time.sleep(t_lin)
+
+        self.motor_stop()
+        time.sleep(0.1)
+
     def PID_movement(self, x_des, y_des,
                     starting_coordinate=(0, 0), starting_angle=0):
 
@@ -607,6 +622,34 @@ class SwarmBody():
             starting_coordinate = self.get_pos()  # Find position
             #print('Step3')
             print('starting_coordinate =', starting_coordinate)
+
+            ######NEW BIT ADDED IN BELOW
+
+            count_coordinate = 0
+            while (abs(starting_coordinate0[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate0[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
+                starting_coordinate = self.get_pos()
+                time.sleep(0.5)
+                count_coordinate += 1
+
+            if count_coordinate == 10
+                starting_coordinate = previous_coordinate #go from last known point
+                #t_lin = t_lin-2 #as time moved is 2 seconds. Added in function instead
+                self.PID_control_rotate(best_route_result)
+                self.open_loop_control(best_route_result)
+
+                starting_coordinate = self.get_pos()
+
+                while starting_coordinate=(1000,1000)
+                    self.move_forward()
+                    time.sleep(2)
+                    starting_coordinate = self.get_pos()
+                    previous_coordinate = starting_coordinate
+
+            else:
+                previous_coordinate = starting_coordinate
+            ######NEW BIT ADDED IN ABOVE
+
+
             best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
                                                     self.gyro_data)  # Get new best route
             # Update distance
@@ -630,6 +673,22 @@ class SwarmBody():
             #self.PID_control_rotate_zero(closest_angle)
             starting_coordinate = self.get_pos()
             print('starting_coordinate =', starting_coordinate)
+            ######NEW BIT ADDED IN BELOW
+
+            count_coordinate = 0
+            while (abs(starting_coordinate0[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate0[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
+                starting_coordinate = self.get_pos()
+                time.sleep(0.5)
+                count_coordinate += 1
+
+            while count_coordinate == 10 and starting_coordinate=(1000,1000)
+                self.move_forward()
+                time.sleep(2)
+                starting_coordinate = self.get_pos()
+                previous_coordinate = starting_coordinate
+
+            previous_coordinate = starting_coordinate
+            ######NEW BIT ADDED IN ABOVE
             #print('Step7')
             best_route_result = Position.best_route((x_des, y_des), starting_coordinate, self.gyro_data)
             print("linear",best_route_result[1][0])
