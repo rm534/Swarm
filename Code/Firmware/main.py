@@ -1900,7 +1900,11 @@ if __name__ == "__main__":
     #swarmbt = Bluetooth_Comms.SwarmBluetooth();
 
     #test_14_integration_testing();
-    test_16_no_thread_beh();
+
+
+    #test_16_no_thread_beh();
+
+
     #test_13_four_coords();
 
     #swarmbeh = Behaviour.SwarmBehaviour();

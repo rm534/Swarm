@@ -606,26 +606,19 @@ class SwarmBody():
         time.sleep(0.1)
 
     def PID_movement(self, x_des, y_des,
-                    starting_coordinate=(0, 0), starting_angle=0,count_coordinate = 0):
+                    starting_coordinate=(0, 0), starting_angle=0, previous_coordinate=(16,16), count_coordinate = 0):
 
         best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
                                                 starting_angle)  # Decide how to extract variables from this for use below
-        count_coordinate = 0
-        while best_route_result[1][1] > 20:
 
-            #print('Step0.5')
-            #print('ang_desired =', best_route_result[2])
+        while best_route_result[1][1] > 20:
             self.PID_control_rotate(best_route_result)
-            #print('Step1')
             self.NO_PID_LINEAR(best_route_result)
-            #print('Step2')  # NON-Linear movement for set time
-            #self.PID_control_rotate_zero(closest_angle)  # Rotate back to zero
             starting_coordinate = self.get_pos()  # Find position
-            #print('Step3')
             print('starting_coordinate =', starting_coordinate)
 
-            ######NEW BIT ADDED IN BELOW
-            """
+    ######NEW BIT ADDED IN BELOW
+
             count_coordinate = 0
             while (abs(starting_coordinate[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
@@ -648,35 +641,26 @@ class SwarmBody():
 
             else:
                 previous_coordinate = starting_coordinate
-            """
-            ######NEW BIT ADDED IN ABOVE
-
+    ######NEW BIT ADDED IN ABOVE
 
             best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
                                                     self.gyro_data)  # Get new best route
             # Update distance
-            #print('Step4')
-            time.sleep(1)
+            time.sleep(0.1)
 
         count = 0
         while best_route_result[1][1] > 4:
-            #print('Step4.5')
-            #print('ang_desired =', best_route_result[2])
             self.PID_control_rotate(best_route_result)
-            #print('Step5')
             if count == 0:
-                #print('Step5.1')
                 self.PID_LINEAR(best_route_result,0)
                 count = 1
             else:
-                #print('Step5.2')
                 self.PID_LINEAR(best_route_result,self.error_prior2)
-            #print('Step6')
-            #self.PID_control_rotate_zero(closest_angle)
             starting_coordinate = self.get_pos()
             print('starting_coordinate =', starting_coordinate)
-            ######NEW BIT ADDED IN BELOW
-            """
+
+    ######NEW BIT ADDED IN BELOW
+
             count_coordinate = 0
             while (abs(starting_coordinate[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
@@ -690,14 +674,11 @@ class SwarmBody():
                 previous_coordinate = starting_coordinate
 
             previous_coordinate = starting_coordinate
-            """
-            ######NEW BIT ADDED IN ABOVE
-            #print('Step7')
+
+    ######NEW BIT ADDED IN ABOVE
+
             best_route_result = Position.best_route((x_des, y_des), starting_coordinate, self.gyro_data)
-            print("linear",best_route_result[1][0])
-            #print('Step8')
-        self.Arrival_Flag = True;
-        return True;
+
 
 
 if __name__ == '__main__':
