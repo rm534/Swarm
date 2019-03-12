@@ -470,7 +470,7 @@ class SwarmBody():
 
             count += 1
 
-            time.sleep(t_rot)
+            time.sleep(t_rot/5)
             self.motor_stop()
             time.sleep(0.1)
 
@@ -489,7 +489,7 @@ class SwarmBody():
 
         ang_desired = best_route_result[2]
         print('best_route_result =', best_route_result)
-
+        print('ang_desired main', ang_desired)
         while abs(error) > tol:  # error is more accurate than t_rot (as t_rot is based on an estimate)
 
             error = (ang_desired - (-self.gyro_data))
@@ -525,11 +525,11 @@ class SwarmBody():
                     self.rotate_anti_clockwise()
                 else:
                     self.rotate_clockwise()
-            print('ang_desired main', ang_desired)
+            #print('ang_desired main', ang_desired)
             #print(error)
 
-            #time.sleep(t_rot/5)
-            time.sleep(t_rot)
+            time.sleep(t_rot/5)
+            #time.sleep(t_rot)
             self.motor_stop()
             time.sleep(0.1)
 
@@ -625,7 +625,7 @@ class SwarmBody():
             print('starting_coordinate =', starting_coordinate)
 
             ######NEW BIT ADDED IN BELOW
-
+            """
             count_coordinate = 0
             while (abs(starting_coordinate[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
@@ -648,6 +648,7 @@ class SwarmBody():
 
             else:
                 previous_coordinate = starting_coordinate
+            """
             ######NEW BIT ADDED IN ABOVE
 
 
@@ -675,7 +676,7 @@ class SwarmBody():
             starting_coordinate = self.get_pos()
             print('starting_coordinate =', starting_coordinate)
             ######NEW BIT ADDED IN BELOW
-
+            """
             count_coordinate = 0
             while (abs(starting_coordinate[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
@@ -689,6 +690,7 @@ class SwarmBody():
                 previous_coordinate = starting_coordinate
 
             previous_coordinate = starting_coordinate
+            """
             ######NEW BIT ADDED IN ABOVE
             #print('Step7')
             best_route_result = Position.best_route((x_des, y_des), starting_coordinate, self.gyro_data)
