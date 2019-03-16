@@ -65,6 +65,9 @@ class SwarmBody():
         self.battery = 0
         self._get_pos = 0
         self.Arrival_Flag = False
+        self.l_limit = 10;
+        self.Collision_Chain_Num = 0;
+        self.Col_Reverse_Time = 1;
 
     def initialise_rest(self, SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
         _thread.start_new_thread(self._initialise_rest, (SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4))
@@ -573,22 +576,66 @@ class SwarmBody():
 
         if lin_mov[0] == 1:
             if error2 < 0:
+                self.Current_Dir = -1;
                 self.move_backward()
             else:
+                self.Current_Dir = 1;
                 self.move_forward()
 
         elif lin_mov[0] == 0:
             if error2 < 0:
+                self.Current_Dir = 1;
                 self.move_forward()
             else:
+                self.Current_Dir = -1;
                 self.move_backward()
 
         # dist_prior=dist
-        time.sleep(t_lin)
+
+        #Modifying sleep cyclkes to allow interrupt
+        for i in range(0,100):
+            #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
+            time.sleep(t_lin/100);
+            l1, l2, l3, l4 = swarmbody.get_lidar();
+            if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+                #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
+                self.motor_stop()
+                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                break;
+
 
         self.motor_stop()
 
-        time.sleep(0.1)
+        #time.sleep(0.1)
+
+    def PID_COLLISION(self, dir, time):
+
+        t_lin = time  # output2 is in cm
+        dir = dir;
+
+        if dir == -1:
+            self.Current_Dir = -1;
+            self.move_backward()
+        else:
+            self.Current_Dir = 1;
+            self.move_forward()
+
+        #Modifying sleep cyclkes to allow interrupt
+        for i in range(0,100):
+            #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
+            time.sleep(t_lin/100);
+            l1, l2, l3, l4 = swarmbody.get_lidar();
+            if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+                #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
+                self.motor_stop()
+                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                self.Collision_Chain_Num += 1;
+                break;
+
+
+        self.motor_stop()
+
+
 
     def open_loop_control(self, best_route_result):
 
