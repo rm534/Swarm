@@ -1224,6 +1224,76 @@ def test_18_behvnsolar():
         else:
             print("don't worry! I'm 22!!")
 
+def test_18b_original_solar():
+        body = SwarmBody()
+
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+            complete = True
+
+
+            ## Analogue Solar Voltage Reading ##
+            adc = ADC(bits = 10)
+            apin = adc.channel(pin = 'P15')     #reads pin 15 for battery output voltage
+            ## Set ICS ##
+            vMax = 0
+            tMax = 0
+
+            Vin = apin()
+
+            # checks if the input from the solar panel is greater than / equal to the stored highest and stores the voltage and position.
+            if(Vin >= vMax):
+                vMax = Vin
+                light_pos = body.get_pos()
+                light_x = light_pos[0]
+                light_y = light_pos[1]
+
+
+
+         #check battery level - if lower than threshold go to coordinate
+           apin = adc.channel(pin = 'PXX')     #reads pin XX for battery output voltage
+           vBatt = apin()
+           vThresh = 716                       #threshold voltage is about 3.5v here which is 716 binary with a 5v adc (is the output from adc binary?)
+
+            #create moving average filter to smooth the battery voltage reading
+            #va5 = va4
+            #va4 = va3
+            #va3 = va2
+            #va2 = va1
+            #va1 = vBatt
+            #vFil = (va1+va2+va3+va4+va5)/5
+
+            #using arrays           unsure if this works properly       will have to put a delay on the battery level with this due to rise up
+                N = 5
+                for j in range(N-1):
+                    va[N-j] = va[j-1]       #start at va[5] & stop at va[1]
+                va[0] = vBatt
+                #finding moving average voltage
+                vo = 0
+                for h in range(N):      #calculates the moving average
+                    vo = vo + (va[h]/N)
+
+
+            #battery percentage
+            #battPerc = (vo/4)*100   #using full range of 0-4v
+            battPerc = ((vo-3.3)/0.7)*100    #using range between 3.3v and 4v as this is the operating region
+
+            if(vo < vThresh):
+                # move to latest light source coordinate
+                current_pos = body.get_pos()
+                current_angle = self.gyro_data
+                PID_movement(light_x,light_y, starting_coordinate = (current_pos[0],current_pos[1]),starting_angle = current_angle)
+
+
+
+
+        else:
+            print("don't worry! we're still here (in main)")
 if __name__ == "__main__":
     ##Swarmbot is initialised
     #swarmbot = SwarmBot.SwarmBot()
