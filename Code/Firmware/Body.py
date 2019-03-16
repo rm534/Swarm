@@ -173,6 +173,9 @@ class SwarmBody():
 
     # Function for initialising all pin functionality for the gyro
 
+
+
+
     def initialise_gyro_new(self, x, y):
         mpu = mpu6050.MPU6050()
         mpu.dmpInitialize()
