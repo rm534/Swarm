@@ -415,23 +415,7 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
 
     3. Robot's absolute angle after movement.
     """
-########################################
 
-    # Converts starting_angle  from -180 => +180 system
-    # to 0 => 360 system.
-
-    if starting_angle <= 0 and starting_angle >= -180:
-        starting_angle = abs(starting_angle)
-
-    elif starting_angle > 0 and starting_angle <= 180:
-        starting_angle = (360 - starting_angle)
-
-    starting_angle = starting_angle + 90
-
-    if starting_angle >= 360:
-        starting_angle = starting_angle - 360
-
-########################################
 
     deltaX = (desired_coordinate[0] - starting_coordinate[0])
     deltaY = (desired_coordinate[1] - starting_coordinate[1])
@@ -443,18 +427,18 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
             ang_desired = 0
 
         elif deltaX > 0:
-            ang_desired = 90
+            ang_desired = 0
 
         elif deltaX < 0:
-            ang_desired = 270
+            ang_desired = 180
 
 
     elif deltaX == 0:
         if deltaY > 0:
-            ang_desired = 0
+            ang_desired = 90
 
         elif deltaY < 0:
-            ang_desired = 180
+            ang_desired = -90
 
 
     else:
@@ -462,120 +446,114 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
             n = 0
 
         elif deltaX > 0 and deltaY < 0:
-            n = -180
+            n = 0
 
         elif deltaX < 0 and deltaY < 0:
-            n = 180
+            n = -180
 
         elif deltaX < 0 and deltaY > 0:
-            n = -360
+            n = 180
 
-        ang_desired = abs(abs(atan(deltaX / deltaY) * (180/pi)) + n)
+        ang_desired = ((atan(deltaY / deltaX) * (180/pi)) + n)
+        print("angle desired", ang_desired)
+        #ang_desired = abs(abs(atan(deltaX / deltaY) * (180/pi)) + n)
 
 
     ang_mov = ang_desired - starting_angle
 
+    if ang_desired>=0 and ang_desired<=90 and ang_mov>=0:
 
-    if ang_desired < starting_angle:
-        ang_mov = ang_mov + 360
-
-    else:
-        ang_mov = abs(ang_mov)
-
-
-    if ang_mov <= 90:
-
-        rot = 1
-        direct = 1
-        print('ang_mov <= 90:')
-
-        # Clockwise
-        # Forwards
+        rot = 0 #Anticlockwise
+        direct = 1 #Forwards
+        print('ang_desired>=0 and ang_desired<=90 and ang_mov>=0')
 
 
-    elif ang_mov > 90 and ang_mov <= 180:
+    elif ang_desired>=0 and ang_desired<=90 and ang_mov<0:
 
-        if ang_desired >= 180 and ang_desired < 360:
-            ang_desired = ang_desired - 180
-
-        elif ang_desired < 180 and ang_desired >= 0:
-            ang_desired = ang_desired + 180
-
-        ang_mov = abs(180 - ang_mov)
-
-        rot = 0
-        direct = 0
-        print('ang_mov > 90 and ang_mov <= 180')
-
-        # Anticlockwise
-        # Backwards
+        rot = 1 #clockwise
+        direct = 1 #Forwards
+        print('ang_desired>=0 and ang_desired<=90 and ang_mov<=0')
 
 
-    elif ang_mov > 180 and ang_mov <= 270:
+    elif ang_desired<=0 and ang_desired>=-90 and ang_mov>=0:
 
-        if ang_desired >= 180 and ang_desired < 360:
-            ang_desired = ang_desired - 180
-
-        elif ang_desired < 180 and ang_desired >= 0:
-            ang_desired = ang_desired + 180
-
-        ang_mov = abs(180 - ang_mov)
-
-        rot = 1
-        direct = 0
-        print('ang_mov > 180 and ang_mov <= 270:)')
-
-        # if ang_mov >90:
-        #     ang_desired = ang_desired - 180
-        #     rot =0
-        #     direct = 1
-
-        # Clockwise
-        # Backwards
+        rot = 0 #Anticlockwise
+        direct = 1 #Forwards
+        print('ang_desired<0 and ang_desired>=-90 and ang_mov>=0')
 
 
-    elif ang_mov > 270:
+    elif ang_desired<=0 and ang_desired>=-90 and ang_mov<0:
 
-        ang_mov = 360 - ang_mov
-
-        rot = 0
-        direct = 1
-        print ('ang_mov > 270:')
-
-        # Anticlockwise
-        # Forwards
-
-##################################################
-
-    # Converts ang_desired from 0 => 360 system
-    # to -180 => +180 system.
-
-    print('Before Conversion =', ang_desired)
-
-    ang_desired = ang_desired - 90
-
-    if ang_desired < 0:
-        ang_desired = ang_desired + 360
-
-    if ang_desired >= 0 and ang_desired <= 180:
-        ang_desired = -(ang_desired)
-
-    elif ang_desired > 180 and ang_desired <= 360:
-        ang_desired = abs(ang_desired - 360)
-
-##################################################
+        rot = 1 #Anticlockwise
+        direct = 1 #Forwards
+        print('ang_desired<0 and ang_desired>-90 and ang_mov<0:')
 
 
-
-    if ang_mov >180 and ang_mov <= 270 and rot==1 and direct==0:
+    elif ang_desired>90 and ang_desired<=180:
 
         ang_desired = ang_desired - 180
-        rot =0
-        direct = 1
+        ang_mov = ang_desired - starting_angle
 
-    #if ang_mov
+        if ang_desired<=0 and ang_desired>=-90 and ang_mov>=0:
+
+            rot = 0 #Anticlockwise
+            direct = 0 #Backwards
+            print('ang_desired>90 and ang_desired<=180: TRY 1')
+
+
+        elif ang_desired<=0 and ang_desired>=-90 and ang_mov<0:
+
+            rot = 1 #clockwise
+            direct = 0 #Backwards
+            print('ang_desired>90 and ang_desired<=180: TRY 2')
+
+
+
+    elif ang_desired<-90 and ang_desired>=-180:
+
+        ang_desired = ang_desired + 180
+        ang_mov = ang_desired - starting_angle
+
+        if ang_desired>=0 and ang_desired<=90 and ang_mov>=0:
+
+                rot = 0 #Anticlockwise
+                direct = 0 #Forwards
+                print('ang_desired<-90 and ang_desired<=-180: TRY 1')
+
+
+        elif ang_desired>=0 and ang_desired<=90 and ang_mov<0:
+
+                rot = 1 #clockwise
+                print("Rot",rot)
+                direct = 0 #Forwards
+                print("Direct",direct)
+                print('ang_desired<-90 and ang_desired<=-180: TRY 2')
+
+
+    try:
+        rot
+    except NameError:
+        print("No Rot")
+
+    try:
+        ang_mov
+    except NameError:
+        print("No ang_mov")
+
+    try:
+        direct
+    except NameError:
+        print("No direct")
+
+    try:
+        dist
+    except NameError:
+        print("No dist")
+
+    try:
+        ang_desired
+    except NameError:
+        print("No ang_desired")
+
 
     return (rot, ang_mov), (direct, dist), ang_desired
-
-
-    #if ang_mov > 180 then switch rot and direct and do ang_mov - 180

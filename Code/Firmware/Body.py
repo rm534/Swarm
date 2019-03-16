@@ -656,11 +656,12 @@ class SwarmBody():
         time.sleep(0.1)
 
     def PID_movement(self, x_des, y_des,
-                    starting_coordinate=(0, 0), starting_angle=0,count_coordinate = 0):
+                    starting_coordinate=(0, 0), starting_angle=0, previous_coordinate=(0,0), count_coordinate = 0):
 
         best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
                                                 starting_angle)  # Decide how to extract variables from this for use below
-        count_coordinate = 0
+        print('ang_desired =', best_route_result[2])
+
         while best_route_result[1][1] > 20:
 
             #print('Step0.5')
@@ -675,11 +676,13 @@ class SwarmBody():
             print('starting_coordinate =', starting_coordinate)
 
             ######NEW BIT ADDED IN BELOW
-            """
-            count_coordinate = 0
-            while (abs(starting_coordinate[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
+
+
+            while ((abs(starting_coordinate[0] - previous_coordinate[0]) > 45) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 45)) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
+                self.PID_control_rotate_zero(0, tol=10)
                 time.sleep(0.5)
+                print('Checking Coordinate')
                 count_coordinate += 1
 
             if count_coordinate == 10:
@@ -692,18 +695,20 @@ class SwarmBody():
 
                 while starting_coordinate==(1000,1000):
                     self.move_forward()
+                    print('Checking Coordinate Move Forward')
                     time.sleep(2)
                     starting_coordinate = self.get_pos()
                     previous_coordinate = starting_coordinate
 
             else:
                 previous_coordinate = starting_coordinate
-            """
             ######NEW BIT ADDED IN ABOVE
 
 
             best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
                                                     self.gyro_data)  # Get new best route
+
+            print('ang_desired =', best_route_result[2])
             # Update distance
             #print('Step4')
             time.sleep(1)
@@ -725,35 +730,42 @@ class SwarmBody():
             #self.PID_control_rotate_zero(closest_angle)
             starting_coordinate = self.get_pos()
             print('starting_coordinate =', starting_coordinate)
+
+
             ######NEW BIT ADDED IN BELOW
-            """
+
             count_coordinate = 0
-            while (abs(starting_coordinate[0] - previous_coordinate[0]) > 50) and (abs(starting_coordinate[1] - previous_coordinate[1]) > 50) and count_coordinate<=10:
+            while (((abs(starting_coordinate[0] - previous_coordinate[0]) > 40) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 40))) and count_coordinate<=10:
+                self.PID_control_rotate_zero(0, tol=10)
                 starting_coordinate = self.get_pos()
                 time.sleep(0.5)
+                if count == 5:
+                    print('Checking Coordinate PID')
                 count_coordinate += 1
 
             while count_coordinate == 10 and starting_coordinate==(1000,1000):
                 self.move_forward()
+                print('Checking Coordinate PID Move Forward')
                 time.sleep(2)
                 starting_coordinate = self.get_pos()
                 previous_coordinate = starting_coordinate
 
             previous_coordinate = starting_coordinate
-            """
             ######NEW BIT ADDED IN ABOVE
+
+
             #print('Step7')
             best_route_result = Position.best_route((x_des, y_des), starting_coordinate, self.gyro_data)
             print("linear",best_route_result[1][0])
             #print('Step8')
-        self.Arrival_Flag = True;
-        return True;
+        self.Arrival_Flag = True
+        return True
 
 
 if __name__ == '__main__':
     # network = Network.SwarmNetwork()
     body = SwarmBody()
-    body.duty_cycle = 0.5;
+    body.duty_cycle = 0.5
     complete = False
     print("[+] Setting Timer")
 
@@ -763,43 +775,44 @@ if __name__ == '__main__':
         if body._get_pos == 1 and body.gyro_data != 0:
 
             #input("Enter character to find coordinate: ")
-            position = body.get_pos()
-            print(position)
-            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-            position = body.get_pos()
-            #break
-            print("Coordinate: (",position[0],",",position[1],")")
-            #complete = True
-            print("Reached the coordinate! wooooo")
-            body.PID_movement(60, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            # position = body.get_pos()
+            # print(position)
+            # body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            # position = body.get_pos()
+            # #break
+            # print("Coordinate: (",position[0],",",position[1],")")
+            # #complete = True
+            # print("REACHED COORDINATE --> (50,50)")
+            # body.PID_movement(60, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            # position = body.get_pos()
+            # #break
+            # print("Coordinate: (",position[0],",",position[1],")")
+            # #complete = True
+            # print("REACHED COORDINATE --> (60,50)")
+            # body.PID_movement(60, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+            # position = body.get_pos()
+            # #break
+            # print("Coordinate: (",position[0],",",position[1],")")
+            # #complete = True
+            # print("REACHED COORDINATE --> (60,60)")
+            # body.PID_movement(70, 70, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
             position = body.get_pos()
             #break
             print("Coordinate: (",position[0],",",position[1],")")
             #complete = True
-            print("Reached the coordinate! wooooo")
-            body.PID_movement(60, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-
-            position = body.get_pos()
-            #break
-            print("Coordinate: (",position[0],",",position[1],")")
-            #complete = True
-            print("Reached the coordinate! wooooo")
-            body.PID_movement(70, 70, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-
-            position = body.get_pos()
-            #break
-            print("Coordinate: (",position[0],",",position[1],")")
-            #complete = True
-            print("Reached the coordinate! wooooo")
+            print("REACHED COORDINATE --> (70,70)")
             body.PID_movement(70, 80, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
             position = body.get_pos()
             #break
             print("Coordinate: (",position[0],",",position[1],")")
             complete = True
-            print("Reached the coordinate! wooooo")
+            print("REACHED COORDINATE --> (70,80)")
+            print("Position = ", position)
             body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
         else:
-            print("don't worry! I'm 22!!")
+            print("yet again, we are in main")
