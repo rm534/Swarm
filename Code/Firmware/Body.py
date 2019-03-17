@@ -165,16 +165,13 @@ class SwarmBody():
         self.motor_PWM = PWM(0, frequency=500)
         self.pwm1 = "P6"
         self.pwm2 = "P7"
-        self.duty_cycle = 0.5
+        self.duty_cycle = 0.4
         self.w = 200.934
         self.v = 0.401
         self.chrono = Timer.Chrono()
         self.motor_stop()
 
     # Function for initialising all pin functionality for the gyro
-
-
-
 
     def initialise_gyro_new(self, x, y):
         mpu = mpu6050.MPU6050()
@@ -415,6 +412,8 @@ class SwarmBody():
                     self.y = pos[1]
                     do_function = False   ## exit function because successful coordinate has been found
                     print("Angle:",angle) ## just for when we want to observe the gyro
+                    temp = self.get_temp()
+                    print("Temperature:",temp)
                     return pos
 
                 if pos[0] == 1000:        ## this means a coordinate could not be found
@@ -476,7 +475,7 @@ class SwarmBody():
 
             count += 1
 
-            time.sleep(t_rot/5)
+            time.sleep(t_rot)
             self.motor_stop()
             time.sleep(0.1)
 
@@ -505,9 +504,9 @@ class SwarmBody():
             #Should never need to rotate more than 90 , celo
             if abs(error) > 90:
                 if error < 0:
-                    error = -90;
+                    error = -90
                 if error > 0:
-                    error = 90;
+                    error = 90
 
             output = KP[0] * error + KI[0] * integral + KD[0] * derivative + bias[0]  # bias to prevent output being 0
             error_prior = error
@@ -534,7 +533,7 @@ class SwarmBody():
             #print('ang_desired main', ang_desired)
             #print(error)
 
-            time.sleep(t_rot/5)
+            time.sleep(t_rot)
             #time.sleep(t_rot)
             self.motor_stop()
             time.sleep(0.1)
@@ -599,11 +598,11 @@ class SwarmBody():
         for i in range(0,100):
             #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
             time.sleep(t_lin/100);
-            l1, l2, l3, l4 = swarmbody.get_lidar();
+            l1, l2, l3, l4 = self.get_lidar();
             if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                 #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
                 self.motor_stop()
-                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
                 break;
 
 
@@ -611,9 +610,9 @@ class SwarmBody():
 
         #time.sleep(0.1)
 
-    def PID_COLLISION(self, dir, time):
-
-        t_lin = time  # output2 is in cm
+    def PID_COLLISION(self, dir, time2):
+        print("collision")
+        t_lin = time2  # output2 is in cm
         dir = dir;
 
         if dir == -1:
@@ -627,19 +626,16 @@ class SwarmBody():
         for i in range(0,100):
             #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
             time.sleep(t_lin/100);
-            l1, l2, l3, l4 = swarmbody.get_lidar();
+            l1, l2, l3, l4 = self.get_lidar();
             if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                 #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
                 self.motor_stop()
-                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
                 self.Collision_Chain_Num += 1;
                 break;
 
 
         self.motor_stop()
-
-
-
     def open_loop_control(self, best_route_result):
 
         t_lin = (best_route_result[1][1] / V) - 2
@@ -804,7 +800,7 @@ if __name__ == '__main__':
             print("Coordinate: (",position[0],",",position[1],")")
             #complete = True
             print("REACHED COORDINATE --> (70,70)")
-            body.PID_movement(70, 80, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
             position = body.get_pos()
             #break
@@ -812,7 +808,7 @@ if __name__ == '__main__':
             complete = True
             print("REACHED COORDINATE --> (70,80)")
             print("Position = ", position)
-            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            body.PID_movement(70, 80, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
         else:
             print("yet again, we are in main")

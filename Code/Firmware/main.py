@@ -1223,7 +1223,7 @@ def test_18_behvnsolar():
 
         else:
             print("don't worry! I'm 22!!")
-
+'''
 def test_18b_original_solar():
         body = SwarmBody()
 
@@ -1294,6 +1294,7 @@ def test_18b_original_solar():
 
         else:
             print("don't worry! we're still here (in main)")
+'''
 if __name__ == "__main__":
     ##Swarmbot is initialised
     #swarmbot = SwarmBot.SwarmBot()
@@ -1301,9 +1302,10 @@ if __name__ == "__main__":
     #swarmbt = Bluetooth_Comms.SwarmBluetooth();
 
     #test_14_integration_testing();
-    test_16_no_thread_beh();
-    #test_13_four_coords();
+    #test_16_no_thread_beh();
+    test_13_four_coords();
 
+    pass
     #swarmbeh = Behaviour.SwarmBehaviour();
     #print("SwarmBot is Testing -_-");
     #test7_both_int();
