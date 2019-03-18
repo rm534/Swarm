@@ -32,11 +32,11 @@ TEMP_ADDR = const(0x48)
 # self, error_prior=0, integral=0, KP=3, KI=5, KD=0.01, bias=0,
 #                          iteration_time=0.05, error=20, tol=1,
 # Constants for PID controller
-KP = (1.5, 1)
-KI = (0, 0)
-KD = (0, 0)
+KP = (0.6, 1.5)
+KI = (0.2, 0)
+KD = (0.1, 0)
 bias = (0, 0)
-iteration_time = (0.1, 1)
+iteration_time = (0.5, 1)
 V = 40.1
 W = 200.934
 
@@ -173,9 +173,6 @@ class SwarmBody():
 
     # Function for initialising all pin functionality for the gyro
 
-
-
-
     def initialise_gyro_new(self, x, y):
         mpu = mpu6050.MPU6050()
         mpu.dmpInitialize()
@@ -200,7 +197,10 @@ class SwarmBody():
             ypr = mpu.dmpGetYawPitchRoll(q, g)
             yaw = ypr['yaw'] * 180 / math.pi
 
-            i += 1
+            i+=1;
+
+            if i > 1000:
+                i = 701;
 
             if i <= 600:  # skip the first 600 iterations to give it a chance to settle/stop drifting
                 pass
@@ -415,6 +415,8 @@ class SwarmBody():
                     self.y = pos[1]
                     do_function = False   ## exit function because successful coordinate has been found
                     print("Angle:",angle) ## just for when we want to observe the gyro
+                    #temp = self.get_temp()
+                    #print("Temperature:",temp)
                     return pos
 
                 if pos[0] == 1000:        ## this means a coordinate could not be found
@@ -462,6 +464,9 @@ class SwarmBody():
             error_prior = error
 
             t_rot = abs(output) / W
+
+            if t_rot > 3:
+                t_rot=3
             # print(ang_desired)
             # print(error)
             # print(t_rot)
@@ -476,7 +481,7 @@ class SwarmBody():
 
             count += 1
 
-            time.sleep(t_rot/5)
+            time.sleep(t_rot)
             self.motor_stop()
             time.sleep(0.1)
 
@@ -497,24 +502,32 @@ class SwarmBody():
         print('best_route_result =', best_route_result)
         print('ang_desired main', ang_desired)
         while abs(error) > tol:  # error is more accurate than t_rot (as t_rot is based on an estimate)
+            angle = -self.gyro_data
+            if angle>=180 or angle<=-180:
+                time.sleep(1)
+                angle = -self.gyro_data
+                print('ANGLE AGAIN =', angle )
 
-            error = (ang_desired - (-self.gyro_data))
+            error = (ang_desired - (angle))
             integral = integral + (error * iteration_time[0])
             derivative = (error - error_prior) / iteration_time[0]
 
             #Should never need to rotate more than 90 , celo
             if abs(error) > 90:
                 if error < 0:
-                    error = -90;
+                    error = -90
                 if error > 0:
-                    error = 90;
+                    error = 90  #don't think this is right
 
             output = KP[0] * error + KI[0] * integral + KD[0] * derivative + bias[0]  # bias to prevent output being 0
             error_prior = error
 
             t_rot = abs(output) / W
+            if t_rot > 3:
+                t_rot=3
+
             #print(ang_desired)
-            #print("Error: ",error)
+            print("E:",error," gyro: ",self.gyro_data)
             # print(t_rot)
 
             ## Rotational Movement ##
@@ -534,7 +547,7 @@ class SwarmBody():
             #print('ang_desired main', ang_desired)
             #print(error)
 
-            time.sleep(t_rot/5)
+            time.sleep(t_rot)
             #time.sleep(t_rot)
             self.motor_stop()
             time.sleep(0.1)
@@ -611,9 +624,9 @@ class SwarmBody():
 
         #time.sleep(0.1)
 
-    def PID_COLLISION(self, dir, time):
+    def PID_COLLISION(self, dir, time2):
 
-        t_lin = time  # output2 is in cm
+        t_lin = time2  # output2 is in cm
         dir = dir;
 
         if dir == -1:
@@ -624,15 +637,17 @@ class SwarmBody():
             self.move_forward()
 
         #Modifying sleep cyclkes to allow interrupt
-        for i in range(0,100):
+        #Lesser sleep tp prevent retrggerng /5 not /100
+        for i in range(0,5):
             #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
-            time.sleep(t_lin/100);
+            time.sleep(t_lin/5);
             l1, l2, l3, l4 = swarmbody.get_lidar();
             if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                 #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
                 self.motor_stop()
                 PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
                 self.Collision_Chain_Num += 1;
+                #could remove ths to on;y allow one collision
                 break;
 
 
@@ -661,6 +676,8 @@ class SwarmBody():
         best_route_result = Position.best_route((x_des, y_des), starting_coordinate,
                                                 starting_angle)  # Decide how to extract variables from this for use below
         print('ang_desired =', best_route_result[2])
+        print('Time for the gyro to chill')
+        time.sleep(2) #line added to see if this helps
 
         while best_route_result[1][1] > 20:
 
@@ -671,7 +688,9 @@ class SwarmBody():
             self.NO_PID_LINEAR(best_route_result)
             #print('Step2')  # NON-Linear movement for set time
             #self.PID_control_rotate_zero(closest_angle)  # Rotate back to zero
-            starting_coordinate = self.get_pos()  # Find position
+            starting_coordinate = self.get_pos()# Find position
+            get_temp = self.get_temp()
+            print('Temperature', get_temp)
             #print('Step3')
             print('starting_coordinate =', starting_coordinate)
 
@@ -680,6 +699,8 @@ class SwarmBody():
 
             while ((abs(starting_coordinate[0] - previous_coordinate[0]) > 45) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 45)) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
+                get_temp = self.get_temp()
+                print('Temperature', get_temp)
                 self.PID_control_rotate_zero(0, tol=10)
                 time.sleep(0.5)
                 print('Checking Coordinate')
@@ -698,6 +719,8 @@ class SwarmBody():
                     print('Checking Coordinate Move Forward')
                     time.sleep(2)
                     starting_coordinate = self.get_pos()
+                    get_temp = self.get_temp()
+                    print('Temperature', get_temp)
                     previous_coordinate = starting_coordinate
 
             else:
@@ -729,6 +752,8 @@ class SwarmBody():
             #print('Step6')
             #self.PID_control_rotate_zero(closest_angle)
             starting_coordinate = self.get_pos()
+            get_temp = self.get_temp()
+            print('Temperature', get_temp)
             print('starting_coordinate =', starting_coordinate)
 
 
@@ -738,6 +763,8 @@ class SwarmBody():
             while (((abs(starting_coordinate[0] - previous_coordinate[0]) > 40) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 40))) and count_coordinate<=10:
                 self.PID_control_rotate_zero(0, tol=10)
                 starting_coordinate = self.get_pos()
+                get_temp = self.get_temp()
+                print('Temperature', get_temp)
                 time.sleep(0.5)
                 if count == 5:
                     print('Checking Coordinate PID')
@@ -748,6 +775,8 @@ class SwarmBody():
                 print('Checking Coordinate PID Move Forward')
                 time.sleep(2)
                 starting_coordinate = self.get_pos()
+                get_temp = self.get_temp()
+                print('Temperature', get_temp)
                 previous_coordinate = starting_coordinate
 
             previous_coordinate = starting_coordinate
@@ -774,30 +803,37 @@ if __name__ == '__main__':
 
         if body._get_pos == 1 and body.gyro_data != 0:
 
-            #input("Enter character to find coordinate: ")
-            # position = body.get_pos()
-            # print(position)
-            # body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-            # position = body.get_pos()
-            # #break
-            # print("Coordinate: (",position[0],",",position[1],")")
-            # #complete = True
-            # print("REACHED COORDINATE --> (50,50)")
-            # body.PID_movement(60, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            #complete = True
+            print("REACHED COORDINATE --> (50,50)")
+            body.PID_movement(50, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
-            # position = body.get_pos()
-            # #break
-            # print("Coordinate: (",position[0],",",position[1],")")
-            # #complete = True
-            # print("REACHED COORDINATE --> (60,50)")
-            # body.PID_movement(60, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            #complete = True
+            print("REACHED COORDINATE --> (50,70)")
+            body.PID_movement(50, 70, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
-            # position = body.get_pos()
-            # #break
-            # print("Coordinate: (",position[0],",",position[1],")")
-            # #complete = True
-            # print("REACHED COORDINATE --> (60,60)")
-            # body.PID_movement(70, 70, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            #complete = True
+            print("REACHED COORDINATE --> (50,80)")
+            body.PID_movement(50, 80, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+
+
+            #best_route_result = Position.best_route((50, 50), (0,0), 0)
+
+            #body.PID_control_rotate(best_route_result)
+
 
             position = body.get_pos()
             #break
