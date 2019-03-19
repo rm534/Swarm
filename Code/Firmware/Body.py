@@ -42,7 +42,7 @@ W = 200.934
 
 
 # Class for movement and Sensing of Robot
-class SwarmBody():
+class SwarmBody(object):
     # Init function initialising pins and sensors
     def __init__(self, motor1F='P11', motor1B='P12', motor2F='P21',
                  motor2B='P20',

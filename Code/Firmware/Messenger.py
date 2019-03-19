@@ -23,7 +23,7 @@ class SwarmMessenger():
         self.rtc = machine.RTC()
 
     def init_mqtt(self):
-        self.client = MQTTClient(self.dev_ID, "34.221.207.211", user="robin", password="focker12", port=1883)
+        self.client = MQTTClient(self.dev_ID, "34.213.163.151", user="robin", password="focker12", port=1883)
         self.client.set_callback(self.sub_cb)
         self.client.connect()
         self.client.subscribe(topic="demo.key")

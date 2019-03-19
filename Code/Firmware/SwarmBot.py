@@ -51,3 +51,6 @@ class SwarmBot(Behaviour.SwarmBehaviour):
 
     def test(self):
         pass
+
+if __name__ == "__main__":
+    swarmbot = SwarmBot()

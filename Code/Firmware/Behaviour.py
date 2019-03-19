@@ -5,12 +5,11 @@ import uos
 import Bluetooth_Comms
 import math
 
-
 class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.SwarmBluetooth):
     def __init__(self):
-        Body.SwarmBody.__init__(self)
-        # Network.SwarmNetwork.__init__(self)
-        Bluetooth_Comms.SwarmBluetooth.__init__(self)
+        #Body.SwarmBody.__init__(self)
+        Network.SwarmNetwork.__init__(self)
+        #Bluetooth_Comms.SwarmBluetooth.__init__(self)
 
         self.Collision_Timer = 0;
         self.Target_Destination = [0, 0];
@@ -260,3 +259,6 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             # If the collision timer is 1
             # Choose a new Target_Destination
             self.Choose_Target_Square();
+
+if __name__ == "__main__":
+    swarmbeh = SwarmBehaviour()

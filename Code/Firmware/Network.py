@@ -6,6 +6,8 @@ from ustruct import pack
 from Body import *
 import slogger
 from machine import Timer
+from led import LED
+import time
 
 RABBITMQ_TOPIC = "demo.key"
 STATE_PACK_CODE = ">ffff"
@@ -16,8 +18,15 @@ logger = slogger.get_logger("NETWORK")
 
 class SwarmNetwork(Messenger.SwarmMessenger):
     def __init__(self):
-        #WiFi.connect()
-        #Messenger.SwarmMessenger.__init__(self)
+        self.network_LED = LED()
+        self.network_LED.off()
+        self.network_LED.cycle(self.network_LED.RED, 1, True)
+        self.network_LED.on(self.network_LED.RED)
+        WiFi.connect()
+        Messenger.SwarmMessenger.__init__(self)
+        time.sleep(3)
+        self.network_LED.cycle(self.network_LED.GREEN, 3, False)
+        self.network_LED.heartbeat_on()
 
         return
 
@@ -48,4 +57,4 @@ class SwarmNetwork(Messenger.SwarmMessenger):
 
 if __name__ == "__main__":
     network = SwarmNetwork()
-    network.send_state_wifi()
+    #network.send_state_wifi()
