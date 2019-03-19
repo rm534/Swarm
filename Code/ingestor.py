@@ -10,7 +10,7 @@ class Ingestor():
 
     def init_connection(self):
         self.credentials = pika.PlainCredentials('robin', 'focker12')
-        self.connection = pika.BlockingConnection(pika.ConnectionParameters('35.164.26.30', 5672, 'swarm', self.credentials))
+        self.connection = pika.BlockingConnection(pika.ConnectionParameters('34.213.163.151', 5672, 'swarm', self.credentials))
         self.channel = self.connection.channel()
         self.result = self.channel.queue_declare(exclusive=True)
         self.queue_name = self.result.method.queue

@@ -1029,6 +1029,38 @@ def test_13_four_coords():
         else:
             print("don't worry! I'm 22!!")
 
+def test_16_no_thread_beh_inheritance():
+    import SwarmBot
+    swarmbot = SwarmBot.SwarmBot()
+    swarmbot.duty_cycle = 0.5
+    swarmbot.battery = 100
+    swarmbot.test_transmit()
+    swarmbot.Choose_Target_Square()
+
+    complete = False
+
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if swarmbot._get_pos ==1 and swarmbot.gyro_data != 0:
+
+            swarmbot.Choose_Target_Square()
+            print("X:" + str(swarmbot.Target_Destination[0]) + "Y:" + str(swarmbot.Target_Destination[1]));
+            position = swarmbot.get_pos()
+            print("Position: {}".format(position))
+            swarmbot.PID_movement((swarmbot.Target_Destination[0] + 5) * 10, (swarmbot.Target_Destination[1] + 5) * 10,
+                              starting_coordinate=(position[0], position[1]), starting_angle=position[2])
+            print("Reached the coordinate! wooooo")
+            swarmbot.Increment_Bounty_Tiles(1)
+            swarmbot.Set_InternalXY(swarmbot.Target_Destination[0] * 300, swarmbot.Target_Destination[1] * 300)
+            swarmbot.Check_New_Grid_Cell_Handle_NOSENSORS()
+            swarmbot.Choose_Target_Square()
+            print("Reached the coordinate! wooooo")
+
+        else:
+            print("don't worry! I'm 22!!")
 
 def test_16_no_thread_beh():
     body = Body.SwarmBody()

@@ -19,7 +19,6 @@ class SwarmNetwork(Messenger.SwarmMessenger):
         #WiFi.connect()
         #Messenger.SwarmMessenger.__init__(self)
 
-
         return
 
     def init_all_network(self):
