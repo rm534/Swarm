@@ -131,6 +131,8 @@ class SwarmBody():
             self.lidar_DIO1 = Pin(lidar_DIO, mode=Pin.IN)
             self.write_address(LIDAR1_ADDR)
             self.tof1 = VL53L0X.VL53L0X(i2c=self.I2C, address=LIDAR1_ADDR)
+            self.tof1.set_Vcsel_pulse_period(self.tof1.vcsel_period_type[0], 18)
+            self.tof1.set_Vcsel_pulse_period(self.tof1.vcsel_period_type[1], 14)
             device = self.I2C.scan()
             print(device)
         elif ID == 2:
@@ -138,6 +140,8 @@ class SwarmBody():
             self.lidar_DIO2 = Pin(lidar_DIO, mode=Pin.IN)
             self.write_address(LIDAR2_ADDR)
             self.tof2 = VL53L0X.VL53L0X(i2c=self.I2C, address=LIDAR2_ADDR)
+            self.tof2.set_Vcsel_pulse_period(self.tof2.vcsel_period_type[0], 18)
+            self.tof2.set_Vcsel_pulse_period(self.tof2.vcsel_period_type[1], 14)
             device = self.I2C.scan()
             print(device)
         elif ID == 3:
@@ -145,6 +149,8 @@ class SwarmBody():
             self.lidar_DIO3 = Pin(lidar_DIO, mode=Pin.IN)
             self.write_address(LIDAR3_ADDR)
             self.tof3 = VL53L0X.VL53L0X(i2c=self.I2C, address=LIDAR3_ADDR)
+            self.tof3.set_Vcsel_pulse_period(self.tof3.vcsel_period_type[0], 18)
+            self.tof3.set_Vcsel_pulse_period(self.tof3.vcsel_period_type[1], 14)
             device = self.I2C.scan()
             print(device)
 
@@ -153,6 +159,8 @@ class SwarmBody():
             self.lidar_DIO4 = Pin(lidar_DIO, mode=Pin.IN)
             self.write_address(LIDAR4_ADDR)
             self.tof4 = VL53L0X.VL53L0X(i2c=self.I2C, address=LIDAR4_ADDR)
+            self.tof4.set_Vcsel_pulse_period(self.tof4.vcsel_period_type[0], 18)
+            self.tof4.set_Vcsel_pulse_period(self.tof4.vcsel_period_type[1], 14)
             device = self.I2C.scan()
             print(device)
 
@@ -421,8 +429,8 @@ class SwarmBody():
                     print("Angle:",angle) ## just for when we want to observe the gyro
                     #temp = self.get_temp()
                     #print("Temperature:",temp)
-                    return pos
-
+                return pos
+'''
                 if pos[0] == 1000:        ## this means a coordinate could not be found
 
                     # See which 90-degree increment robot is currently closest to then use PID to rotate to that
@@ -439,7 +447,7 @@ class SwarmBody():
                         closest = 0
 
                     self.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
-
+'''
 
     def get_battery_state(self):
         bat = 0.47
@@ -531,7 +539,7 @@ class SwarmBody():
                 t_rot=3
 
             #print(ang_desired)
-            print("E:",error," gyro: ",self.gyro_data)
+            #print("E:",error," gyro: ",self.gyro_data)
             # print(t_rot)
 
             ## Rotational Movement ##
@@ -672,13 +680,10 @@ class SwarmBody():
 
         while best_route_result[1][1] > 20:
 
-            #print('Step0.5')
-            #print('ang_desired =', best_route_result[2])
             self.PID_control_rotate(best_route_result)
-            #print('Step1')
+
             self.NO_PID_LINEAR(best_route_result)
-            #print('Step2')  # NON-Linear movement for set time
-            #self.PID_control_rotate_zero(closest_angle)  # Rotate back to zero
+
             starting_coordinate = self.get_pos()# Find position
             #get_temp = self.get_temp()
             #print('Temperature', get_temp)
@@ -692,12 +697,14 @@ class SwarmBody():
                 starting_coordinate = self.get_pos()
                 #get_temp = self.get_temp()
                 #print('Temperature', get_temp)
+                print("rotate in ")
                 self.PID_control_rotate_zero(0, tol=10)
                 time.sleep(0.5)
                 print('Checking Coordinate')
                 count_coordinate += 1
 
             if count_coordinate == 10:
+                print("count 10")
                 starting_coordinate = previous_coordinate #go from last known point
                 #t_lin = t_lin-2 #as time moved is 2 seconds. Added in function instead
                 self.PID_control_rotate(best_route_result)
@@ -705,7 +712,7 @@ class SwarmBody():
 
                 starting_coordinate = self.get_pos()
 
-                while starting_coordinate==(1000,1000):
+                while starting_coordinate[0]==1000 and starting_coordinate[1]==1000:
                     self.move_forward()
                     print('Checking Coordinate Move Forward')
                     time.sleep(2)
@@ -761,13 +768,13 @@ class SwarmBody():
                     print('Checking Coordinate PID')
                 count_coordinate += 1
 
-            while count_coordinate == 10 and starting_coordinate==(1000,1000):
+            while count_coordinate == 10 and (starting_coordinate[0]==1000 and starting_coordinate[1]==1000):
                 self.move_forward()
                 print('Checking Coordinate PID Move Forward')
                 time.sleep(2)
                 starting_coordinate = self.get_pos()
-                get_temp = self.get_temp()
-                print('Temperature', get_temp)
+                #get_temp = self.get_temp()
+                #print('Temperature', get_temp)
                 previous_coordinate = starting_coordinate
 
             previous_coordinate = starting_coordinate

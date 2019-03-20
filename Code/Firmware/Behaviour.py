@@ -21,8 +21,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Arena_X_Mm = 3000;
         self.Arena_Y_Mm = 3000;
 
-        self.Arena_Grid_Size_X = 300;
-        self.Arena_Grid_Size_Y = 300;
+        self.Arena_Grid_Size_X = 600;
+        self.Arena_Grid_Size_Y = 600;
 
         self.Tile_Num_X = round(self.Arena_X_Mm/self.Arena_Grid_Size_X);
         self.Tile_Num_Y = round(self.Arena_Y_Mm/self.Arena_Grid_Size_Y);
@@ -44,8 +44,10 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
         self.Map_Light = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
-        pass
+        self.Temp_Readings = [[0]*3 for _ in range(20)];
+        self.Temp_Counter = 0;
 
+        pass
     #Outputs a map on the terminal
     def Display_Map(self,Map):
         tms = "";
@@ -53,6 +55,15 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             if i != 0:
                 tms +="\n";
             for j in range(0,self.Tile_Num_Y):
+                tms += str(Map[i][j])+",";
+        print(tms);
+
+    def Display_Temps(self,Map):
+        tms = "";
+        for i in range (0,20):#
+            if i != 0:
+                tms +="\n";
+            for j in range(0,3):
                 tms += str(Map[i][j])+",";
         print(tms);
 
@@ -111,6 +122,13 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
        				self.Map_Bounty[i][j] += increm;
         return self.Map_Bounty;
 
+    def Ring_Null(self):
+        for i in range(0,self.Tile_Num_X):
+            for j in range(0,self.Tile_Num_Y):
+                if i == 0 or j == 0 or i == 9 or j == 9:
+                    self.Map_Bounty[i][j] = 0;
+
+
     #Checks if the robot is in a new grid cell and if so executes required code
 
 
@@ -168,6 +186,14 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
 
             Current_Grid_Cell_Temp = Swarmbot_obj.get_temp();
             Current_Grid_Cell_Luminosity = Swarmbot_obj.S_apin.voltage();
+
+            pos = Swarmbot_obj.get_pos();
+            self.Temp_Readings[self.Temp_Counter][0] = pos[0]
+            self.Temp_Readings[self.Temp_Counter][1] = pos[1]
+            self.Temp_Readings[self.Temp_Counter][2] = Current_Grid_Cell_Temp;
+            self.Temp_Counter += 1;
+            self.Display_Temps(self.Temp_Readings);
+
             print("Light",Current_Grid_Cell_Luminosity);
             print("Temp",Current_Grid_Cell_Temp);
             #Find Our Definite coords
@@ -214,3 +240,11 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             #If the collision timer is 1
             #Choose a new Target_Destination
             self.Choose_Target_Square(self.Map_Bounty);
+
+'''
+Temp_Readings = [[0]*3 for _ in range(20)];
+print("Test")
+print(Temp_Readings)
+beh = SwarmBehaviour();
+beh.Display_Temps(Temp_Readings)
+'''

@@ -174,7 +174,7 @@ def coordinate_2(yaw, F, B, R, L):   ## this coordinate code is based on robot o
             x = R*cos(d)
             y = 300 - B*cos(d)
 
-            return 1000,1000,yaw
+            return round(x),round(y),yaw
 
         else:
             return 1000,1000,yaw
@@ -529,7 +529,7 @@ def best_route(desired_coordinate, starting_coordinate, starting_angle):
                 print("Direct",direct)
                 print('ang_desired<-90 and ang_desired<=-180: TRY 2')
 
-    
+
     try:
         rot
     except NameError:
