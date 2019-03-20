@@ -17,6 +17,7 @@ import MPU6050 as mpu6050
 import Position
 import Network
 from machine import PWM
+from machine import ADC
 
 # Setting Constants for Serial Busses
 I2C_BUS_0 = const(0)
@@ -68,6 +69,8 @@ class SwarmBody():
         self.l_limit = 10;
         self.Collision_Chain_Num = 0;
         self.Col_Reverse_Time = 1;
+        self.S_adc = ADC(bits = 12)
+        self.S_apin = self.S_adc.channel(pin = 'P15',attn = self.S_adc.ATTN_11DB)
 
     def initialise_rest(self, SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
         _thread.start_new_thread(self._initialise_rest, (SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4))
@@ -220,6 +223,7 @@ class SwarmBody():
                     print("[-] re-initialising")
                     self.initialise_gyro_new(0, 0)
             fifoCount -= packetSize
+            mpu.resetFIFO();
 
     # Function for initialising pin functionality for the temperature sensor
     def initialise_temp(self):
@@ -570,7 +574,7 @@ class SwarmBody():
             elif lin_mov[0] == 0:
                 self.move_backward()
 
-            time.sleep(2)  # zone identification will need readings not too dissimilar so that it doesn't reject all zone options
+            time.sleep(1)  # zone identification will need readings not too dissimilar so that it doesn't reject all zone options
             self.motor_stop()
 
             time.sleep(0.1)
@@ -592,35 +596,22 @@ class SwarmBody():
 
         if lin_mov[0] == 1:
             if error2 < 0:
-                self.Current_Dir = -1;
                 self.move_backward()
             else:
-                self.Current_Dir = 1;
                 self.move_forward()
 
         elif lin_mov[0] == 0:
             if error2 < 0:
-                self.Current_Dir = 1;
                 self.move_forward()
             else:
-                self.Current_Dir = -1;
                 self.move_backward()
 
         # dist_prior=dist
-
-        #Modifying sleep cyclkes to allow interrupt
-        for i in range(0,100):
-            #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
-            time.sleep(t_lin/100);
-            l1, l2, l3, l4 = swarmbody.get_lidar();
-            if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
-                #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
-                self.motor_stop()
-                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
-                break;
-
+        time.sleep(t_lin)
 
         self.motor_stop()
+
+        time.sleep(0.1)
 
         #time.sleep(0.1)
 
@@ -641,12 +632,12 @@ class SwarmBody():
         for i in range(0,5):
             #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
             time.sleep(t_lin/5);
-            l1, l2, l3, l4 = swarmbody.get_lidar();
+            l1, l2, l3, l4 = self.get_lidar();
             if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                 #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
                 self.motor_stop()
-                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
-                self.Collision_Chain_Num += 1;
+                #PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                #self.Collision_Chain_Num += 1;
                 #could remove ths to on;y allow one collision
                 break;
 
@@ -689,8 +680,8 @@ class SwarmBody():
             #print('Step2')  # NON-Linear movement for set time
             #self.PID_control_rotate_zero(closest_angle)  # Rotate back to zero
             starting_coordinate = self.get_pos()# Find position
-            get_temp = self.get_temp()
-            print('Temperature', get_temp)
+            #get_temp = self.get_temp()
+            #print('Temperature', get_temp)
             #print('Step3')
             print('starting_coordinate =', starting_coordinate)
 
@@ -699,8 +690,8 @@ class SwarmBody():
 
             while ((abs(starting_coordinate[0] - previous_coordinate[0]) > 45) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 45)) and count_coordinate<=10:
                 starting_coordinate = self.get_pos()
-                get_temp = self.get_temp()
-                print('Temperature', get_temp)
+                #get_temp = self.get_temp()
+                #print('Temperature', get_temp)
                 self.PID_control_rotate_zero(0, tol=10)
                 time.sleep(0.5)
                 print('Checking Coordinate')
@@ -719,8 +710,8 @@ class SwarmBody():
                     print('Checking Coordinate Move Forward')
                     time.sleep(2)
                     starting_coordinate = self.get_pos()
-                    get_temp = self.get_temp()
-                    print('Temperature', get_temp)
+                    #get_temp = self.get_temp()
+                    #print('Temperature', get_temp)
                     previous_coordinate = starting_coordinate
 
             else:
@@ -752,9 +743,9 @@ class SwarmBody():
             #print('Step6')
             #self.PID_control_rotate_zero(closest_angle)
             starting_coordinate = self.get_pos()
-            get_temp = self.get_temp()
-            print('Temperature', get_temp)
-            print('starting_coordinate =', starting_coordinate)
+            #get_temp = self.get_temp()
+            #print('Temperature', get_temp)
+            #print('starting_coordinate =', starting_coordinate)
 
 
             ######NEW BIT ADDED IN BELOW
@@ -763,8 +754,8 @@ class SwarmBody():
             while (((abs(starting_coordinate[0] - previous_coordinate[0]) > 40) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 40))) and count_coordinate<=10:
                 self.PID_control_rotate_zero(0, tol=10)
                 starting_coordinate = self.get_pos()
-                get_temp = self.get_temp()
-                print('Temperature', get_temp)
+                #get_temp = self.get_temp()
+                #print('Temperature', get_temp)
                 time.sleep(0.5)
                 if count == 5:
                     print('Checking Coordinate PID')

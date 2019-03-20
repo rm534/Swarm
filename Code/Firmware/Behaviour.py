@@ -73,17 +73,20 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         tempbounty = 0;
         self.Map_Assignement[self.Target_Destination[0]][self.Target_Destination[1]] = 0;
         Bluetooth_obj.Broadcast_Tile_Selection(self.Target_Destination,0);
+        print("Battery",Swarmbot_obj.battery)
         for i in range(0,self.Tile_Num_X):
             for j in range(0,self.Tile_Num_Y):
                 bt = self.Map_Bounty[i][j];
                 bt_p_light = bt# + self.Map_Light[i][j] * (1/Swarmbot_obj.battery+1) *self.Light_Weighting;
                 if Swarmbot_obj.battery < 10:
-                    bt_p_light = self.Map_Light[i][j] * (1/Swarmbot_obj.battery+1) *self.Light_Weighting;
+                    bt_p_light = self.Map_Light[i][j];# * (1/Swarmbot_obj.battery+1) *self.Light_Weighting;
                     #Finding distance between us and a target tiles
                 xl = abs(i*self.Arena_Grid_Size_X - self.Internal_X);
                 yl = abs(j*self.Arena_Grid_Size_Y - self.Internal_Y);
                 #Sqrt
                 dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)*0.5;
+                if Swarmbot_obj.battery < 10:
+                    dist1 = 1;
                 bt_dmod = (bt_p_light/dist1)
                     #Unassign ourselves from our last target
                 #If the bounty is higher, its already not assigned or its already our destination
@@ -120,8 +123,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             print("New Cell!"+str(self.Current_Grid_Cell_X)+"/"+str(self.Current_Grid_Cell_Y))
             #We get the temp of the Cell & Light
 
-            Current_Grid_Cell_Temp = int((uos.urandom(1)[0]/256) * 10);
-            Current_Grid_Cell_Luminosity = swarmbody.get_solar_panel_vol;
+            Current_Grid_Cell_Temp = swarmbody.get_temp();
+            Current_Grid_Cell_Luminosity = swarmbody.S_apin.voltage();
             #Find Our Definite coords
             Real_X = self.Internal_X;
             Real_Y = self.Internal_Y;
@@ -146,7 +149,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             if self.Current_Grid_Cell_X == self.Target_Destination[0] and self.Current_Grid_Cell_Y == self.Target_Destination[1]:
                 self.Target_Destination = self.Choose_Target_Square(Bluetooth_obj,Swarmbot_obj);
                 print("Chosen new t dest!" + str(self.Target_Destination[0])+"/"+str(self.Target_Destination[1]));
-                self.Display_Map(self.Map_Assignement);
+                self.Display_Map(self.Map_Light);
                 #Wipe grid to prevent poor comms trash buildup
                 self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
@@ -163,8 +166,10 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             print("New Cell!"+str(self.Current_Grid_Cell_X)+"/"+str(self.Current_Grid_Cell_Y))
             #We get the temp of the Cell & Light
 
-            Current_Grid_Cell_Temp = int((uos.urandom(1)[0]/256) * 10);
-            Current_Grid_Cell_Luminosity = int((uos.urandom(1)[0]/256) * 10);
+            Current_Grid_Cell_Temp = Swarmbot_obj.get_temp();
+            Current_Grid_Cell_Luminosity = Swarmbot_obj.S_apin.voltage();
+            print("Light",Current_Grid_Cell_Luminosity);
+            print("Temp",Current_Grid_Cell_Temp);
             #Find Our Definite coords
             Real_X = self.Internal_X;
             Real_Y = self.Internal_Y;
@@ -189,7 +194,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             if self.Current_Grid_Cell_X == self.Target_Destination[0] and self.Current_Grid_Cell_Y == self.Target_Destination[1]:
                 self.Target_Destination = self.Choose_Target_Square(Bluetooth_obj,Swarmbot_obj);
                 print("Chosen new t dest!" + str(self.Target_Destination[0])+"/"+str(self.Target_Destination[1]));
-                self.Display_Map(self.Map_Assignement);
+                self.Display_Map(self.Map_Light);
                 #Wipe grid to prevent poor comms trash buildup
                 self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
