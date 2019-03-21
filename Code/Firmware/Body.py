@@ -582,8 +582,15 @@ class SwarmBody():
             elif lin_mov[0] == 0:
                 self.move_backward()
 
-            time.sleep(1)  # zone identification will need readings not too dissimilar so that it doesn't reject all zone options
-            self.motor_stop()
+            chrono_1 = Timer.Chrono()
+            chrono_1.start()
+            while chrono_1.read() < 1:
+                l1, l2, l3, l4 = self.get_lidar();
+                if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+                    self.motor_stop()
+                    PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+            chrono_1.stop();
+            chrono_1.reset();
 
             time.sleep(0.1)
 
@@ -621,7 +628,10 @@ class SwarmBody():
         while chrono_1.read() < t_lin:
             l1, l2, l3, l4 = self.get_lidar();
             if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
-                PID_COLLISION(self, dir, time2):
+                self.motor_stop()
+                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+        chrono_1.stop();
+        chrono_1.reset();
         #time.sleep(t_lin)
 
         self.motor_stop()
@@ -644,21 +654,24 @@ class SwarmBody():
 
         #Modifying sleep cyclkes to allow interrupt
         #Lesser sleep tp prevent retrggerng /5 not /100
-        for i in range(0,5):
-            #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
-            time.sleep(t_lin/5);
-            l1, l2, l3, l4 = self.get_lidar();
-            if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
-                #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
-                self.motor_stop()
-                #PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
-                #self.Collision_Chain_Num += 1;
-                #could remove ths to on;y allow one collision
-                break;
 
-
-        self.motor_stop()
-
+        #A timed reversal
+        chrono_1 = Timer.Chrono()
+        chrono_1.start()
+        while chrono_1.read() < t_lin:
+            #If its reversed for more than half its time
+            if chrono_1.read() > t_lin/2:
+                l1, l2, l3, l4 = self.get_lidar();
+                #If it detects another obstacle then just stop
+                if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+                    #Can consider recursivly calling PID_Collision here !
+                    self.motor_stop()
+                    chrono_1.stop();
+                    chrono_1.reset();
+                    break;
+        chrono_1.stop();
+        chrono_1.reset();
+        self.motor_stop();
 
 
     def open_loop_control(self, best_route_result):
