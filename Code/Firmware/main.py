@@ -1474,7 +1474,7 @@ def test_22_map():
     swarmbeh = Behaviour.SwarmBehaviour();
     swarmbeh.Increment_Bounty_Tiles(1);
 
-    #swarmbeh.Ring_Null();
+    swarmbeh.Ring_Null();
 
     swarmbt.test_transmit();
 
@@ -1506,7 +1506,7 @@ def test_22_map():
             print("Reached the coordinate! wooooo")
             swarmbeh.Increment_Bounty_Tiles(1);
 
-            #swarmbeh.Ring_Null(); #############################################
+            swarmbeh.Ring_Null(); #############################################
 
             #THESE NEED TO BE REDUCED TO 300 !!!!!!!!!!!
             swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);

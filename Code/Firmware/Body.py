@@ -71,6 +71,7 @@ class SwarmBody():
         self.Col_Reverse_Time = 1;
         self.S_adc = ADC(bits = 12)
         self.S_apin = self.S_adc.channel(pin = 'P15',attn = self.S_adc.ATTN_11DB)
+        self.Current_Dir = 1;
 
     def initialise_rest(self, SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
         _thread.start_new_thread(self._initialise_rest, (SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4))
@@ -429,25 +430,29 @@ class SwarmBody():
                     print("Angle:",angle) ## just for when we want to observe the gyro
                     #temp = self.get_temp()
                     #print("Temperature:",temp)
+                elif pos[0] == 1000:
+                    do_function = False
+                    print("NOTE: Got 1000,1000")
+
                 return pos
-'''
-                if pos[0] == 1000:        ## this means a coordinate could not be found
 
-                    # See which 90-degree increment robot is currently closest to then use PID to rotate to that
-                    diffs = [abs(90-angle), abs(-90-angle),abs(180-angle),abs(0-angle)]
-                    min_val = min(diffs)
+            else:
 
-                    if min_val == diffs[0]:
-                        closest = 90
-                    elif min_val == diffs[1]:
-                        closest = -90
-                    elif min_val == diffs[2]:
-                        closest = 180
-                    else:
-                        closest = 0
+                # See which 90-degree increment robot is currently closest to then use PID to rotate to that
+                diffs = [abs(90-angle), abs(-90-angle),abs(180-angle),abs(0-angle)]
+                min_val = min(diffs)
 
-                    self.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
-'''
+                if min_val == diffs[0]:
+                    closest = 90
+                elif min_val == diffs[1]:
+                    closest = -90
+                elif min_val == diffs[2]:
+                    closest = 180
+                else:
+                    closest = 0
+
+                self.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
+
 
     def get_battery_state(self):
         bat = 0.47
@@ -577,9 +582,11 @@ class SwarmBody():
         if abs(dist) > 20:
 
             if lin_mov[0] == 1:
+                self.Current_Dir = 1;
                 self.move_forward()
 
             elif lin_mov[0] == 0:
+                self.Current_Dir = -1;
                 self.move_backward()
 
             chrono_1 = Timer.Chrono()
@@ -588,7 +595,7 @@ class SwarmBody():
                 l1, l2, l3, l4 = self.get_lidar();
                 if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                     self.motor_stop()
-                    PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                    self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
             chrono_1.stop();
             chrono_1.reset();
 
@@ -611,14 +618,18 @@ class SwarmBody():
 
         if lin_mov[0] == 1:
             if error2 < 0:
+                self.Current_Dir = -1;
                 self.move_backward()
             else:
+                self.Current_Dir = 1;
                 self.move_forward()
 
         elif lin_mov[0] == 0:
             if error2 < 0:
+                self.Current_Dir = 1;
                 self.move_forward()
             else:
+                self.Current_Dir = -1;
                 self.move_backward()
 
         # dist_prior=dist
@@ -629,7 +640,7 @@ class SwarmBody():
             l1, l2, l3, l4 = self.get_lidar();
             if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                 self.motor_stop()
-                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
         chrono_1.stop();
         chrono_1.reset();
         #time.sleep(t_lin)
@@ -641,7 +652,7 @@ class SwarmBody():
         #time.sleep(0.1)
 
     def PID_COLLISION(self, dir, time2):
-
+        print("COLLIDING COLLIDING COLLIDING COLLIDING");
         t_lin = time2  # output2 is in cm
         dir = dir;
 
@@ -713,7 +724,7 @@ class SwarmBody():
             ######NEW BIT ADDED IN BELOW
 
 
-            while ((abs(starting_coordinate[0] - previous_coordinate[0]) > 45) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 45)) and count_coordinate<=10:
+            while ((abs(starting_coordinate[0] - previous_coordinate[0]) > 45) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 45)) and count_coordinate<10:
                 starting_coordinate = self.get_pos()
                 #get_temp = self.get_temp()
                 #print('Temperature', get_temp)
@@ -778,7 +789,7 @@ class SwarmBody():
             ######NEW BIT ADDED IN BELOW
 
             count_coordinate = 0
-            while (((abs(starting_coordinate[0] - previous_coordinate[0]) > 40) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 40))) and count_coordinate<=10:
+            while (((abs(starting_coordinate[0] - previous_coordinate[0]) > 40) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 40))) and count_coordinate<10:
                 self.PID_control_rotate_zero(0, tol=10)
                 starting_coordinate = self.get_pos()
                 #get_temp = self.get_temp()
