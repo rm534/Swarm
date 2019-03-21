@@ -430,7 +430,7 @@ class SwarmBody():
                     #temp = self.get_temp()
                     #print("Temperature:",temp)
                 return pos
-'''
+
                 if pos[0] == 1000:        ## this means a coordinate could not be found
 
                     # See which 90-degree increment robot is currently closest to then use PID to rotate to that
@@ -447,7 +447,7 @@ class SwarmBody():
                         closest = 0
 
                     self.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
-'''
+
 
     def get_battery_state(self):
         bat = 0.47
@@ -577,18 +577,23 @@ class SwarmBody():
         if abs(dist) > 20:
 
             if lin_mov[0] == 1:
+                self.Current_Dir = 1;
                 self.move_forward()
 
             elif lin_mov[0] == 0:
+                self.Current_Dir = -1;
                 self.move_backward()
 
             chrono_1 = Timer.Chrono()
             chrono_1.start()
             while chrono_1.read() < 1:
                 l1, l2, l3, l4 = self.get_lidar();
+                print(l1,l2,l3,l4);
                 if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                     self.motor_stop()
-                    PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                    self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+
+            self.motor_stop();
             chrono_1.stop();
             chrono_1.reset();
 
@@ -611,14 +616,18 @@ class SwarmBody():
 
         if lin_mov[0] == 1:
             if error2 < 0:
+                self.Current_Dir = -1;
                 self.move_backward()
             else:
+                self.Current_Dir = 1;
                 self.move_forward()
 
         elif lin_mov[0] == 0:
             if error2 < 0:
+                self.Current_Dir = 1;
                 self.move_forward()
             else:
+                self.Current_Dir = - 1;
                 self.move_backward()
 
         # dist_prior=dist
@@ -627,9 +636,10 @@ class SwarmBody():
         chrono_1.start()
         while chrono_1.read() < t_lin:
             l1, l2, l3, l4 = self.get_lidar();
+            print(l1,l2,l3,l4);
             if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                 self.motor_stop()
-                PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
         chrono_1.stop();
         chrono_1.reset();
         #time.sleep(t_lin)
@@ -641,7 +651,7 @@ class SwarmBody():
         #time.sleep(0.1)
 
     def PID_COLLISION(self, dir, time2):
-
+        print("COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING")
         t_lin = time2  # output2 is in cm
         dir = dir;
 
