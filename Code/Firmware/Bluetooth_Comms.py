@@ -188,3 +188,9 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                                 #print(Swarmbehv_obj.Area_Matrix);
                                 if print_boolean == True:
                                     Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Light);
+
+
+#Used to run handle bluetooth behaviour on a thread
+def _Handle_Bluetooth_Behaviour_Continuous(self,Swarmbehv_obj,print_boolean):
+    while True:
+        self.Handle_Bluetooth_Behaviour(self,Swarmbehv_obj,print_boolean);

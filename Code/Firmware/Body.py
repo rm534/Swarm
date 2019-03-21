@@ -615,7 +615,14 @@ class SwarmBody():
                 self.move_backward()
 
         # dist_prior=dist
-        time.sleep(t_lin)
+
+        chrono_1 = Timer.Chrono()
+        chrono_1.start()
+        while chrono_1.read() < t_lin:
+            l1, l2, l3, l4 = self.get_lidar();
+            if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+                PID_COLLISION(self, dir, time2):
+        #time.sleep(t_lin)
 
         self.motor_stop()
 
