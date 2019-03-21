@@ -429,8 +429,8 @@ class SwarmBody():
                     print("Angle:",angle) ## just for when we want to observe the gyro
                     #temp = self.get_temp()
                     #print("Temperature:",temp)
-                return pos
-'''
+                    return pos
+
                 if pos[0] == 1000:        ## this means a coordinate could not be found
 
                     # See which 90-degree increment robot is currently closest to then use PID to rotate to that
@@ -447,7 +447,7 @@ class SwarmBody():
                         closest = 0
 
                     self.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
-'''
+
 
     def get_battery_state(self):
         bat = 0.47
