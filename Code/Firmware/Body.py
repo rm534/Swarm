@@ -66,7 +66,7 @@ class SwarmBody():
         self.battery = 0
         self._get_pos = 0
         self.Arrival_Flag = False
-        self.l_limit = 10;
+        self.l_limit = 1;
         self.Collision_Chain_Num = 0;
         self.Col_Reverse_Time = 1;
         self.S_adc = ADC(bits = 12)
@@ -596,6 +596,7 @@ class SwarmBody():
                 if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
                     self.motor_stop()
                     self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+            self.motor_stop()
             chrono_1.stop();
             chrono_1.reset();
 
@@ -639,8 +640,9 @@ class SwarmBody():
         while chrono_1.read() < t_lin:
             l1, l2, l3, l4 = self.get_lidar();
             if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
-                self.motor_stop()
-                self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+                pass
+                #self.motor_stop()
+                #self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
         chrono_1.stop();
         chrono_1.reset();
         #time.sleep(t_lin)
@@ -688,6 +690,7 @@ class SwarmBody():
     def open_loop_control(self, best_route_result):
 
         t_lin = (best_route_result[1][1] / V) - 2
+        lin_mov = best_route_result[1];
 
         if lin_mov[0] == 1:
             self.move_forward()
