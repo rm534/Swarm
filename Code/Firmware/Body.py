@@ -412,10 +412,10 @@ class SwarmBody():
             if angle < -180:    #  happen again
                 angle = -180    #
 
-            # print("front: ", l1)
-            # print("back: ", l2)
-            # print("right: ", l3)
-            # print("left: ", l4)
+            print("front: ", l1)
+            print("back: ", l2)
+            print("right: ", l3)
+            print("left: ", l4)
             # print("angle:", angle)
 
             if (angle <= 10 and angle >= -10) or (angle >= 80 and angle <=100) or (angle >=170 or angle<=170) or (angle >=-100 and angle <= -80):
@@ -430,9 +430,8 @@ class SwarmBody():
                     #temp = self.get_temp()
                     #print("Temperature:",temp)
                 elif pos[0] == 1000:
-                    print("NOTE: Got 1000,1000 - will try moving forward")
-                    self.move_forward()
-                    time.sleep(2)
+                    do_function = False
+                    print("NOTE: Got 1000,1000")
 
                 return pos
 
@@ -662,14 +661,14 @@ class SwarmBody():
     def open_loop_control(self, best_route_result):
 
         t_lin = (best_route_result[1][1] / V) - 2
-
+        lin_mov = best_route_result[1]
         if lin_mov[0] == 1:
             self.move_forward()
 
         elif lin_mov[0] == 0:
             self.move_backward()
 
-        time.sleep(t_lin)
+        time.sleep(1)
 
         self.motor_stop()
         time.sleep(0.1)
@@ -714,13 +713,13 @@ class SwarmBody():
                 #t_lin = t_lin-2 #as time moved is 2 seconds. Added in function instead
                 self.PID_control_rotate(best_route_result)
                 self.open_loop_control(best_route_result)
-
                 starting_coordinate = self.get_pos()
 
                 while starting_coordinate[0]==1000 and starting_coordinate[1]==1000:
                     self.move_forward()
                     print('Checking Coordinate Move Forward')
-                    time.sleep(2)
+                    time.sleep(1)
+                    self.motor_stop();
                     starting_coordinate = self.get_pos()
                     #get_temp = self.get_temp()
                     #print('Temperature', get_temp)
