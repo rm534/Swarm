@@ -115,6 +115,57 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
 
         return [self.Target_Destination[0],self.Target_Destination[1]];
 
+    #A simpler variant of the choose target square system to avoid gyro problems
+    def Choose_Target_Square_Simple(self,Bluetooth_obj,Swarmbot_obj):
+        tempbounty = 0;
+        self.Map_Assignement[self.Target_Destination[0]][self.Target_Destination[1]] = 0;
+        Bluetooth_obj.Broadcast_Tile_Selection(self.Target_Destination,0);
+        for K in range(0,4):
+            #N
+            if K==0:
+                i = self.Target_Destination[0];
+                j = self.Target_Destination[1]+1;
+            #E
+            elif K==1:
+                i = self.Target_Destination[0]+1;
+                j = self.Target_Destination[1];
+            #S
+            elif K==2:
+                i = self.Target_Destination[0];
+                j = self.Target_Destination[1]-1;
+            #W
+            elif K==3:
+                i = self.Target_Destination[0]-1;
+                j = self.Target_Destination[1];
+
+            #if it is a tile within the grid then proceed
+            if i > 9 or i < 0 or j > 9 or j < 0:
+                bt = self.Map_Bounty[i][j];
+                bt_p_light = bt# + self.Map_Light[i][j] * (1/Swarmbot_obj.battery+1) *self.Light_Weighting;
+                if Swarmbot_obj.battery < 10:
+                    bt_p_light = self.Map_Light[i][j] * (1/Swarmbot_obj.battery+1) *self.Light_Weighting;
+                    #Finding distance between us and a target tiles
+                xl = abs(i*self.Arena_Grid_Size_X - self.Internal_X);
+                yl = abs(j*self.Arena_Grid_Size_Y - self.Internal_Y);
+                #Sqrt
+                dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)*0.5;
+                bt_dmod = (bt_p_light/dist1)
+                    #Unassign ourselves from our last target
+                #If the bounty is higher, its already not assigned or its already our destination
+                if bt_dmod > tempbounty and (self.Map_Assignement[i][j] != 1 or (self.Target_Destination[0] == i and self.Target_Destination[1] == j)):
+                    tempbounty = bt_dmod
+                    self.Target_Destination[0] = i;
+                    self.Target_Destination[1] = j;
+                    #self.Map_Assignement[i][j] = 1;
+
+        ##Alerts other robos' of its tile intent.
+        #We can potentailly just make this external as internally there are some problems
+        self.Map_Assignement[self.Target_Destination[0]][self.Target_Destination[1]] = 1;
+        Bluetooth_obj.Broadcast_Tile_Selection(self.Target_Destination,1);
+
+
+        return [self.Target_Destination[0],self.Target_Destination[1]];
+
     #Increments the bounty tiles by 1 and returns the incremented map;
     def Increment_Bounty_Tiles(self,increm):
         for i in range(0,self.Tile_Num_X):

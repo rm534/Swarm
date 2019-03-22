@@ -10,6 +10,7 @@ import Behaviour
 import Bluetooth_Comms
 import SwarmBot
 import uos
+import math
 
 import time
 from machine import Timer
@@ -1532,16 +1533,17 @@ def test_23_mapping_with_bluetooth():
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
     #Initialise a behaviour controller
     swarmbeh = Behaviour.SwarmBehaviour();
-    swarmbeh.Increment_Bounty_Tiles(1);
+    swarmbeh.Increment_Bounty_Tiles(100);
 
     swarmbeh.Ring_Null();
+
 
     swarmbt.test_transmit();
 
     #Start Bluetooth handling thread
     Bt_Thread = _thread.start_new_thread(swarmbt.Handle_Bluetooth_Behaviour_Continuous,(swarmbeh,True));
     #Choose an initial destination
-    swarmbeh.Choose_Target_Square(swarmbt,body);
+    #swarmbeh.Choose_Target_Square(swarmbt,body);
     one_flag = True;
     complete = False
     print("[+] Setting Timer")
@@ -1554,6 +1556,14 @@ def test_23_mapping_with_bluetooth():
             if one_flag == True:
                 one_flag = False;
                 last_coord = body.get_pos();
+                position = body.get_pos()
+                print("Xpos",position[0],"YPOS",position[1])
+                swarmbeh.Set_InternalXY(position[0]*10,position[1]*10);
+                swarmbeh.Current_Grid_Cell_X = math.floor(position[0]*10/swarmbeh.Arena_Grid_Size_X);
+                swarmbeh.Current_Grid_Cell_Y = math.floor(position[1]*10/swarmbeh.Arena_Grid_Size_Y);
+                print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
+
+
             swarmbeh.Choose_Target_Square(swarmbt,body);
             print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
             #input("Enter character to find coordinate: ")
