@@ -95,7 +95,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
                 xl = abs(i*self.Arena_Grid_Size_X - self.Internal_X);
                 yl = abs(j*self.Arena_Grid_Size_Y - self.Internal_Y);
                 #Sqrt
-                dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)*0.5;
+                dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)**0.5;
                 if Swarmbot_obj.battery < 10:
                     dist1 = 1;
                 bt_dmod = (bt_p_light/dist1)
@@ -187,13 +187,12 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             Current_Grid_Cell_Temp = Swarmbot_obj.get_temp();
             Current_Grid_Cell_Luminosity = Swarmbot_obj.S_apin.voltage();
 
-            if self.TempCounter < 20:
-                pos = Swarmbot_obj.get_pos();
-                self.Temp_Readings[self.Temp_Counter][0] = pos[0]
-                self.Temp_Readings[self.Temp_Counter][1] = pos[1]
-                self.Temp_Readings[self.Temp_Counter][2] = Current_Grid_Cell_Temp;
-                self.Temp_Counter += 1;
-            #self.Display_Temps(self.Temp_Readings);
+            pos = Swarmbot_obj.get_pos();
+            self.Temp_Readings[self.Temp_Counter][0] = pos[0]
+            self.Temp_Readings[self.Temp_Counter][1] = pos[1]
+            self.Temp_Readings[self.Temp_Counter][2] = Current_Grid_Cell_Temp;
+            self.Temp_Counter += 1;
+            self.Display_Temps(self.Temp_Readings);
 
             print("Light",Current_Grid_Cell_Luminosity);
             print("Temp",Current_Grid_Cell_Temp);
