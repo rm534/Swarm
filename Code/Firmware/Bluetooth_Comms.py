@@ -44,7 +44,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
         self.bluetooth.set_advertisement(name="a_mp", manufacturer_data="l", service_data=ss)
         self.bluetooth.advertise(True)
         #Sets teh timer for how long we should transmit
-        self.Tile_Transmit_Timer = 15;
+        self.Tile_Transmit_Timer = 50;
         return -1;
 
 
@@ -75,7 +75,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
         self.bluetooth.set_advertisement(name="a_tg", manufacturer_data="l", service_data=mes)
         self.bluetooth.advertise(True)
-        self.Tile_Transmit_Timer = 15;
+        self.Tile_Transmit_Timer = 50;
         return -1;
 
 
@@ -111,19 +111,22 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                     # try to get the complete name
 
                     if print_boolean == True:
-                        print(self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL))
+                        pass
+                        #print(self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL))
                     name = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_NAME_CMPL);
                     mfg_data = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_MANUFACTURER_DATA)
                     adv_mes = self.bluetooth.resolve_adv_data(adv.data, Bluetooth.ADV_SERVICE_DATA)
                     if print_boolean == True:
-                        print(adv_mes);
+                        pass
+                        #print(adv_mes);
                     if adv_mes:
                         if print_boolean == True:
                             print("MES!")
 
                     if mfg_data:
                         if print_boolean == True:
-                            print(ubinascii.hexlify(mfg_data))
+                            pass
+                            #print(ubinascii.hexlify(mfg_data))
 
                     if adv_mes and name:
                         bl_strength = adv[3];
@@ -139,8 +142,9 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
 
                         if print_boolean == True:
-                            print(ubinascii.hexlify(adv_mes))
-                            print(adv_mes)
+                            pass
+                            #print(ubinascii.hexlify(adv_mes))
+                            #print(adv_mes)
 
                         #If meesage is an intent update
                         if name == "a_tg":
