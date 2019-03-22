@@ -429,24 +429,29 @@ class SwarmBody():
                     print("Angle:",angle) ## just for when we want to observe the gyro
                     #temp = self.get_temp()
                     #print("Temperature:",temp)
-                    return pos
+                elif pos[0] == 1000:
+                    print("NOTE: Got 1000,1000 - will try moving forward")
+                    self.move_forward()
+                    time.sleep(2)
 
-                if pos[0] == 1000:        ## this means a coordinate could not be found
+                return pos
 
-                    # See which 90-degree increment robot is currently closest to then use PID to rotate to that
-                    diffs = [abs(90-angle), abs(-90-angle),abs(180-angle),abs(0-angle)]
-                    min_val = min(diffs)
+            else:
 
-                    if min_val == diffs[0]:
-                        closest = 90
-                    elif min_val == diffs[1]:
-                        closest = -90
-                    elif min_val == diffs[2]:
-                        closest = 180
-                    else:
-                        closest = 0
+                # See which 90-degree increment robot is currently closest to then use PID to rotate to that
+                diffs = [abs(90-angle), abs(-90-angle),abs(180-angle),abs(0-angle)]
+                min_val = min(diffs)
 
-                    self.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
+                if min_val == diffs[0]:
+                    closest = 90
+                elif min_val == diffs[1]:
+                    closest = -90
+                elif min_val == diffs[2]:
+                    closest = 180
+                else:
+                    closest = 0
+
+                self.PID_control_rotate_zero(closest, tol=10)   ## it should do the while loop again after this, attempting coordinate again
 
 
     def get_battery_state(self):
@@ -693,7 +698,7 @@ class SwarmBody():
             ######NEW BIT ADDED IN BELOW
 
 
-            while ((abs(starting_coordinate[0] - previous_coordinate[0]) > 45) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 45)) and count_coordinate<=10:
+            while ((abs(starting_coordinate[0] - previous_coordinate[0]) > 45) or (abs(starting_coordinate[1] - previous_coordinate[1]) > 45)) and count_coordinate<10:
                 starting_coordinate = self.get_pos()
                 #get_temp = self.get_temp()
                 #print('Temperature', get_temp)
@@ -704,7 +709,7 @@ class SwarmBody():
                 count_coordinate += 1
 
             if count_coordinate == 10:
-                print("count 10")
+                print("NOTE: count_coordinate reached 10")
                 starting_coordinate = previous_coordinate #go from last known point
                 #t_lin = t_lin-2 #as time moved is 2 seconds. Added in function instead
                 self.PID_control_rotate(best_route_result)
@@ -735,7 +740,7 @@ class SwarmBody():
             time.sleep(1)
 
         count = 0
-        while best_route_result[1][1] > 4:
+        while best_route_result[1][1] > 7:
             #print('Step4.5')
             #print('ang_desired =', best_route_result[2])
             self.PID_control_rotate(best_route_result)
