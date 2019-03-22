@@ -535,8 +535,8 @@ class SwarmBody():
             error_prior = error
 
             t_rot = abs(output) / W
-            if t_rot > 3:
-                t_rot=3
+            if t_rot > 1:
+                t_rot=0.1
 
             #print(ang_desired)
             #print("E:",error," gyro: ",self.gyro_data)
