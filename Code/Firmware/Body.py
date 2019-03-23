@@ -15,7 +15,7 @@ from tmp102 import _tmp102
 import math
 import MPU6050 as mpu6050
 import Position
-import Network
+#import Network
 from machine import PWM
 from machine import ADC
 
@@ -70,7 +70,7 @@ class SwarmBody():
         self.Collision_Chain_Num = 0;
         self.Col_Reverse_Time = 1;
         self.S_adc = ADC(bits = 12)
-        self.S_apin = self.S_adc.channel(pin = 'P15',attn = self.S_adc.ATTN_11DB)
+        self.S_apin = self.S_adc.channel(pin = 'P13',attn = self.S_adc.ATTN_11DB)
 
     def initialise_rest(self, SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
         _thread.start_new_thread(self._initialise_rest, (SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4))
@@ -102,9 +102,13 @@ class SwarmBody():
     # Function for initialising all pin functionality for lidar
     def set_lidar(self, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
         try:
+            print("[+] Setting first Lidar")
             self._set_lidar(ID=1, lidar_DIO=lidar_DIO1)
+            print("[+] Setting second Lidar")
             self._set_lidar(ID=2, lidar_DIO=lidar_DIO2)
+            print("[+] Setting third Lidar")
             self._set_lidar(ID=3, lidar_DIO=lidar_DIO3)
+            print("[+] Setting fourth Lidar")
             self._set_lidar(ID=4, lidar_DIO=lidar_DIO4)
         except OSError:
 
@@ -176,7 +180,7 @@ class SwarmBody():
         self.motor_PWM = PWM(0, frequency=500)
         self.pwm1 = "P6"
         self.pwm2 = "P7"
-        self.duty_cycle = 0.5
+        self.duty_cycle = 0.3
         self.w = 200.934
         self.v = 0.401
         self.chrono = Timer.Chrono()
@@ -792,7 +796,17 @@ class SwarmBody():
 if __name__ == '__main__':
     # network = Network.SwarmNetwork()
     body = SwarmBody()
-    body.duty_cycle = 0.5
+    body.get_temp()
+    #body.rotate_clockwise()
+    #time.sleep(1)
+    #body.rotate_anti_clockwise()
+    #time.sleep(1)
+    #body.move_forward()
+    #time.sleep(1)
+    #body.motor_stop()
+
+
+    """body.duty_cycle = 0.5
     complete = False
     print("[+] Setting Timer")
 
@@ -849,4 +863,4 @@ if __name__ == '__main__':
             body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
         else:
-            print("yet again, we are in main")
+            print("yet again, we are in main")"""

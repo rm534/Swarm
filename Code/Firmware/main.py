@@ -1528,7 +1528,7 @@ def test_22_map():
 
 def test_23_mapping_with_bluetooth():
     body = Body.SwarmBody()
-    body.duty_cycle = 0.5;
+    body.duty_cycle = 0.4;
     body.battery = 100;
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
     #Initialise a behaviour controller
