@@ -582,7 +582,10 @@ class SwarmBody():
             elif lin_mov[0] == 0:
                 self.move_backward()
 
-            time.sleep(1)  # zone identification will need readings not too dissimilar so that it doesn't reject all zone options
+            #time.sleep(1)  # zone identification will need readings not too dissimilar so that it doesn't reject all zone options
+
+
+
             self.motor_stop()
 
             time.sleep(0.1)

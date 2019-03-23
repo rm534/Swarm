@@ -44,7 +44,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
         self.Map_Light = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
-        self.Temp_Readings = [[0]*3 for _ in range(20)];
+        self.Temp_Readings = [[0]*3 for _ in range(29)];
         self.Temp_Counter = 0;
 
         pass
@@ -96,7 +96,6 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
                 yl = abs(j*self.Arena_Grid_Size_Y - self.Internal_Y);
 
                 #If the square is CARDINAL then give it more value
-                
 
                 #Sqrt
                 dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)**0.5;

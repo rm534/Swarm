@@ -1596,6 +1596,76 @@ def test_23_mapping_with_bluetooth():
         else:
             print("don't worry! I'm 22!!")
 
+def test_24_threaded_pid():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.4;
+    body.battery = 100;
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbeh.Increment_Bounty_Tiles(100);
+
+    swarmbeh.Ring_Null();
+
+
+    swarmbt.test_transmit();
+
+    #Start Bluetooth handling thread
+    Bt_Thread = _thread.start_new_thread(swarmbt.Handle_Bluetooth_Behaviour_Continuous,(swarmbeh,True));
+    #Choose an initial destination
+    #swarmbeh.Choose_Target_Square(swarmbt,body);
+    one_flag = True;
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+            if one_flag == True:
+                one_flag = False;
+                last_coord = body.get_pos();
+                position = body.get_pos()
+                print("Xpos",position[0],"YPOS",position[1])
+                swarmbeh.Set_InternalXY(position[0]*10,position[1]*10);
+                swarmbeh.Current_Grid_Cell_X = math.floor(position[0]*10/swarmbeh.Arena_Grid_Size_X);
+                swarmbeh.Current_Grid_Cell_Y = math.floor(position[1]*10/swarmbeh.Arena_Grid_Size_Y);
+                print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
+
+
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+
+            #THESE NEED TO BE REDUCED TO 30 !!!!
+            body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+            last_coord = position;
+            position = body.get_pos()
+            body.battery -= 25;
+            print("Reached the coordinate! wooooo")
+            swarmbeh.Increment_Bounty_Tiles(1);
+
+            swarmbeh.Ring_Null(); #############################################
+
+            #THESE NEED TO BE REDUCED TO 300 !!!!!!!!!!!
+            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            #swarmbeh.Increment_Bounty_Tiles(1);
+            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            #break
+            print("Reached the coordinate! wooooo")
+            #complete = True;
+
+
+        else:
+            print("don't worry! I'm 22!!")
+
 
 if __name__ == "__main__":
     ##Swarmbot is initialised
