@@ -44,7 +44,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
         self.bluetooth.set_advertisement(name="a_mp", manufacturer_data="l", service_data=ss)
         self.bluetooth.advertise(True)
         #Sets teh timer for how long we should transmit
-        self.Tile_Transmit_Timer = 50;
+        self.Tile_Transmit_Timer = 200;
         return -1;
 
 
@@ -164,7 +164,8 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                             if isinstance(mx,int) and isinstance(my,int) and isinstance(state,int):
                                 Swarmbehv_obj.Map_Assignement[mx][my] = state;
                                 if print_boolean == True:
-                                    Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Assignement);
+                                    #Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Light);
+                                    pass
 
 
                         elif name == "a_mp":
@@ -177,7 +178,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                             #create temp string
                             lumin_s = 0;
                             for i in range(4,len(adv_mes)):
-                                lumin_s += 10**(len(adv_mes)-i)*adv_mes[i];
+                                lumin_s += (10**(len(adv_mes)-i-1))*(int(adv_mes[i])-48);
                             #make temp float
                             lumin_s = float(lumin_s);
                             if print_boolean == True:
