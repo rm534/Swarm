@@ -71,6 +71,8 @@ class SwarmBody():
         self.Col_Reverse_Time = 1;
         self.S_adc = ADC(bits = 12)
         self.S_apin = self.S_adc.channel(pin = 'P15',attn = self.S_adc.ATTN_11DB)
+        self.Current_Dir = 1;
+        self.Last_bt_str = -999;
 
     def initialise_rest(self, SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
         _thread.start_new_thread(self._initialise_rest, (SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4))
@@ -577,15 +579,27 @@ class SwarmBody():
         if abs(dist) > 20:
 
             if lin_mov[0] == 1:
+                self.Current_Dir = 1;
                 self.move_forward()
 
             elif lin_mov[0] == 0:
+                self.Current_Dir = -1;
                 self.move_backward()
 
             #time.sleep(1)  # zone identification will need readings not too dissimilar so that it doesn't reject all zone options
 
 
-
+            chrono_1 = Timer.Chrono()
+            chrono_1.start()
+            while chrono_1.read() < t_lin:
+                l1, l2, l3, l4 = self.get_lidar();
+                print(l1,l2,l3,l4);
+                #if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+                if self.Last_bt_str > -35:
+                    self.motor_stop()
+                    self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+            chrono_1.stop();
+            chrono_1.reset();
             self.motor_stop()
 
             time.sleep(0.1)
@@ -607,18 +621,33 @@ class SwarmBody():
 
         if lin_mov[0] == 1:
             if error2 < 0:
+                self.Current_Dir = -1;
                 self.move_backward()
             else:
+                self.Current_Dir = 1;
                 self.move_forward()
 
         elif lin_mov[0] == 0:
             if error2 < 0:
+                self.Current_Dir = 1;
                 self.move_forward()
             else:
+                self.Current_Dir = -1;
                 self.move_backward()
 
         # dist_prior=dist
-        time.sleep(t_lin)
+        #time.sleep(t_lin)
+        chrono_1 = Timer.Chrono()
+        chrono_1.start()
+        while chrono_1.read() < t_lin:
+            l1, l2, l3, l4 = self.get_lidar();
+            print(l1,l2,l3,l4);
+            #if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+            if self.Last_bt_str > -35:
+                self.motor_stop()
+                self.PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);
+        chrono_1.stop();
+        chrono_1.reset();
 
         self.motor_stop()
 
@@ -627,7 +656,7 @@ class SwarmBody():
         #time.sleep(0.1)
 
     def PID_COLLISION(self, dir, time2):
-
+        print("COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING COLLIDING")
         t_lin = time2  # output2 is in cm
         dir = dir;
 
@@ -644,7 +673,8 @@ class SwarmBody():
             #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
             time.sleep(t_lin/5);
             l1, l2, l3, l4 = self.get_lidar();
-            if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+            #if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):
+            if self.Last_bt_str > -35:
                 #If LIDAR READING IS TINY THEN START REVERSE BEHAVIOUR
                 self.motor_stop()
                 #PID_COLLISION((self.Current_Dir*-1),self.Col_Reverse_Time);

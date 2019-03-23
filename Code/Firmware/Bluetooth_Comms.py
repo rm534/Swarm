@@ -81,7 +81,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
     #Handles Transmission and Listening Decisions For a given cycle
     #Needs to be run each cycle
-    def Handle_Bluetooth_Behaviour(self,Swarmbehv_obj,print_boolean):
+    def Handle_Bluetooth_Behaviour(self,Swarmbehv_obj,print_boolean,SwarmBody_2):
         if self.Collision_Timer > 0:
             self.Collision_Timer-=1;
 
@@ -131,6 +131,7 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                     if adv_mes and name:
                         bl_strength = adv[3];
                         #If the strength is past the bl_threshold
+                        SwarmBody_2.Last_bt_str = bl_strength;
                         if bl_strength > self.bl_threshold:
                             #We start our collision reverse movement
                             if self.Collision_Timer == 0:
