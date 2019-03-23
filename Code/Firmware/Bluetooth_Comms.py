@@ -197,6 +197,6 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
 
     #Used to run handle bluetooth behaviour on a thread
-    def Handle_Bluetooth_Behaviour_Continuous(self,Swarmbehv_obj,print_boolean):
+    def Handle_Bluetooth_Behaviour_Continuous(self,Swarmbehv_obj,print_boolean,SwarmBody):
         while True:
-            self.Handle_Bluetooth_Behaviour(Swarmbehv_obj,print_boolean);
+            self.Handle_Bluetooth_Behaviour(Swarmbehv_obj,print_boolean,SwarmBody);

@@ -591,7 +591,7 @@ class SwarmBody():
 
             chrono_1 = Timer.Chrono()
             chrono_1.start()
-            while chrono_1.read() < t_lin:
+            while chrono_1.read() < 1:
                 l1, l2, l3, l4 = self.get_lidar();
                 print(l1,l2,l3,l4);
                 #if(l1 < self.l_limit or l2 < self.l_limit or l3 < self.l_limit or l4 < self.l_limit):

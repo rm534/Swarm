@@ -1611,7 +1611,7 @@ def test_24_threaded_pid():
     swarmbt.test_transmit();
 
     #Start Bluetooth handling thread
-    Bt_Thread = _thread.start_new_thread(swarmbt.Handle_Bluetooth_Behaviour_Continuous,(swarmbeh,True));
+    Bt_Thread = _thread.start_new_thread(swarmbt.Handle_Bluetooth_Behaviour_Continuous,(swarmbeh,True,body));
     #Choose an initial destination
     #swarmbeh.Choose_Target_Square(swarmbt,body);
     one_flag = True;
@@ -1677,7 +1677,11 @@ if __name__ == "__main__":
 
     #test_16_no_thread_beh();
     #test_13_four_coords();
-    test_23_mapping_with_bluetooth();
+
+    #test_23_mapping_with_bluetooth();
+
+    test_24_threaded_pid();
+
     #swarmbeh = Behaviour.SwarmBehaviour();
     #print("SwarmBot is Testing -_-");
     #test7_both_int();
