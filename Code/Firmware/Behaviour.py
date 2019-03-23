@@ -94,6 +94,10 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
                     #Finding distance between us and a target tiles
                 xl = abs(i*self.Arena_Grid_Size_X - self.Internal_X);
                 yl = abs(j*self.Arena_Grid_Size_Y - self.Internal_Y);
+
+                #If the square is CARDINAL then give it more value
+                
+
                 #Sqrt
                 dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)**0.5;
                 if Swarmbot_obj.battery < 10:

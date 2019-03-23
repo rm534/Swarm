@@ -735,7 +735,7 @@ class SwarmBody():
             time.sleep(1)
 
         count = 0
-        while best_route_result[1][1] > 4:
+        while best_route_result[1][1] > 7:
             #print('Step4.5')
             #print('ang_desired =', best_route_result[2])
             self.PID_control_rotate(best_route_result)

@@ -1528,7 +1528,7 @@ def test_22_map():
 
 def test_23_mapping_with_bluetooth():
     body = Body.SwarmBody()
-    body.duty_cycle = 0.5;
+    body.duty_cycle = 0.4;
     body.battery = 100;
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
     #Initialise a behaviour controller
@@ -1574,7 +1574,7 @@ def test_23_mapping_with_bluetooth():
             body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
             last_coord = position;
             position = body.get_pos()
-            #body.battery -= 15;
+            body.battery -= 25;
             print("Reached the coordinate! wooooo")
             swarmbeh.Increment_Bounty_Tiles(1);
 
