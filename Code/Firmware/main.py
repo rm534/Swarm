@@ -1572,6 +1572,21 @@ def test_23_mapping_with_bluetooth():
 
             #THESE NEED TO BE REDUCED TO 30 !!!!
             body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+
+            #If we have jsut moved and our battery is below 10 we charge for 30 seconds and then keep going at 100 power.
+            if body.battery < 10:
+                chrono_l = Timer.Chrono()
+                chrono_l.start();
+                #While timer less than 30
+                last_f = 0;
+                while chrono_l.read() < 30:
+                    fv = floor(chrono_l.read());
+                    if last_f != fv:
+                        print("SOLAR CHARGING ! : 1/",fv);
+
+                #When finished then reset battery
+                body.battery = 100;
+
             last_coord = position;
             position = body.get_pos()
             body.battery -= 25;
