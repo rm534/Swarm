@@ -45,7 +45,11 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
         self.Map_Light = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
+<<<<<<< HEAD
         self.Temp_Readings = [[0]*3 for _ in range(26)];
+=======
+        self.Temp_Readings = [[0]*3 for _ in range(29)];
+>>>>>>> remotes/origin/NB-CO-V7-PID_THREAD
         self.Temp_Counter = 0;
         self.Temp_Readings_dict = {"x": [],
                                     "y": [],
@@ -98,6 +102,9 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
                     #Finding distance between us and a target tiles
                 xl = abs(i*self.Arena_Grid_Size_X - self.Internal_X);
                 yl = abs(j*self.Arena_Grid_Size_Y - self.Internal_Y);
+
+                #If the square is CARDINAL then give it more value
+
                 #Sqrt
                 dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)**0.5;
                 if Swarmbot_obj.battery < 10:
