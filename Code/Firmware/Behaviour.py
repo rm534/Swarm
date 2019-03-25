@@ -47,6 +47,11 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Temp_Readings = [[0]*3 for _ in range(20)];
         self.Temp_Counter = 0;
 
+        self.Charge_Flag = False;
+        self.classharge_ID = -1;
+        self.Charge_X = 0;
+        self.Charge_Y = 0;
+
         pass
     #Outputs a map on the terminal
     def Display_Map(self,Map):
@@ -96,7 +101,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
                 yl = abs(j*self.Arena_Grid_Size_Y - self.Internal_Y);
 
                 #If the square is CARDINAL then give it more value
-                
+
 
                 #Sqrt
                 dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)**0.5;

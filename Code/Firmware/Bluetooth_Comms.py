@@ -6,6 +6,7 @@ import Body
 import Network
 from network import Bluetooth
 import ubinascii
+import math
 
 class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
     def __init__(self):
@@ -193,9 +194,74 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                                 #print(Swarmbehv_obj.Area_Matrix);
                                 if print_boolean == True:
                                     Swarmbehv_obj.Display_Map(Swarmbehv_obj.Map_Light);
+                        #Charge Request Message
+                        elif name == "a_cr":
+                            if print_boolean == True:
+                                print("Charge Request Recieved !")
+                                hexd = ubinascii.hexlify(adv_mes);
+                                mx = (int(adv_mes[0])-48)*10+(int(adv_mes[1])-48);
+                                my = (int(adv_mes[2])-48)*10+(int(adv_mes[3])-48);
+                                t_ID = 0;
+                                for i in range(4,len(adv_mes)):
+                                    t_ID += (10**(len(adv_mes)-i-1))*(int(adv_mes[i])-48);
 
+
+                                Swarmbehv_obj.Charge_Flag = True;
+                                Swarmbehv_obj.classharge_ID = t_ID;
+                                Swarmbehv_obj.Charge_X = mx;
+                                Swarmbehv_obj.Charge_Y = my;
+
+
+                                #If it is not then goto square and transmit intent
+                        #Charge accepted message
+                        elif name == "a_cc"
 
     #Used to run handle bluetooth behaviour on a thread
     def Handle_Bluetooth_Behaviour_Continuous(self,Swarmbehv_obj,print_boolean):
         while True:
             self.Handle_Bluetooth_Behaviour(Swarmbehv_obj,print_boolean);
+
+    #Sends a global call for itself to be charged
+    def Call_For_Charge(self,Swarmbehv_obj,Current_X,Current_Y):
+        RX = 0;
+        RY = 0;
+        RY = Current_Y;
+        #Check the Tile 2 to the left
+        if Current_X - 2 > 0:
+            RX = Current_X - 2
+        elif Current_X + 2 < math.floor(Swarmbehv_obj.Arena_X_Mm/Swarmbehv_obj.Arena_Grid_Size_X)
+            RX = Current_X - 2
+        else:
+            pass
+            #Somthing in Y required here ?
+        #Check the Tile 2 to the right
+
+        #Use whichever is not out of the Area_Matrix
+
+
+
+        RX = Target_Destination[0];
+        RY = Target_Destination[1];
+        print("Broadcasting Call For Charge" + str(RX)+"/"+str(RY));
+
+        #Sets the advertisment that we want, the method work up to 99, uses 01, 10
+
+        if RX < 10:
+            RXM = "0"+str(RX);
+        else:
+            RXM = str(RX);
+
+        if RY < 10:
+            RYM = "0"+str(RY);
+        else:
+            RYM = str(RY);
+
+
+        mes = RXM + RYM +str(ubinascii.hexlify(machine.unique_id()));
+
+        self.bluetooth.set_advertisement(name="a_cr", manufacturer_data="l", service_data=mes)
+        self.bluetooth.advertise(True)
+        self.Tile_Transmit_Timer = 50;
+        return -1;
+    #Tells other robots to forget if a robot of an ID has been charged
+    def Call_Charge_Handled(self,)
