@@ -195,23 +195,22 @@ class SwarmBody():
         i = 0  # iteration count
         sum_yaw = 0  # summing totals to calculate the mean
         current_yaw = 0
-        print("Calculating zero-offset... please wait a few moments.")
+        print('\n'"Calculating zero-offset.")
+        print("Please Stand By...")
         while True:
 
-            fifoCount = mpu.getFIFOCount()  #
-            while fifoCount < packetSize:  # major oscillations without this
+            fifoCount = mpu.getFIFOCount()      #
+            while fifoCount < packetSize:       # major oscillations without this
                 fifoCount = mpu.getFIFOCount()  #
 
             result = mpu.getFIFOBytes(packetSize)
             q = mpu.dmpGetQuaternion(result)
             g = mpu.dmpGetGravity(q)
             ypr = mpu.dmpGetYawPitchRoll(q, g)
-            yaw = ypr['yaw'] * 180 / math.pi
+            yaw = (ypr['yaw'] * 180 / math.pi)
 
-            i+=1;
-
-            if i > 1000:
-                i = 701;
+            if i < 750:
+                i+=1
 
             if i <= 600:  # skip the first 600 iterations to give it a chance to settle/stop drifting
                 pass
@@ -219,19 +218,40 @@ class SwarmBody():
             if i > 600 and i <= 700:  # take the average of the next 100 iterations after that (where it has settled to when stationary)
                 sum_yaw += yaw
                 if i == 700:
-                    avg_yaw = sum_yaw / 100  # avg_yaw = the zero error
+                    avg_yaw = (sum_yaw / 100)  # avg_yaw = the zero error
+
+                    if avg_yaw > 0:
+                        print('\n'"ALERT !!!")
+                        print("Average yaw is positive.")
+                        print("If not working check this first !")
+
+                    else:
+                        pass
+
 
             if i > 700:
-                try:
-                    if i % 10 == 0:  # increase from 10 for slower readings           # start printing out yaw values (gyro reading - zero error)
-                        current_yaw = yaw - avg_yaw  # ===  [ robot can only start moving at this point ] === #
-                        # print(current_yaw)
-                        self.gyro_data = current_yaw
-                except IOError:
-                    print("[-] re-initialising")
-                    self.initialise_gyro_new(0, 0)
+
+                current_yaw = yaw - avg_yaw  # ===  [ robot can only start moving at this point ] === #
+
+                if avg_yaw < 0:              # New code starts here.
+
+                    if current_yaw > 180:
+                        current_yaw = current_yaw - 180
+                        current_yaw = -180 + current_yaw
+                    else:
+                        pass
+
+                elif avg_yaw > 0:
+                    if current_yaw < -180:
+                        current_yaw =  current_yaw + 180
+                        current_yaw = 180 - current_yaw
+                    else:
+                        pass
+
+                self.gyro_data = current_yaw
+
             fifoCount -= packetSize
-            mpu.resetFIFO();
+            mpu.resetFIFO()
 
     # Function for initialising pin functionality for the temperature sensor
     def initialise_temp(self):
