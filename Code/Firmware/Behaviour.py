@@ -4,13 +4,14 @@ import pycom
 import uos
 import Bluetooth_Comms
 import math
-
+import wifi
 
 
 class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.SwarmBluetooth):
     def __init__(self):
         #Body.SwarmBody.__init__(self)
-        #Network.SwarmNetwork.__init__(self)
+        self.network = Network.SwarmNetwork()
+        self.network.send_debug_info("[+] Succesfully setup network")
         #Bluetooth_Comms.SwarmBluetooth.__init__(self)
 
         self.Collision_Timer = 0;
@@ -21,8 +22,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Arena_X_Mm = 3000;
         self.Arena_Y_Mm = 3000;
 
-        self.Arena_Grid_Size_X = 300;
-        self.Arena_Grid_Size_Y = 300;
+        self.Arena_Grid_Size_X = 600;
+        self.Arena_Grid_Size_Y = 600;
 
         self.Tile_Num_X = round(self.Arena_X_Mm/self.Arena_Grid_Size_X);
         self.Tile_Num_Y = round(self.Arena_Y_Mm/self.Arena_Grid_Size_Y);
@@ -44,8 +45,11 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
         self.Map_Light = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
-        self.Temp_Readings = [[0]*3 for _ in range(20)];
+        self.Temp_Readings = [[0]*3 for _ in range(26)];
         self.Temp_Counter = 0;
+        self.Temp_Readings_dict = {"x": [],
+                                    "y": [],
+                                    "temp": []}
 
         pass
     #Outputs a map on the terminal
@@ -242,7 +246,19 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
             self.Temp_Readings[self.Temp_Counter][0] = pos[0]
             self.Temp_Readings[self.Temp_Counter][1] = pos[1]
             self.Temp_Readings[self.Temp_Counter][2] = Current_Grid_Cell_Temp;
-            self.Temp_Counter += 1;
+            self.network.send_debug_info("[+] About to send x: {} y: {} temp: {} bat: {}".format(pos[0], pos[1], Current_Grid_Cell_Temp, 3.3))
+            self.network._send_state_wifi(pos[0], pos[1], Current_Grid_Cell_Temp, 3.3)
+            #self.Temp_Readings_dict["x"].append(pos[0])
+            #self.Temp_Readings_dict["y"].append(pos[1])
+            #self.Temp_Readings_dict["temp"].append(Current_Grid_Cell_Temp)
+            #self.Temp_Counter += 1;
+            #if self.Temp_Counter == 25:
+            #    self.Temp_Counter=0
+            #    for i in range (0, len(self.Temp_Readings_dict["x"])):
+            #        print(self.Temp_Readings_dict["x"][i])
+            #        print(self.Temp_Readings_dict["y"][i])
+            #        print(self.Temp_Readings_dict["temp"][i])
+            #        self.network._send_state_wifi(self.Temp_Readings_dict["x"][i],self.Temp_Readings_dict["y"][i] , self.Temp_Readings_dict["temp"][i], 3.3)
             self.Display_Temps(self.Temp_Readings);
 
             print("Light",Current_Grid_Cell_Luminosity);

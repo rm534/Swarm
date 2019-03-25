@@ -23,7 +23,7 @@ class SwarmMessenger():
         self.rtc = machine.RTC()
 
     def init_mqtt(self):
-        self.client = MQTTClient(self.dev_ID, "34.221.207.211", user="robin", password="focker12", port=1883)
+        self.client = MQTTClient(self.dev_ID, "34.213.163.151", user="robin", password="focker12", port=1883)
         self.client.set_callback(self.sub_cb)
         self.client.connect()
         self.client.subscribe(topic="demo.key")
@@ -44,8 +44,10 @@ class SwarmMessenger():
         header = self.make_header(message_type=message_type)
         self.client.publish(topic=topic, msg=header + msg)
 
-    def send_msg(self, topic, msg):
-        self.client.publish(topic=topic, msg=msg)
+    def send_msg(self, topic, msg, message_type):
+        header = self.make_header(message_type)
+        msg = pack("{}s".format(len(msg)), msg)
+        self.client.publish(topic=topic, msg=header + msg)
         return
 
 

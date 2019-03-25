@@ -63,19 +63,19 @@ def connect(known_nets=None):
                     while not wifi.isconnected():
                         machine.idle()
                     print("connected to:", net_to_use['ssid'])
-                    return True
+                    return wifi
                 elif net_to_use["ssid"] == "Robin":  # Forcing connection to phone hotspot network
                     wifi.connect(net_to_use['ssid'], (sec, pwd), timeout=10000)
                     while not wifi.isconnected():
                         machine.idle()
                     print("connected to:", net_to_use['ssid'])
-                    return True
+                    return wifi
         else:
             return False
     except Exception as err:
         print(err)
         print("failed to connect")
-        return False
+        return wifi
 
 
 if __name__ == '__main__':
