@@ -201,21 +201,22 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
                                 hexd = ubinascii.hexlify(adv_mes);
                                 mx = (int(adv_mes[0])-48)*10+(int(adv_mes[1])-48);
                                 my = (int(adv_mes[2])-48)*10+(int(adv_mes[3])-48);
-                                t_ID = 0;
-                                for i in range(4,len(adv_mes)):
-                                    t_ID += (10**(len(adv_mes)-i-1))*(int(adv_mes[i])-48);
+                                #t_ID = 0;
+                                #for i in range(4,len(adv_mes)):
+                                    #t_ID += (10**(len(adv_mes)-i-1))*(int(adv_mes[i])-48);
 
 
                                 Swarmbehv_obj.Charge_Flag = True;
-                                Swarmbehv_obj.classharge_ID = t_ID;
+                                #Swarmbehv_obj.classharge_ID = t_ID;
                                 Swarmbehv_obj.Charge_X = mx;
                                 Swarmbehv_obj.Charge_Y = my;
 
 
                                 #If it is not then goto square and transmit intent
                         #Charge accepted message
-                        elif name == "a_cc"
-
+                        elif name == "a_ch":
+                            print("Charge Ticket Accepeted Elsewhere !")
+                            Swarmbehv_obj.Charge_Flag = False;
     #Used to run handle bluetooth behaviour on a thread
     def Handle_Bluetooth_Behaviour_Continuous(self,Swarmbehv_obj,print_boolean):
         while True:
@@ -257,11 +258,14 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
             RYM = str(RY);
 
 
-        mes = RXM + RYM +str(ubinascii.hexlify(machine.unique_id()));
+        mes = RXM + RYM#str(ubinascii.hexlify(machine.unique_id()));
 
         self.bluetooth.set_advertisement(name="a_cr", manufacturer_data="l", service_data=mes)
         self.bluetooth.advertise(True)
         self.Tile_Transmit_Timer = 50;
         return -1;
     #Tells other robots to forget if a robot of an ID has been charged
-    def Call_Charge_Handled(self,)
+    def Call_Charge_Handled(self):
+        #Simplyt broadcasts nothing with the correct name
+        mes = "cH";
+        self.bluetooth.set_advertisement(name="a_ch", manufacturer_data="l", service_data=mes)

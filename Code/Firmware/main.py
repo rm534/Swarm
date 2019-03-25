@@ -1664,6 +1664,7 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
                 #complete = True;
             #If Charge Flag == true
         elif swarmbeh.Charge_Flag == True and swarmbeh.Give_Charge_Timer < 1:
+                print("BEGGINING CHARGE SHARING BEHAVIOUR")
                 #Tranmit that we will give aid
                 swarmbt.Call_Charge_Handled();
                 #Set the flag False
