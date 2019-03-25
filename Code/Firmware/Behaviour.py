@@ -45,11 +45,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Map_Assignement = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
         self.Map_Light = [[0]*self.Tile_Num_X for _ in range(self.Tile_Num_Y)];
 
-<<<<<<< HEAD
         self.Temp_Readings = [[0]*3 for _ in range(26)];
-=======
-        self.Temp_Readings = [[0]*3 for _ in range(29)];
->>>>>>> remotes/origin/NB-CO-V7-PID_THREAD
+
         self.Temp_Counter = 0;
         self.Temp_Readings_dict = {"x": [],
                                     "y": [],

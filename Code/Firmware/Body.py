@@ -70,13 +70,9 @@ class SwarmBody():
         self.Collision_Chain_Num = 0;
         self.Col_Reverse_Time = 1;
         self.S_adc = ADC(bits = 12)
-<<<<<<< HEAD
+
         self.S_apin = self.S_adc.channel(pin = 'P13',attn = self.S_adc.ATTN_11DB)
-=======
-        self.S_apin = self.S_adc.channel(pin = 'P15',attn = self.S_adc.ATTN_11DB)
-        self.Current_Dir = 1;
-        self.Last_bt_str = -999;
->>>>>>> remotes/origin/NB-CO-V7-PID_THREAD
+
 
     def initialise_rest(self, SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4):
         _thread.start_new_thread(self._initialise_rest, (SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4))

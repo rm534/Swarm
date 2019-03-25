@@ -2,17 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="bfcefa29-3eb4-4c7d-9993-a97ebc4cb5d7" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Code/Firmware/led.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/Firmware/Behaviour.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Behaviour.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/Firmware/Body.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Body.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/Messenger.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Messenger.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/Network.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/Network.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Firmware/WiFi.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/WiFi.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/Firmware/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Firmware/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/Ingestor/ingestor.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Ingestor/ingestor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/Ingestor/temp_test.csv" beforeDir="false" afterPath="$PROJECT_DIR$/Code/Ingestor/temp_test.csv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Code/ingestor.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/ingestor.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -22,7 +16,7 @@
   </component>
   <component name="CoverageDataManager">
     <SUITE FILE_PATH="coverage/SwarmBot$scratch.coverage" NAME="scratch Coverage Results" MODIFIED="1548435983800" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
-    <SUITE FILE_PATH="coverage/SwarmBot$ingestor__1_.coverage" NAME="ingestor (1) Coverage Results" MODIFIED="1553525572924" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Code/Ingestor" />
+    <SUITE FILE_PATH="coverage/SwarmBot$ingestor__1_.coverage" NAME="ingestor (1) Coverage Results" MODIFIED="1553527030302" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Code/Ingestor" />
     <SUITE FILE_PATH="coverage/SwarmBot$scratch_4.coverage" NAME="scratch_4 Coverage Results" MODIFIED="1553357063926" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$APPLICATION_CONFIG_DIR$/scratches" />
     <SUITE FILE_PATH="coverage/SwarmBot$ingestor.coverage" NAME="ingestor Coverage Results" MODIFIED="1553366143718" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Code" />
   </component>
@@ -50,6 +44,30 @@
       <split-second>
         <leaf>
           <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/Code/Firmware/Body.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-11076">
+                  <caret line="72" lean-forward="true" selection-start-line="72" selection-end-line="72" />
+                  <folding>
+                    <element signature="e#0#12#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/Code/Firmware/Bluetooth_Comms.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-857">
+                  <caret line="83" column="34" selection-start-line="83" selection-start-column="34" selection-end-line="83" selection-end-column="34" />
+                  <folding>
+                    <element signature="e#37#49#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Code/Firmware/Messenger.py">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="350">
@@ -76,8 +94,8 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Code/Firmware/Behaviour.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="-2844">
-                  <caret line="36" column="37" selection-start-line="36" selection-start-column="37" selection-end-line="36" selection-end-column="37" />
+                <state relative-caret-position="644">
+                  <caret line="46" lean-forward="true" selection-start-line="46" selection-end-line="46" />
                   <folding>
                     <element signature="e#0#11#0" expanded="true" />
                   </folding>
@@ -88,16 +106,16 @@
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/Code/Firmware/main.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="259">
-                  <caret line="1530" column="25" selection-start-line="1530" selection-start-column="25" selection-end-line="1530" selection-end-column="25" />
+                <state relative-caret-position="168">
+                  <caret line="1579" column="1" lean-forward="true" selection-start-line="1579" selection-start-column="1" selection-end-line="1579" selection-end-column="1" />
                 </state>
               </provider>
             </entry>
           </file>
-          <file pinned="false" current-in-tab="true">
+          <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/../WindTwin/Pycom_Firmware/main.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="391">
+                <state relative-caret-position="585">
                   <caret line="529" column="7" lean-forward="true" selection-start-line="529" selection-start-column="7" selection-end-line="529" selection-end-column="22" />
                   <folding>
                     <element signature="e#0#60#0" expanded="true" />
@@ -189,16 +207,16 @@
         <option value="$PROJECT_DIR$/Code/Firmware/unittest.py" />
         <option value="$PROJECT_DIR$/Code/Firmware/test.py" />
         <option value="$PROJECT_DIR$/Code/Firmware/SwarmBot.py" />
-        <option value="$PROJECT_DIR$/Code/Firmware/Behaviour.py" />
         <option value="$PROJECT_DIR$/Code/Firmware/Position.py" />
         <option value="$USER_HOME$/Downloads/Gyro_PID_testcode.py" />
-        <option value="$PROJECT_DIR$/Code/Firmware/main.py" />
-        <option value="$PROJECT_DIR$/Code/Firmware/Body.py" />
         <option value="$PROJECT_DIR$/Code/ingestor.py" />
         <option value="$APPLICATION_CONFIG_DIR$/scratches/scratch_4.py" />
         <option value="$PROJECT_DIR$/Code/Firmware/Messenger.py" />
         <option value="$PROJECT_DIR$/Code/Firmware/Network.py" />
         <option value="$PROJECT_DIR$/Code/Ingestor/ingestor.py" />
+        <option value="$PROJECT_DIR$/Code/Firmware/main.py" />
+        <option value="$PROJECT_DIR$/Code/Firmware/Behaviour.py" />
+        <option value="$PROJECT_DIR$/Code/Firmware/Body.py" />
       </list>
     </option>
   </component>
@@ -419,7 +437,7 @@
       <workItem from="1553255848505" duration="254000" />
       <workItem from="1553272737754" duration="404000" />
       <workItem from="1553345242426" duration="4623000" />
-      <workItem from="1553519773928" duration="4511000" />
+      <workItem from="1553519773928" duration="5572000" />
     </task>
     <task id="LOCAL-00001" summary="hello">
       <created>1543493211415</created>
@@ -526,11 +544,25 @@
       <option name="project" value="LOCAL" />
       <updated>1553345447919</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="WiFi Debug added">
+      <created>1553525816400</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1553525816400</updated>
+    </task>
+    <task id="LOCAL-00017" summary="WiFi interface">
+      <created>1553525966442</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1553525966442</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="60736000" />
+    <option name="totallyTimeSpent" value="61797000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -555,7 +587,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" weight="0.3299363" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Version Control" order="8" weight="0.327818" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.3276414" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
       <window_info anchor="bottom" id="Terminal" order="10" sideWeight="0.49928367" weight="0.3523459" />
       <window_info anchor="bottom" id="Python Console" order="11" weight="0.32977587" />
@@ -660,7 +692,9 @@
     <MESSAGE value="&#10;s" />
     <MESSAGE value="&#10;ssdf" />
     <MESSAGE value="PCB-Bot firmware version" />
-    <option name="LAST_COMMIT_MESSAGE" value="PCB-Bot firmware version" />
+    <MESSAGE value="WiFi Debug added" />
+    <MESSAGE value="WiFi interface" />
+    <option name="LAST_COMMIT_MESSAGE" value="WiFi interface" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$USER_HOME$/Downloads/main-2.py">
@@ -882,13 +916,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Code/Firmware/Bluetooth_Comms.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1092">
-          <caret line="83" column="34" selection-start-line="83" selection-start-column="34" selection-end-line="83" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Code/Firmware/Position.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="5110">
@@ -919,16 +946,6 @@
           <caret line="51" selection-start-line="51" selection-end-line="51" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Code/Firmware/Body.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="278">
-          <caret line="50" column="25" selection-start-line="50" selection-start-column="25" selection-end-line="50" selection-end-column="25" />
-          <folding>
-            <element signature="e#0#12#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -999,29 +1016,49 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Code/Firmware/Behaviour.py">
+    <entry file="file://$PROJECT_DIR$/../WindTwin/Pycom_Firmware/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2844">
-          <caret line="36" column="37" selection-start-line="36" selection-start-column="37" selection-end-line="36" selection-end-column="37" />
+        <state relative-caret-position="585">
+          <caret line="529" column="7" lean-forward="true" selection-start-line="529" selection-start-column="7" selection-end-line="529" selection-end-column="22" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#0#60#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Code/Firmware/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="259">
-          <caret line="1530" column="25" selection-start-line="1530" selection-start-column="25" selection-end-line="1530" selection-end-column="25" />
+        <state relative-caret-position="168">
+          <caret line="1579" column="1" lean-forward="true" selection-start-line="1579" selection-start-column="1" selection-end-line="1579" selection-end-column="1" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/../WindTwin/Pycom_Firmware/main.py">
+    <entry file="file://$PROJECT_DIR$/Code/Firmware/Behaviour.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="529" column="7" lean-forward="true" selection-start-line="529" selection-start-column="7" selection-end-line="529" selection-end-column="22" />
+        <state relative-caret-position="644">
+          <caret line="46" lean-forward="true" selection-start-line="46" selection-end-line="46" />
           <folding>
-            <element signature="e#0#60#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Code/Firmware/Body.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-11076">
+          <caret line="72" lean-forward="true" selection-start-line="72" selection-end-line="72" />
+          <folding>
+            <element signature="e#0#12#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Code/Firmware/Bluetooth_Comms.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-857">
+          <caret line="83" column="34" selection-start-line="83" selection-start-column="34" selection-end-line="83" selection-end-column="34" />
+          <folding>
+            <element signature="e#37#49#0" expanded="true" />
           </folding>
         </state>
       </provider>

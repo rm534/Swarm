@@ -1282,3 +1282,6 @@ MessageID,Device,ts,ms,Temperature,x,y,battery
 MessageID,Device,ts,ms,Temperature,x,y,battery
 MessageID,Device,ts,ms,Temperature,x,y,battery
 MessageID,Device,ts,ms,Temperature,x,y,battery
+MessageID,Device,ts,ms,Temperature,x,y,battery
+MessageID,Device,ts,ms,Temperature,x,y,battery
+MessageID,Device,ts,ms,Temperature,x,y,battery
