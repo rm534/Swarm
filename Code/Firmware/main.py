@@ -1635,6 +1635,15 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
                 print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
 
             if swarmbeh.Charge_Flag == False and swarmbeh.Give_Charge == False:
+
+                if body.battery < 10:
+                    swarmbt.Call_For_Charge(swarmbeh,swarmbeh.Current_Grid_Cell_XYswarmbeh.Current_Grid_Cell_X);
+                    #stall the robot endlessly
+                    while True:
+                        pass;
+
+
+
                 swarmbeh.Choose_Target_Square(swarmbt,body);
                 print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
                 #input("Enter character to find coordinate: ")
