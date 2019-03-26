@@ -21,8 +21,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Arena_X_Mm = 3000;
         self.Arena_Y_Mm = 3000;
 
-        self.Arena_Grid_Size_X = 300;
-        self.Arena_Grid_Size_Y = 300;
+        self.Arena_Grid_Size_X = 600;
+        self.Arena_Grid_Size_Y = 600;
 
         self.Tile_Num_X = round(self.Arena_X_Mm/self.Arena_Grid_Size_X);
         self.Tile_Num_Y = round(self.Arena_Y_Mm/self.Arena_Grid_Size_Y);
@@ -96,7 +96,7 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
                 yl = abs(j*self.Arena_Grid_Size_Y - self.Internal_Y);
 
                 #If the square is CARDINAL then give it more value
-                
+
 
                 #Sqrt
                 dist1 = (((xl*xl + yl*yl)**(1/2.0))+1)**0.5;

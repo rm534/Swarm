@@ -1564,26 +1564,26 @@ def test_23_mapping_with_bluetooth():
                 print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
 
 
-            swarmbeh.Choose_Target_Square(swarmbt,body);
+            swarmbeh.Choose_Target_Square_Simple(swarmbt,body);
             print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
             #input("Enter character to find coordinate: ")
             position = body.get_pos()
             print(position)
 
             #THESE NEED TO BE REDUCED TO 30 !!!!
-            body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+            body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*60, (swarmbeh.Target_Destination[1]+0.5)*60, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
             last_coord = position;
             position = body.get_pos()
-            body.battery -= 25;
+            #body.battery -= 25;
             print("Reached the coordinate! wooooo")
             swarmbeh.Increment_Bounty_Tiles(1);
 
             swarmbeh.Ring_Null(); #############################################
 
             #THESE NEED TO BE REDUCED TO 300 !!!!!!!!!!!
-            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*600,swarmbeh.Target_Destination[1]*600);
             swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
-            swarmbeh.Choose_Target_Square(swarmbt,body);
+            swarmbeh.Choose_Target_Square_Simple(swarmbt,body);
             #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
             #swarmbeh.Increment_Bounty_Tiles(1);
             #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
