@@ -1562,6 +1562,8 @@ def test_23_mapping_with_bluetooth():
                 swarmbeh.Current_Grid_Cell_X = math.floor(position[0]*10/swarmbeh.Arena_Grid_Size_X);
                 swarmbeh.Current_Grid_Cell_Y = math.floor(position[1]*10/swarmbeh.Arena_Grid_Size_Y);
                 print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
+                swarmbeh.Target_Destination[0] = swarmbeh.Current_Grid_Cell_X;
+                swarmbeh.Target_Destination[1] = swarmbeh.Current_Grid_Cell_Y;
 
 
             swarmbeh.Choose_Target_Square_Simple(swarmbt,body);
