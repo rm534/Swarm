@@ -675,7 +675,8 @@ class SwarmBody():
 
 
     def open_loop_control(self, best_route_result):
-
+        lin_mov = best_route_result[1]
+        dist = lin_mov[1]
         t_lin = (best_route_result[1][1] / V) - 2
 
         if lin_mov[0] == 1:
