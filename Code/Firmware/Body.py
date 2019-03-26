@@ -35,7 +35,7 @@ TEMP_ADDR = const(0x48)
 # Constants for PID controller
 KP = (0.6, 1.5)
 KI = (0.2, 0)
-KD = (0.1, 0)
+KD = (0.04, 0)
 bias = (0, 0)
 iteration_time = (0.5, 1)
 V = 40.1
@@ -47,8 +47,8 @@ class SwarmBody():
     # Init function initialising pins and sensors
     def __init__(self, motor1F='P11', motor1B='P12', motor2F='P21',
                  motor2B='P20',
-                 SDA='P10',
-                 SCL='P9',
+                 SDA='P9',
+                 SCL='P10',
                  lidar_DIO1='P2', lidar_DIO2='P3', lidar_DIO3='P4', lidar_DIO4='P5'):
         self.initialise_gyro()
         self.initialise_rest(SDA, SCL, lidar_DIO1, lidar_DIO2, lidar_DIO3, lidar_DIO4)
@@ -303,8 +303,8 @@ class SwarmBody():
     # Function to commands motor driver forwards, taking in a speed and distance
     def move_forward(self):
         self.chrono.start()
-        self.motor1B.value(1)
-        self.motor2B.value(1)
+        self.motor1F.value(1)
+        self.motor2F.value(1)
         self.motor_PWM.channel(0, pin=self.pwm1, duty_cycle=self.duty_cycle)
         self.motor_PWM.channel(0, pin=self.pwm2, duty_cycle=self.duty_cycle)
         #print("hello")
@@ -314,8 +314,8 @@ class SwarmBody():
     # Function to command motor driver backwards, taking in a speed and distance
     def move_backward(self):
         self.chrono.start()
-        self.motor1F.value(1)
-        self.motor2F.value(1)
+        self.motor1B.value(1)
+        self.motor2B.value(1)
         self.motor_PWM.channel(0, pin=self.pwm1, duty_cycle=self.duty_cycle)
         self.motor_PWM.channel(0, pin=self.pwm2, duty_cycle=self.duty_cycle)
 

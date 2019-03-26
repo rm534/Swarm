@@ -29,7 +29,7 @@ config_firmware = {
                 "server" : "35.164.26.30"
             },
             "device" : {
-                "devid" : "0x25"
+                "devid" : "2"
 
             }
 

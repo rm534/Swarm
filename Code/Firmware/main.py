@@ -1529,7 +1529,7 @@ def test_22_map():
 def test_23_mapping_with_bluetooth():
     swarmbeh = Behaviour.SwarmBehaviour();
     body = Body.SwarmBody()
-    body.duty_cycle = 0.41;
+    body.duty_cycle = 0.5;
 
     body.battery = 100;
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
@@ -1566,9 +1566,11 @@ def test_23_mapping_with_bluetooth():
                     swarmbeh.Current_Grid_Cell_Y = math.floor(position[1]*10/swarmbeh.Arena_Grid_Size_Y);
                     print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
                     swarmbeh.network.send_debug_info("Starting: "+"X: {} ".format(swarmbeh.Current_Grid_Cell_X)+"Y: {}".format(swarmbeh.Current_Grid_Cell_Y))
+                    swarmbeh.Target_Destination[0] = swarmbeh.Current_Grid_Cell_X;
+                    swarmbeh.Target_Destination[1] = swarmbeh.Current_Grid_Cell_Y;
 
 
-                swarmbeh.Choose_Target_Square(swarmbt,body);
+                swarmbeh.Choose_Target_Square_Simple(swarmbt,body);
                 print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
                 swarmbeh.network.send_debug_info("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]))
                 #input("Enter character to find coordinate: ")
@@ -1591,7 +1593,7 @@ def test_23_mapping_with_bluetooth():
                 #THESE NEED TO BE REDUCED TO 300 !!!!!!!!!!!
                 swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*600,swarmbeh.Target_Destination[1]*600);
                 swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
-                swarmbeh.Choose_Target_Square(swarmbt,body);
+                swarmbeh.Choose_Target_Square_Simple(swarmbt,body);
                 #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
                 #swarmbeh.Increment_Bounty_Tiles(1);
                 #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);

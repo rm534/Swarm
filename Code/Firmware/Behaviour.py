@@ -147,7 +147,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
                 j = self.Target_Destination[1];
 
             #if it is a tile within the grid then proceed
-            if i > 9 or i < 0 or j > 9 or j < 0:
+            ival = self.Arena_X_Mm/self.Arena_Grid_Size_X;
+            if (i < ival and i >= 0) and (j < ival and j >= 0):
                 bt = self.Map_Bounty[i][j];
                 bt_p_light = bt# + self.Map_Light[i][j] * (1/Swarmbot_obj.battery+1) *self.Light_Weighting;
                 if Swarmbot_obj.battery < 10:
