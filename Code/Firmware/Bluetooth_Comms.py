@@ -230,10 +230,13 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
         #Check the Tile 2 to the left
         if Current_X - 2 > 0:
             RX = Current_X - 2
-        elif Current_X + 2 < math.floor(Swarmbehv_obj.Arena_X_Mm/Swarmbehv_obj.Arena_Grid_Size_X)
+        elif Current_X + 2 < math.floor(Swarmbehv_obj.Arena_X_Mm/Swarmbehv_obj.Arena_Grid_Size_X):
             RX = Current_X - 2
         else:
             pass
+
+
+        RX = Current_X;
             #Somthing in Y required here ?
         #Check the Tile 2 to the right
 
@@ -241,8 +244,8 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
 
 
 
-        RX = Target_Destination[0];
-        RY = Target_Destination[1];
+        #RX = Target_Destination[0];
+        #RY = Target_Destination[1];
         print("Broadcasting Call For Charge" + str(RX)+"/"+str(RY));
 
         #Sets the advertisment that we want, the method work up to 99, uses 01, 10
@@ -269,3 +272,4 @@ class SwarmBluetooth(Body.SwarmBody, Network.SwarmNetwork):
         #Simplyt broadcasts nothing with the correct name
         mes = "cH";
         self.bluetooth.set_advertisement(name="a_ch", manufacturer_data="l", service_data=mes)
+        self.Tile_Transmit_Timer = 50;

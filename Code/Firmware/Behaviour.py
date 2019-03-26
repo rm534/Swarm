@@ -52,6 +52,8 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
         self.Charge_X = 0;
         self.Charge_Y = 0;
 
+        self.Give_Charge_Timer = 0;
+
         pass
     #Outputs a map on the terminal
     def Display_Map(self,Map):

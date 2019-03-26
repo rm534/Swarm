@@ -1634,10 +1634,10 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
                 swarmbeh.Current_Grid_Cell_Y = math.floor(position[1]*10/swarmbeh.Arena_Grid_Size_Y);
                 print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
 
-            if swarmbeh.Charge_Flag == False and swarmbeh.Give_Charge == False:
+            if swarmbeh.Charge_Flag == False and swarmbeh.Give_Charge_Timer < 1:
 
                 if body.battery < 10:
-                    swarmbt.Call_For_Charge(swarmbeh,swarmbeh.Current_Grid_Cell_XYswarmbeh.Current_Grid_Cell_X);
+                    swarmbt.Call_For_Charge(swarmbeh,swarmbeh.Current_Grid_Cell_X,swarmbeh.Current_Grid_Cell_Y);
                     #stall the robot endlessly
                     while True:
                         pass;
@@ -1654,6 +1654,7 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
                 body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
                 last_coord = position;
                 position = body.get_pos()
+                #
                 body.battery -= 25;
                 print("Reached the coordinate! wooooo")
                 swarmbeh.Increment_Bounty_Tiles(1);
@@ -1672,7 +1673,7 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
                 print("Reached the coordinate! wooooo")
                 #complete = True;
             #If Charge Flag == true
-        elif swarmbeh.Charge_Flag == True and swarmbeh.Give_Charge_Timer < 1:
+            elif swarmbeh.Charge_Flag == True and swarmbeh.Give_Charge_Timer < 1:
                 print("BEGGINING CHARGE SHARING BEHAVIOUR")
                 #Tranmit that we will give aid
                 swarmbt.Call_Charge_Handled();
@@ -1683,22 +1684,33 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
                 #Start PID to square
                 position = body.get_pos()
                 print(position)
-                body.PID_movement((swarmbeh.Charge_X+0.5)*30, (swarmbeh.Charge_Y+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+
+                C_X = swarmbeh.Charge_X;
+
+                if C_X - 2 > 0:
+                    TRX = C_X - 2
+                elif C_X + 2 < math.floor(Swarmbehv_obj.Arena_X_Mm/Swarmbehv_obj.Arena_Grid_Size_X):
+                    TRX = C_X - 2
+                else:
+                    pass
+
+
+                body.PID_movement((TRX+0.5)*30, (swarmbeh.Charge_Y+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
                 last_coord = position;
                 position = body.get_pos()
 
                 #Drive into the other robot kinda :/
 
-                body.PID_movement((swarmbeh.Charge_X+1.5+0.5)*30, (swarmbeh.Charge_Y+1.5+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+                body.PID_movement((swarmbeh.Charge_X+0.5)*30, (swarmbeh.Charge_Y+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
                 last_coord = position;
                 position = body.get_pos()
                 #Set giving_charge state to true
-        #If charging another robot
-        else:
-            #Do nothing, no way to stop charging robot
-            swarmbeh.Give_Charge_Timer -= 1;
-            print("CHARGING OTHER ROBO : ",swarmbeh.Give_Charge_Timer);
-            pass
+            #If charging another robot
+            else:
+                #Do nothing, no way to stop charging robot
+                swarmbeh.Give_Charge_Timer -= 1;
+                print("CHARGING OTHER ROBO : ",swarmbeh.Give_Charge_Timer);
+                pass
 
 
 
@@ -1716,7 +1728,10 @@ if __name__ == "__main__":
 
     #test_16_no_thread_beh();
     #test_13_four_coords();
-    test_23_mapping_with_bluetooth();
+    #test_23_mapping_with_bluetooth();
+
+    test_25_mapping_with_bluetooth_CHARGECALLS();
+
     #swarmbeh = Behaviour.SwarmBehaviour();
     #print("SwarmBot is Testing -_-");
     #test7_both_int();

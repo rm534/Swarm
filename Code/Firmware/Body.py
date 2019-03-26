@@ -35,7 +35,7 @@ TEMP_ADDR = const(0x48)
 # Constants for PID controller
 KP = (0.6, 1.5)
 KI = (0.2, 0)
-KD = (0.1, 0)
+KD = (0.04, 0)
 bias = (0, 0)
 iteration_time = (0.5, 1)
 V = 40.1
