@@ -1583,7 +1583,7 @@ def test_23_mapping_with_bluetooth():
                 body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*60, (swarmbeh.Target_Destination[1]+0.5)*60, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
                 last_coord = position;
                 position = body.get_pos()
-                #body.battery -= 15;
+                body.battery -= 15;
                 print("Reached the coordinate! wooooo")
                 swarmbeh.network.send_debug_info("Reached the coordinate! wooooo")
                 swarmbeh.Increment_Bounty_Tiles(1);
