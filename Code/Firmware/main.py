@@ -10,6 +10,7 @@ import Behaviour
 import Bluetooth_Comms
 import SwarmBot
 import uos
+import math
 
 import time
 from machine import Timer
@@ -22,6 +23,8 @@ from math import sin
 from math import cos
 
 from machine import Pin
+
+import _thread
 #import Code.Firmware.Behaviour
 #import Code.Firmware.Bluetooth_Comms
 
@@ -73,52 +76,6 @@ def info():
     print("| Code v{} {}            |".format(VERSION, VERSION_DATE))
     print("| Device ID: {}          |".format(DEVICE_ID))
     print("+------------------------+")
-"""
-#Roughly what the main code should be
-def current_full_main():
-    #I would assumer we write the code we want in here
-    #This is a basic structure of how i see main working -- Nick
-
-    #Initialise a body object
-    swarmbody = Body.SwarmBody();
-    #Initalise a bluetooth controller
-    swarmbt = Bluetooth_Comms.SwarmBluetooth();
-    #Initialise a behaviour controller
-    swarmbeh = Behaviour.SwarmBehaviour();
-    #Sets initial destination
-    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
-
-    #We are now at the main while Loop
-
-    #ALL OF THESE FUNCTIONS NEED ARGUMENTS
-    while 1==1:
-        #Update interal coords
-        swarmbeh.Set_InternalXY():
-        swarmbeh.Increment_Bounty_Tiles();
-        swarmbt.Handle_Bluetooth_Behaviour();
-
-        Current_Angle = swarmbody.get_angle();
-        #THis statment needs some level of + or - degrees.
-        if Current_Angle == Destination_Angle:
-            swarmbeh.Robot_Movement_Behaviour();
-        else:
-            #Rotate the bot to get its movement angle to its destination angle
-            dif = Current_Angle - Destination_Angle;
-            if dif < 0:
-                if dif < pi:
-                    Rotate_Right();
-                else:
-                    Rotate_Left();
-            else:
-                if dif < pi:
-                    Rotate_Left();
-                else:
-                    Rotate_Right();
-
-        #Checks if its in a new cell and if so does a transmission
-        swarmbeh.Check_New_Grid_Cell_Handle();
-
-"""
 
 
 def test1_transmit():
@@ -231,31 +188,27 @@ def test3_both():
     swarmbeh = Behaviour.SwarmBehaviour();
     #Choose an initial destination
     swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
-    X = 150;
-    Y = 150;
+    X = 0;
+    Y = 0;
     print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
     while True:
         #print(str(X)+"/"+str(Y));
 
-        swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
+        swarmbeh.Set_InternalXY(X,Y);
         swarmbeh.Increment_Bounty_Tiles(1);
         swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
         swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
-        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
-        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
         #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
         if X < Xg:
-            X += 1;
+            X += 0.5;
         else:
-            X -= 1;
+            X -= 0.5;
         if Y < Yg:
-            Y += 1;
+            Y += 0.5;
         else:
-            Y -= 1;
-
-
-
-
+            Y -= 0.5;
 
 
         if swarmbt.Collision_Timer > 0:
@@ -269,289 +222,7 @@ def test3_both():
 
 
 
-def test2_monitor():
-    1==1;
 
-
-## Setup Timer ##
-
-chrono = Timer.Chrono()
-
-## Speed Parameters ##
-DCw = 0.7
-DCv = 1
-
-w = 200
-v = 0.425
-
-## Starting Coordinates ##
-org = (0, 0)
-ang_org = 0
-
-
-## Set Pycom Heartbeat ##
-pycom.heartbeat(True)
-
-
-## Motor Setups ##
-#Motor 1
-Motor1F = Pin('P11', mode =Pin.OUT)
-Motor1B = Pin('P12', mode =Pin.OUT)
-# pwm.channel(0, pin ='P5', duty_cycle = DC)
-
-#Motor 2
-Motor2F = Pin('P21', mode =Pin.OUT)
-Motor2B = Pin('P20', mode =Pin.OUT)
-PWM2 = 'P7'
-# pwm.channel(0, pin ='P7', duty_cycle = DC)
-
-# Standby Pin always on
-#Pin('P22', mode =Pin.OUT).value(1)
-
-## PWM ##
-pwm = PWM(0, frequency = 500)
-
-## Functions ##
-def stop_all():
-    Motor1F.value(0)
-    Motor2F.value(0)
-    Motor1B.value(0)
-    Motor2B.value(0)
-
-    # PWM
-    Pin('P6', mode =Pin.OUT).value(0)
-    Pin('P7', mode =Pin.OUT).value(0)
-
-
-
-## Movement with Timer ##
-def forward():
-    chrono.start()
-    Motor1F.value(1)
-    Motor2F.value(1)
-
-    pwm.channel(0, pin ='P6', duty_cycle = DCv)
-    pwm.channel(0, pin ='P7', duty_cycle = DCv)
-
-
-def back():
-    chrono.start()
-
-    Motor1B.value(1)
-    Motor2B.value(1)
-
-    pwm.channel(0, pin ='P6', duty_cycle = DCv)
-    pwm.channel(0, pin ='P7', duty_cycle = DCv)
-
-
-def clockwise():
-    chrono.start()
-    Motor1B.value(1)
-    Motor2F.value(1)
-
-    pwm.channel(0, pin ='P6', duty_cycle = DCw)
-    pwm.channel(0, pin ='P7', duty_cycle = DCw)
-
-
-def anti_clockwise():
-    chrono.start()
-    Motor1F.value(1)
-    Motor2B.value(1)
-
-    pwm.channel(0, pin ='P6', duty_cycle = DCw)
-    pwm.channel(0, pin ='P7', duty_cycle = DCw)
-
-
-
-
-def commands():
-    print("Enter Coordinates for robot to move to.")
-    print("Enter Current Coordinates to return to angle 0.")
-
-
-def best_route(COMM, org, ang_org):
-    """
-    Plans most efficient route from one coordinate to another.
-
-    Returns:
-    1. Rotational Tuple
-       0 == Anticlockwise
-       1 == Clockwise
-       Angle to move
-
-    2. Distance Tuple
-       0 == Anticlockwise
-       1 == Clockwise
-       Distance to move
-
-    3. Robot's absolute angle after movement.
-    """
-
-    deltaX = (COMM[0] - org[0])
-    deltaY = (COMM[1] - org[1])
-
-    dist = ((deltaX)**2 + (deltaY)**2)**0.5
-
-    if deltaY == 0:
-        if deltaX == 0:
-            ang_desired = 0
-
-        elif deltaX > 0:
-            ang_desired = 90
-
-        elif deltaX < 0:
-            ang_desired = 270
-
-
-    elif deltaX == 0:
-        if deltaY > 0:
-            ang_desired = 0
-
-        elif deltaY < 0:
-            ang_desired = 180
-
-
-    else:
-        if deltaX > 0 and deltaY > 0:
-            n = 0
-
-        elif deltaX > 0 and deltaY < 0:
-            n = -180
-
-        elif deltaX < 0 and deltaY < 0:
-            n = 180
-
-        elif deltaX < 0 and deltaY > 0:
-            n = -360
-
-        ang_desired = abs(abs(atan(deltaX / deltaY) * (180/pi)) + n)
-
-
-    ang_mov = ang_desired - ang_org
-
-
-    if ang_desired < ang_org:
-        ang_mov = ang_mov + 360
-
-    else:
-        ang_mov = abs(ang_mov)
-
-
-    if ang_mov <= 90:
-
-        rot = 1
-        direct = 1
-
-        # Clockwise
-        # Forwards
-
-
-    elif ang_mov > 90 and ang_mov <= 180:
-
-        if ang_desired >= 180 and ang_desired < 360:
-            ang_desired = ang_desired - 180
-
-        elif ang_desired < 180 and ang_desired >= 0:
-            ang_desired = ang_desired + 180
-
-        ang_mov = abs(180 - ang_mov)
-
-        rot = 0
-        direct = 0
-
-        # Anticlockwise
-        # Backwards
-
-
-    elif ang_mov > 180 and ang_mov <= 270:
-
-        if ang_desired >= 180 and ang_desired < 360:
-            ang_desired = ang_desired - 180
-
-        elif ang_desired < 180 and ang_desired >= 0:
-            ang_desired = ang_desired + 180
-
-        ang_mov = abs(180 - ang_mov)
-
-        rot = 1
-        direct = 0
-
-        # Clockwise
-        # Backwards
-
-
-    elif ang_mov > 270:
-
-        ang_mov = 360 - ang_mov
-
-        rot = 0
-        direct = 1
-
-        # Anticlockwise
-        # Forwards
-
-    return (rot, ang_mov), (direct, dist), ang_desired
-
-def ang_mov_through(lin_mov, ang_desired):
-    """
-    Calculates the acute angle from the robots absolute angle.
-    So it's position between two coordinates can be calculated.
-
-    Returns floating point number.
-    """
-    # Converts absolute angle if robot is reversing.
-    if lin_mov[0] == 1:
-        pass
-
-    elif lin_mov[0] == 0:
-        if ang_desired < 180 and ang_desired >= 0:
-            ang_desired = (ang_desired + 180)
-
-        elif ang_desired >= 180 and ang_desired < 360:
-            ang_desired = (ang_desired - 180)
-
-
-    if ang_desired <= 90 and ang_desired >= 0:
-        return ang_desired
-
-    elif ang_desired < 180 and ang_desired > 90:
-        return (90 - (ang_desired - 90))
-
-    elif ang_desired < 270 and ang_desired >= 180:
-        return (ang_desired - 180)
-
-    elif ang_desired <= 360 and ang_desired >= 270:
-        return (90 - (ang_desired - 270))
-
-
-def current_loc(COMM, org, ang_mov_thoug):
-    """
-    Returns current X and Y coordinates as a tuple
-    to the nearest 1cm.
-    """
-
-    deltaX = (COMM[0] - org[0])
-    deltaY = (COMM[1] - org[1])
-
-
-    c_time = chrono.read()
-
-    if deltaX >= 0:
-        c_x_loc = round(v*c_time*sin(ang_mov_thoug*(pi/180)) + org[0], 2)
-
-
-    elif deltaX <= 0:
-        c_x_loc = round(-v*c_time*sin(ang_mov_thoug*(pi/180)) + org[0], 2)
-
-
-    if deltaY >= 0:
-        c_y_loc = round(v*c_time*cos(ang_mov_thoug*(pi/180)) + org[1], 2)
-
-
-    elif deltaY <= 0:
-        c_y_loc = round(-v*c_time*cos(ang_mov_thoug*(pi/180)) + org[1], 2)
-
-    return (c_x_loc, c_y_loc)
 
 #Colson testng
 def test4_collson():
@@ -680,7 +351,7 @@ def test5_ldar():
             if lastcol == True:
                 stop_all();
                 lastcol = False;
-                forward();
+                #forward();
                 print("forward")
             lastcol = False;
             #Green light
@@ -755,8 +426,6 @@ def test6_movement():
             #print("forward")
 
 
-#This code is an integration of the behavioural code with internal coord Code
-#It does not really perform as intended
 def test7_both_int():
 
     ## Set Pycom Heartbeat ##
@@ -1135,26 +804,19 @@ def test7_both_int():
     swarmbeh.Map_Bounty[8][8] = 5000;
     swarmbeh.Map_Bounty[8][0] = 5000;
     j = 0;
-    #####HMMMMMMMM !
-    X = 150;
-    Y = 150;
-    swarmbeh.Set_InternalXY(X - 0.5*swarmbeh.Arena_Grid_Size_X,Y - 0.5*swarmbeh.Arena_Grid_Size_Y);
-    Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X + 0.5*swarmbeh.Arena_Grid_Size_X;
-    Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y + 0.5*swarmbeh.Arena_Grid_Size_Y;
-
     while True:
         j+=1;
         print(j)
-        swarmbeh.Set_InternalXY(X - (0.5*swarmbeh.Arena_Grid_Size_X/1000),Y - (0.5*swarmbeh.Arena_Grid_Size_Y/1000));
+        swarmbeh.Set_InternalXY(X,Y);
         #swarmbeh.Increment_Bounty_Tiles(1);
 
 
-        #swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+        swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
         swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
         old_xg = Xg;
         old_yg = Yg;
-        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X/1000 + (0.5*swarmbeh.Arena_Grid_Size_X/1000);
-        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y/1000 + (0.5*swarmbeh.Arena_Grid_Size_Y/1000);
+        Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X/3000;
+        Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y/3000;
         #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
         if swarmbt.Collision_Timer > 0:
             #red Light
@@ -1223,400 +885,838 @@ def test7_both_int():
                 #print(chrono.read())
                 c_loc = current_loc(COMM, org, ang_mov_thoug)
                 #update internal coords
-                X = c_loc[0]*1000;
-                Y = c_loc[1]*1000;
+                X = c_loc[0]*3000;
+                Y = c_loc[1]*3000;
                 print("Robot's current Position is:", c_loc)
 
-
-
-#This function is james original movement Code
-#You input a destination and it goes to it.
-def test8_moveput():
-
-    #
-    ## Micro-Python Script to send a swarm robot
-    ## to a specific coordinate.
-    ## Open - loop method based on estimated motor speed alone.
-    ## Also records current coordinate / location to nearest 1cm.
-    #
-
-    ## Libraries ##
-
-
-
-    ## Set Pycom Heartbeat ##
-    pycom.heartbeat(True)
-
-
-    ## Setup Timer ##
-    chrono = Timer.Chrono()
-
-
-    ## Starting Coordinates ##
-    org = (0, 0)
-    ang_org = 0
-
-
-    ## Sample Rate [S] ##
-    sr = 0.1
-
-
-    ##  Initial Speed Parameters ##
-    # PWM DC
-    DCw = 0.7
-    DCv = 1
-
-    # Speed
-    w = 200   # [Deg/s]
-    v = 0.425 # [m/s]
-
-
-    ## Motor Setups ##
-    # Motor 1
-    Motor1F = Pin('P11', mode =Pin.OUT)
-    Motor1B = Pin('P12', mode =Pin.OUT)
-    PWM1 = 'P6'
-    # PWM on 'P6'
-
-    # Motor 2
-    Motor2F = Pin('P21', mode =Pin.OUT)
-    Motor2B = Pin('P20', mode =Pin.OUT)
-    PWM2 = 'P7'
-    # PWM on'P7'
-
-
-    ## PWM Setup ##
-    pwm = PWM(0, frequency = 500)
-
-    ## Functions ##
-    def stop_all():
-        Motor1F.value(0)
-        Motor2F.value(0)
-        Motor1B.value(0)
-        Motor2B.value(0)
-
-        # Stop PWM
-        Pin(PWM1, mode = Pin.OUT).value(0)
-        Pin(PWM2, mode = Pin.OUT).value(0)
-
-
-
-    ## Defining Functions ##
-    def forward():
-        chrono.start()
-        Motor1F.value(1)
-        Motor2F.value(1)
-
-        pwm.channel(0, pin = PWM1, duty_cycle = DCv)
-        pwm.channel(0, pin = PWM2, duty_cycle = DCv)
-
-
-    def back():
-        chrono.start()
-
-        Motor1B.value(1)
-        Motor2B.value(1)
-
-        pwm.channel(0, pin = PWM1, duty_cycle = DCv)
-        pwm.channel(0, pin = PWM2, duty_cycle = DCv)
-
-
-    def clockwise():
-        chrono.start()
-        Motor1B.value(1)
-        Motor2F.value(1)
-
-        pwm.channel(0, pin = PWM1, duty_cycle = DCw)
-        pwm.channel(0, pin = PWM2, duty_cycle = DCw)
-
-
-    def anti_clockwise():
-        chrono.start()
-        Motor1F.value(1)
-        Motor2B.value(1)
-
-        pwm.channel(0, pin = PWM1, duty_cycle = DCw)
-        pwm.channel(0, pin = PWM2, duty_cycle = DCw)
-
-
-    def commands():
-        print("Enter Coordinates for robot to move to.")
-        print("Enter Current Coordinates to return to angle 0.")
-
-
-
-    def best_route(COMM, org, ang_org):
-        """
-        Plans most efficient route from one coordinate to another.
-
-        Returns:
-        1. Rotational Tuple
-           0 == Anticlockwise
-           1 == Clockwise
-           Angle to move
-
-        2. Distance Tuple
-           0 == Anticlockwise
-           1 == Clockwise
-           Distance to move
-
-        3. Robot's absolute angle after movement.
-        """
-
-        deltaX = (COMM[0] - org[0])
-        deltaY = (COMM[1] - org[1])
-
-        dist = ((deltaX)**2 + (deltaY)**2)**0.5
-
-        if deltaY == 0:
-            if deltaX == 0:
-                ang_desired = 0
-
-            elif deltaX > 0:
-                ang_desired = 90
-
-            elif deltaX < 0:
-                ang_desired = 270
-
-
-        elif deltaX == 0:
-            if deltaY > 0:
-                ang_desired = 0
-
-            elif deltaY < 0:
-                ang_desired = 180
-
-
-        else:
-            if deltaX > 0 and deltaY > 0:
-                n = 0
-
-            elif deltaX > 0 and deltaY < 0:
-                n = -180
-
-            elif deltaX < 0 and deltaY < 0:
-                n = 180
-
-            elif deltaX < 0 and deltaY > 0:
-                n = -360
-
-            ang_desired = abs(abs(atan(deltaX / deltaY) * (180/pi)) + n)
-
-
-        ang_mov = ang_desired - ang_org
-
-
-        if ang_desired < ang_org:
-            ang_mov = ang_mov + 360
-
-        else:
-            ang_mov = abs(ang_mov)
-
-
-        if ang_mov <= 90:
-
-            rot = 1
-            direct = 1
-
-            # Clockwise
-            # Forwards
-
-
-        elif ang_mov > 90 and ang_mov <= 180:
-
-            if ang_desired >= 180 and ang_desired < 360:
-                ang_desired = ang_desired - 180
-
-            elif ang_desired < 180 and ang_desired >= 0:
-                ang_desired = ang_desired + 180
-
-            ang_mov = abs(180 - ang_mov)
-
-            rot = 0
-            direct = 0
-
-            # Anticlockwise
-            # Backwards
-
-
-        elif ang_mov > 180 and ang_mov <= 270:
-
-            if ang_desired >= 180 and ang_desired < 360:
-                ang_desired = ang_desired - 180
-
-            elif ang_desired < 180 and ang_desired >= 0:
-                ang_desired = ang_desired + 180
-
-            ang_mov = abs(180 - ang_mov)
-
-            rot = 1
-            direct = 0
-
-            # Clockwise
-            # Backwards
-
-
-        elif ang_mov > 270:
-
-            ang_mov = 360 - ang_mov
-
-            rot = 0
-            direct = 1
-
-            # Anticlockwise
-            # Forwards
-
-        return (rot, ang_mov), (direct, dist), ang_desired
-
-
-    def ang_mov_through(lin_mov, ang_desired):
-        """
-        Calculates the acute angle from the robots absolute angle.
-        So it's position between two coordinates can be calculated.
-
-        Returns floating point number.
-        """
-        # Converts absolute angle if robot is reversing.
-        if lin_mov[0] == 1:
-            pass
-
-        elif lin_mov[0] == 0:
-            if ang_desired < 180 and ang_desired >= 0:
-                ang_desired = (ang_desired + 180)
-
-            elif ang_desired >= 180 and ang_desired < 360:
-                ang_desired = (ang_desired - 180)
-
-
-        if ang_desired <= 90 and ang_desired >= 0:
-            return ang_desired
-
-        elif ang_desired < 180 and ang_desired > 90:
-            return (90 - (ang_desired - 90))
-
-        elif ang_desired < 270 and ang_desired >= 180:
-            return (ang_desired - 180)
-
-        elif ang_desired <= 360 and ang_desired >= 270:
-            return (90 - (ang_desired - 270))
-
-
-    def current_loc(COMM, org, ang_mov_thoug):
-        """
-        Returns current X and Y coordinates as a tuple
-        to the nearest 1cm.
-        """
-
-        deltaX = (COMM[0] - org[0])
-        deltaY = (COMM[1] - org[1])
-
-
-        c_time = chrono.read()
-
-        if deltaX >= 0:
-            c_x_loc = round(v*c_time*sin(ang_mov_thoug*(pi/180)) + org[0], 2)
-
-
-        elif deltaX <= 0:
-            c_x_loc = round(-v*c_time*sin(ang_mov_thoug*(pi/180)) + org[0], 2)
-
-
-        if deltaY >= 0:
-            c_y_loc = round(v*c_time*cos(ang_mov_thoug*(pi/180)) + org[1], 2)
-
-
-        elif deltaY <= 0:
-            c_y_loc = round(-v*c_time*cos(ang_mov_thoug*(pi/180)) + org[1], 2)
-
-        return (c_x_loc, c_y_loc)
-
-
-    ## Main Loop ##
+#Similar collision testing but integrated with the body code
+def test11_Lidar_Integrated():
+    swarmbody = Body.SwarmBody();
+    lastcol = True;
+    #ldtmer = 0;
+    ldlim = 0.7; # 2 second move
+    mml = 15;
+    swarmbody.duty_cycle = 0.3;
     while True:
-        X = input('\n'"Enter X - Coordinate Here: ")
-        Y = input("Enter Y - Coordinate Here: ")
-
-        if X == "position" or Y == "position":
-            print('\n'"Current Coordinate: ", org)
-            print("Current Angle: ", ang_org)
-            continue
-
-        elif X == "command" or Y == "command":
-            commands()
-            continue
-
-        elif X == "" or Y == "":
-            continue
+        l1, l2, l3, l4 = swarmbody.l1,swarmbody.l2,swarmbody.l3,swarmbody.l4,;
+        print(str(l1) + " " + str(l2) + " " + str(l3) + " " + str(l4))
 
 
-        COMM = (float(X), float(Y))
+        if l1 < mml or l2 < mml or l3 < mml or l4 < mml:
+            ldtmer = 10;
+            chrono2.reset()
+            chrono2.start()
 
-        result = best_route(COMM, org, ang_org)
+        if chrono2.read()<ldlim:
+            if lastcol == False:
+                stop_all();
+                swarmbody.move_back();
+                print("back")
+            lastcol = True;
 
-        ang_desired = result[2]
+        else:
+            if lastcol == True:
+                stop_all();
+                lastcol = False;
+                swarmbody.move_forward();
+                print("forward")
+            lastcol = False;
+            chrono2.stop()
 
 
-        ## Rotational Movement ##
-        rot_mov = result[0]
+#Running robot behaviour with sensors working
+def test12_behav_sensors():
+    #pycom.heartbeat(False)
+	#Initialise a body object
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    X = 0;
+    Y = 0;
+    print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+    #Get initial Position
+    position = swarmbody.get_pos();
 
-        t_rot = rot_mov[1] / w
+    #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
+    #START THIS ON A NEW THREAD , all future calls must be thread calls
+    #If PID_control reaches its destination or ends a collision we need to kill it
+    PID_thread = _thread.start_new_thread(swarmbody.PID_movement,(swarmbeh.Target_Destination[0],swarmbeh.Target_Destination[1],(position[0], position[1]),position[2]))
 
-        if rot_mov[0] == 1:
-            clockwise()
+    #Start the main Loop
+    while True:
 
-        elif rot_mov[0] == 0:
-            anti_clockwise()
+        #If we have arrived at our destination
+        if swarmbody.Arrival_Flag == True:
+            swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+            #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
+            #For safety kill the PID THREAD
+            position = swarmbody.get_pos();
+            PID_thread.kill();
+            #PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
 
-        while (chrono.read() < t_rot):
-            # Does nothing while rotating.
-            pass
+        elif swarmbody.Collision_Flag == True:
+            swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+            #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
+            position = swarmbody.get_pos();
+            PID_thread.kill();
+            #PID_thread = _thread.start_new_thread(body.PID_control,(xdes=swarmbeh.Target_Destination[0], y_des=swarmbeh.Target_Destination[1], starting_coordinate=(position[0], position[1]), starting_angle=position[2]))
+        #Run bluetooth and other code
+        else:
+            swarmbeh.Set_InternalXY(swarmbody.x,swarmbody.y);
+            swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+            swarmbeh.Check_New_Grid_Cell_Handle(swarmbody,swarmbt);
 
-        stop_all()
-        chrono.stop()
-        chrono.reset()
+#A test to see if the robot can move to four coordinates, this before integrating behaviour
+def test_13_four_coords():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.5;
 
-        time.sleep(1)  # Delay for stability.
 
-        ## Linear Movement ##
-        lin_mov = result[1]
+    complete = False
+    print("[+] Setting Timer")
 
-        t_lin = lin_mov[1] / v
+    while complete == False:
+        time.sleep(1)
 
-        ang_mov_thoug = ang_mov_through(lin_mov, ang_desired)
+        if body._get_pos == 1 and body.gyro_data != 0:
 
-        if lin_mov[0] == 1:
-            forward()
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(60, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
-        elif lin_mov[0] == 0:
-            back()
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(60, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
-        while (chrono.read() < t_lin):
-            c_loc = current_loc(COMM, org, ang_mov_thoug)
-            print("Robot's current Position is:", c_loc)
-            time.sleep(sr)
-            pass
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(70, 70, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
-        stop_all()
-        chrono.stop()
-        chrono.reset()
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(70, 80, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
 
-        ## Printing Movement Statistics ##
-        print('\n'"Orginal Coordinate: ", org)
-        print("New Coordinate: ", COMM)
+            position = body.get_pos()
+            #break
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
+            body.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            print("Coordinate: (",position[0],",",position[1],")")
+            complete = True
+            print("Reached the coordinate! wooooo")
 
-        print('\n'"Orignal Angle: ", ang_org)
-        print("New Angle: ", ang_desired)
+        else:
+            print("don't worry! I'm 22!!")
 
-        print('\n'"Distance Moved: ", lin_mov[1])
-        print("Angle Moved Through: ", rot_mov[1])
 
-        print('\n'"Angles [Deg]")
-        print("Distances [m]")
+def test_16_no_thread_beh():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.7;
+    body.battery = 100;
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbt.test_transmit();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,body);
 
-        ## Updates New Position and Absolute Angle ##
-        org = COMM
-        ang_org = ang_desired
+    complete = False
+    print("[+] Setting Timer")
 
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+            body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            print("Reached the coordinate! wooooo")
+            swarmbeh.Increment_Bounty_Tiles(1);
+            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            #swarmbeh.Increment_Bounty_Tiles(1);
+            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            #break
+            print("Reached the coordinate! wooooo")
+            #complete = True;
+
+
+        else:
+            print("don't worry! I'm 22!!")
+
+
+
+
+def test_14_integration_testing():
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+
+
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbt.test_transmit();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    Check = False;
+    swarmbody.duty_cycle = 0.5;
+    #swarmbody.V = 60;
+    #swarmbody.KD = (0,1)
+    while Check == False:
+        if swarmbody._get_pos == 1 and swarmbody.gyro_data != 0:
+            X = 0;
+            Y = 0;
+            #print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #Get initial Position
+            position = swarmbody.get_pos();
+            Check = True;
+    #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
+    #START THIS ON A NEW THREAD , all future calls must be thread calls
+    #If PID_control reaches its destination or ends a collision we need to kill it
+    print("begin, coords, X:" + str((swarmbeh.Target_Destination[0]+5)*10) + " Y: " + str((swarmbeh.Target_Destination[1]+5)*10));
+    #swarmbody.PID_movement((swarmbeh.Target_Destination[0]+4)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+    #swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    #swarmbody.PID_movement((swarmbeh.Target_Destination[0]+4)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+    #swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    #swarmbody.PID_movement((swarmbeh.Target_Destination[0]+4)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+    position = swarmbody.get_pos()
+    swarmbody.PID_movement(50, 50, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+    position = swarmbody.get_pos()
+    swarmbody.PID_movement(50, 60, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+
+
+    #PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
+    #PID_thread = _thread.start_new_thread(swarmbody.PID_movement,(50,50,(position[0], position[1]),position[2]))
+
+def test_15_full_nt():
+    swarmbody = Body.SwarmBody();
+    swarmbody.battery = 100;
+
+
+    #Initalise a bluetooth controller
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbt.test_transmit();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+    Check = False;
+    while Check == False:
+        if swarmbody._get_pos == 1 and swarmbody.gyro_data != 0:
+            X = 0;
+            Y = 0;
+            #print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #Get initial Position
+            position = swarmbody.get_pos();
+            Check = True;
+    #Was 10, 80, Moves to the destination on a _thread, assume starting angle is 0
+    #START THIS ON A NEW THREAD , all future calls must be thread calls
+    #If PID_control reaches its destination or ends a collision we need to kill it
+    print("begin, coords, X:" + str((swarmbeh.Target_Destination[0]+5)*10) + " Y: " + str((swarmbeh.Target_Destination[1]+5)*10));
+    PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
+    #PID_thread = _thread.start_new_thread(swarmbody.PID_movement,(50,50,(position[0], position[1]),position[2]))
+
+    while True:
+        #If we have arrived at our destination
+        if swarmbody.Arrival_Flag == True:
+            swarmbody.Arrival_Flag = False;
+            swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+            #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
+            #For safety kill the PID THREAD
+            position = swarmbody.get_pos();
+            PID_thread.kill();
+            PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
+
+        elif swarmbody.Collision_Flag == True:
+            swarmbody.Collision_Flag = False;
+            swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
+            #ROTATE BACK TO ZERO ? ROTATE TO NEAREST 90 ? FEED THIS INTO NEXT PID ?
+            position = swarmbody.get_pos();
+            PID_thread.kill();
+            PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
+        #Run bluetooth and other code
+        else:
+            swarmbeh.Set_InternalXY(swarmbody.x,swarmbody.y);
+            swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
+            swarmbeh.Check_New_Grid_Cell_Handle(swarmbody,swarmbt);
+
+#gets solar panel readings
+def test_17_solar_simple():
+    while 1==1:
+        swarmbody = Body.SwarmBody();
+
+        vn = swarmbody.get_solar_panel_vol();
+        print(vn);
+
+def test_18_behvnsolar():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.5;
+    body.battery = 100;
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbt.test_transmit();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,body);
+
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+            body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            print("Reached the coordinate! wooooo")
+            body.battery -= 21;
+            swarmbeh.Increment_Bounty_Tiles(1);
+            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            swarmbeh.Check_New_Grid_Cell_Handle(body,swarmbt);
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            #swarmbeh.Increment_Bounty_Tiles(1);
+            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            #break
+            print("Reached the coordinate! wooooo")
+            #complete = True;
+
+
+        else:
+            print("don't worry! I'm 22!!")
+'''
+def test_18b_original_solar():
+    body = SwarmBody()
+
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+            complete = True
+
+
+            ## Analogue Solar Voltage Reading ##
+            adc = ADC(bits = 10)
+            apin = adc.channel(pin = 'P15')     #reads pin 15 for battery output voltage
+            ## Set ICS ##
+            vMax = 0
+            tMax = 0
+
+            Vin = apin()
+
+            # checks if the input from the solar panel is greater than / equal to the stored highest and stores the voltage and position.
+            if(Vin >= vMax):
+                vMax = Vin
+                light_pos = body.get_pos()
+                light_x = light_pos[0]
+                light_y = light_pos[1]
+
+
+
+         #check battery level - if lower than threshold go to coordinate
+           apin = adc.channel(pin = 'PXX')     #reads pin XX for battery output voltage
+           vBatt = apin()
+           vThresh = 716                       #threshold voltage is about 3.5v here which is 716 binary with a 5v adc (is the output from adc binary?)
+
+            #create moving average filter to smooth the battery voltage reading
+            #va5 = va4
+            #va4 = va3
+            #va3 = va2
+            #va2 = va1
+            #va1 = vBatt
+            #vFil = (va1+va2+va3+va4+va5)/5
+
+            #using arrays           unsure if this works properly       will have to put a delay on the battery level with this due to rise up
+                N = 5
+                for j in range(N-1):
+                    va[N-j] = va[j-1]       #start at va[5] & stop at va[1]
+                va[0] = vBatt
+                #finding moving average voltage
+                vo = 0
+                for h in range(N):      #calculates the moving average
+                    vo = vo + (va[h]/N)
+
+
+            #battery percentage
+            #battPerc = (vo/4)*100   #using full range of 0-4v
+            battPerc = ((vo-3.3)/0.7)*100    #using range between 3.3v and 4v as this is the operating region
+
+            if(vo < vThresh):
+                # move to latest light source coordinate
+                current_pos = body.get_pos()
+                current_angle = self.gyro_data
+                PID_movement(light_x,light_y, starting_coordinate = (current_pos[0],current_pos[1]),starting_angle = current_angle)
+        else:
+            print("don't worry! we're still here (in main)")
+
+'''
+#gets solar panel readings
+def test_17_solar_simple():
+    while 1==1:
+        swarmbody = Body.SwarmBody();
+
+        vn = swarmbody.get_solar_panel_vol();
+        print(vn);
+
+def test_18_behvnsolar():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.5;
+    body.battery = 100;
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbt.test_transmit();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,body);
+
+    swarmbody.S_adc = ADC(bits = 10)
+    swarmbody.S_apin = swarmbody.S_adc.channel(pin = 'P15',attn = swarmbody.S_adc.ATTN_11D8)
+                #apin = adc.channel(pin = 'P15',attn = adc.ATTN_11D8)
+
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+            body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            position = body.get_pos()
+            print("Reached the coordinate! wooooo")
+            body.battery -= 21;
+            swarmbeh.Increment_Bounty_Tiles(1);
+            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            swarmbeh.Check_New_Grid_Cell_Handle(body,swarmbt);
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            #swarmbeh.Increment_Bounty_Tiles(1);
+            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            #break
+            print("Reached the coordinate! wooooo")
+            #complete = True;
+
+
+        else:
+            print("don't worry! I'm 22!!")
+'''
+def test_18b_original_solar():
+        body = SwarmBody()
+
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+            complete = True
+
+
+            ## Analogue Solar Voltage Reading ##
+
+            adc = ADC(bits = 10)
+            apin = adc.channel(pin = 'P15',attn = adc.ATTN_11D8)    #reads pin 15 for battery output voltage
+            ## Set ICS ##
+            vMax = 0
+            tMax = 0
+
+            Vin = apin()
+
+            # checks if the input from the solar panel is greater than / equal to the stored highest and stores the voltage and position.
+            if(Vin >= vMax):
+                vMax = Vin
+                light_pos = body.get_pos()
+                light_x = light_pos[0]
+                light_y = light_pos[1]
+
+
+
+         #check battery level - if lower than threshold go to coordinate
+           apin = adc.channel(pin = 'PXX')     #reads pin XX for battery output voltage
+           vBatt = apin()
+           vThresh = 716                       #threshold voltage is about 3.5v here which is 716 binary with a 5v adc (is the output from adc binary?)
+
+            #create moving average filter to smooth the battery voltage reading
+            #va5 = va4
+            #va4 = va3
+            #va3 = va2
+            #va2 = va1
+            #va1 = vBatt
+            #vFil = (va1+va2+va3+va4+va5)/5
+
+            #using arrays           unsure if this works properly       will have to put a delay on the battery level with this due to rise up
+                N = 5
+                for j in range(N-1):
+                    va[N-j] = va[j-1]       #start at va[5] & stop at va[1]
+                va[0] = vBatt
+                #finding moving average voltage
+                vo = 0
+                for h in range(N):      #calculates the moving average
+                    vo = vo + (va[h]/N)
+
+
+            #battery percentage
+            #battPerc = (vo/4)*100   #using full range of 0-4v
+            battPerc = ((vo-3.3)/0.7)*100    #using range between 3.3v and 4v as this is the operating region
+
+            if(vo < vThresh):
+                # move to latest light source coordinate
+                current_pos = body.get_pos()
+                current_angle = self.gyro_data
+                PID_movement(light_x,light_y, starting_coordinate = (current_pos[0],current_pos[1]),starting_angle = current_angle)
+
+'''
+
+def test_21_beh_solar():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.5;
+    body.battery = 100;
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbt.test_transmit();
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,body);
+    one_flag = True;
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+            if one_flag == True:
+                one_flag = False;
+                last_coord = body.get_pos();
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+            body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+            last_coord = position;
+            position = body.get_pos()
+            body.battery -= 12;
+            print("Reached the coordinate! wooooo")
+            swarmbeh.Increment_Bounty_Tiles(1);
+            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            #swarmbeh.Increment_Bounty_Tiles(1);
+            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            #break
+            print("Reached the coordinate! wooooo")
+            #complete = True;
+
+
+        else:
+            print("don't worry! I'm 22!!")
+
+def test_22_map():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.5;
+    body.battery = 100;
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbeh.Increment_Bounty_Tiles(1);
+
+    swarmbeh.Ring_Null();
+
+    swarmbt.test_transmit();
+
+    #Choose an initial destination
+    swarmbeh.Choose_Target_Square(swarmbt,body);
+    one_flag = True;
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+            if one_flag == True:
+                one_flag = False;
+                last_coord = body.get_pos();
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+
+            #THESE NEED TO BE REDUCED TO 30 !!!!
+            body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+            last_coord = position;
+            position = body.get_pos()
+            #body.battery -= 12;
+            print("Reached the coordinate! wooooo")
+            swarmbeh.Increment_Bounty_Tiles(1);
+
+            swarmbeh.Ring_Null(); #############################################
+
+            #THESE NEED TO BE REDUCED TO 300 !!!!!!!!!!!
+            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            #swarmbeh.Increment_Bounty_Tiles(1);
+            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            #break
+            print("Reached the coordinate! wooooo")
+            #complete = True;
+
+
+        else:
+            print("don't worry! I'm 22!!")
+
+
+def test_23_mapping_with_bluetooth():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.4;
+    body.battery = 100;
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbeh.Increment_Bounty_Tiles(100);
+
+    swarmbeh.Ring_Null();
+
+
+    swarmbt.test_transmit();
+
+    #Start Bluetooth handling thread
+    Bt_Thread = _thread.start_new_thread(swarmbt.Handle_Bluetooth_Behaviour_Continuous,(swarmbeh,True));
+    #Choose an initial destination
+    #swarmbeh.Choose_Target_Square(swarmbt,body);
+    one_flag = True;
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+            if one_flag == True:
+                one_flag = False;
+                last_coord = body.get_pos();
+                position = body.get_pos()
+                print("Xpos",position[0],"YPOS",position[1])
+                swarmbeh.Set_InternalXY(position[0]*10,position[1]*10);
+                swarmbeh.Current_Grid_Cell_X = math.floor(position[0]*10/swarmbeh.Arena_Grid_Size_X);
+                swarmbeh.Current_Grid_Cell_Y = math.floor(position[1]*10/swarmbeh.Arena_Grid_Size_Y);
+                print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
+
+
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+            #input("Enter character to find coordinate: ")
+            position = body.get_pos()
+            print(position)
+
+            #THESE NEED TO BE REDUCED TO 30 !!!!
+            body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+            last_coord = position;
+            position = body.get_pos()
+            body.battery -= 25;
+            print("Reached the coordinate! wooooo")
+            swarmbeh.Increment_Bounty_Tiles(1);
+
+            swarmbeh.Ring_Null(); #############################################
+
+            #THESE NEED TO BE REDUCED TO 300 !!!!!!!!!!!
+            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            swarmbeh.Choose_Target_Square(swarmbt,body);
+            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+            #swarmbeh.Increment_Bounty_Tiles(1);
+            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+            #break
+            print("Reached the coordinate! wooooo")
+            #complete = True;
+
+
+        else:
+            print("don't worry! I'm 22!!")
+
+
+def test_25_mapping_with_bluetooth_CHARGECALLS():
+    body = Body.SwarmBody()
+    body.duty_cycle = 0.4;
+    body.battery = 100;
+    swarmbt = Bluetooth_Comms.SwarmBluetooth();
+    #Initialise a behaviour controller
+    swarmbeh = Behaviour.SwarmBehaviour();
+    swarmbeh.Increment_Bounty_Tiles(100);
+
+    swarmbeh.Ring_Null();
+
+
+    swarmbt.test_transmit();
+
+    #Start Bluetooth handling thread
+    Bt_Thread = _thread.start_new_thread(swarmbt.Handle_Bluetooth_Behaviour_Continuous,(swarmbeh,True));
+    #Choose an initial destination
+    #swarmbeh.Choose_Target_Square(swarmbt,body);
+    one_flag = True;
+    complete = False
+    print("[+] Setting Timer")
+
+    while complete == False:
+        time.sleep(1)
+
+        if body._get_pos == 1 and body.gyro_data != 0:
+
+            if one_flag == True:
+                one_flag = False;
+                last_coord = body.get_pos();
+                position = body.get_pos()
+                print("Xpos",position[0],"YPOS",position[1])
+                swarmbeh.Set_InternalXY(position[0]*10,position[1]*10);
+                swarmbeh.Current_Grid_Cell_X = math.floor(position[0]*10/swarmbeh.Arena_Grid_Size_X);
+                swarmbeh.Current_Grid_Cell_Y = math.floor(position[1]*10/swarmbeh.Arena_Grid_Size_Y);
+                print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
+
+            if swarmbeh.Charge_Flag == False and swarmbeh.Give_Charge_Timer < 1:
+
+                if body.battery < 10:
+                    swarmbt.Call_For_Charge(swarmbeh,swarmbeh.Current_Grid_Cell_X,swarmbeh.Current_Grid_Cell_Y);
+                    #stall the robot endlessly
+                    while True:
+                        pass;
+
+
+
+                swarmbeh.Choose_Target_Square(swarmbt,body);
+                print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
+                #input("Enter character to find coordinate: ")
+                position = body.get_pos()
+                print(position)
+
+                #THESE NEED TO BE REDUCED TO 30 !!!!
+                body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+                last_coord = position;
+                position = body.get_pos()
+                #
+                body.battery -= 25;
+                print("Reached the coordinate! wooooo")
+                swarmbeh.Increment_Bounty_Tiles(1);
+
+                swarmbeh.Ring_Null(); #############################################
+
+                #THESE NEED TO BE REDUCED TO 300 !!!!!!!!!!!
+                swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+                swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+                swarmbeh.Choose_Target_Square(swarmbt,body);
+                #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
+                #swarmbeh.Increment_Bounty_Tiles(1);
+                #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
+                #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
+                #break
+                print("Reached the coordinate! wooooo")
+                #complete = True;
+            #If Charge Flag == true
+            elif swarmbeh.Charge_Flag == True and swarmbeh.Give_Charge_Timer < 1:
+                print("BEGGINING CHARGE SHARING BEHAVIOUR")
+                #Tranmit that we will give aid
+                swarmbt.Call_Charge_Handled();
+                #Set the flag False
+                swarmbeh.Charge_Flag = False;
+                swarmbeh.Give_Charge_Timer = 3000;
+
+                #Start PID to square
+                position = body.get_pos()
+                print(position)
+
+                C_X = swarmbeh.Charge_X;
+
+                if C_X - 2 > 0:
+                    TRX = C_X - 2
+                elif C_X + 2 < math.floor(Swarmbehv_obj.Arena_X_Mm/Swarmbehv_obj.Arena_Grid_Size_X):
+                    TRX = C_X - 2
+                else:
+                    pass
+
+
+                body.PID_movement((TRX+0.5)*30, (swarmbeh.Charge_Y+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+                last_coord = position;
+                position = body.get_pos()
+
+                #Drive into the other robot kinda :/
+
+                body.PID_movement((swarmbeh.Charge_X+0.5)*30, (swarmbeh.Charge_Y+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+                last_coord = position;
+                position = body.get_pos()
+                #Set giving_charge state to true
+            #If charging another robot
+            else:
+                #Do nothing, no way to stop charging robot
+                swarmbeh.Give_Charge_Timer -= 1;
+                print("CHARGING OTHER ROBO : ",swarmbeh.Give_Charge_Timer);
+                pass
+
+
+
+
+        else:
+            print("don't worry! I'm 22!!")
 
 if __name__ == "__main__":
     ##Swarmbot is initialised
@@ -1624,6 +1724,14 @@ if __name__ == "__main__":
     #swarmbot.alive()
     #swarmbt = Bluetooth_Comms.SwarmBluetooth();
 
+    #test_14_integration_testing();
+
+    #test_16_no_thread_beh();
+    #test_13_four_coords();
+    #test_23_mapping_with_bluetooth();
+
+    test_25_mapping_with_bluetooth_CHARGECALLS();
+
     #swarmbeh = Behaviour.SwarmBehaviour();
-    print("SwarmBot is Testing -_-");
-    #test5_ldar();
+    #print("SwarmBot is Testing -_-");
+    #test7_both_int();

@@ -16,8 +16,8 @@ logger = slogger.get_logger("NETWORK")
 
 class SwarmNetwork(Messenger.SwarmMessenger):
     def __init__(self):
-        WiFi.connect()
-        Messenger.SwarmMessenger.__init__(self)
+        #WiFi.connect()
+        #Messenger.SwarmMessenger.__init__(self)
 
 
         return

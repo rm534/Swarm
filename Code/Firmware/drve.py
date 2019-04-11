@@ -309,75 +309,88 @@ def current_loc(COMM, org, ang_mov_thoug):
     return (c_x_loc, c_y_loc)
 
 
-
-
-DCv = 0.6;
-pycom.heartbeat(False)
-#Initialise a body object
-swarmbody = Body.SwarmBody();
-swarmbody.battery = 100;
-#Initalise a bluetooth controller
-swarmbt = Bluetooth_Comms.SwarmBluetooth();
-#Initialise a behaviour controller
-#swarmbeh = Behaviour.SwarmBehaviour();
-#Choose an initial destination
-#swarmbeh.Choose_Target_Square(swarmbt,swarmbody);
-
-#swarmbody.initialise_lidar(swarmbody.SDA, swarmbody.SCL, swarmbody.lidar_DIO1, swarmbody.lidar_DIO2, swarmbody.lidar_DIO3, swarmbody.lidar_DIO4)
-X = 0;
-Y = 0;
-Xg = 1000;
-Yg = 1000;
-#print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
-lastcol = True;
-ldtmer = 0;
-mml = 150;
+## Main Loop ##
 while True:
-    #print(str(X)+"/"+str(Y));
+    X = input('\n'"Enter X - Coordinate Here: ")
+    Y = input("Enter Y - Coordinate Here: ")
 
-    #swarmbeh.Set_InternalXY(X,Y);
-    #swarmbeh.Increment_Bounty_Tiles(1);
-    #swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
-    #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(swarmbody,swarmbt);
-    #Xg = swarmbeh.Target_Destination[0]*swarmbeh.Arena_Grid_Size_X;
-    #Yg = swarmbeh.Target_Destination[1]*swarmbeh.Arena_Grid_Size_Y;
-    #This movement is scuffed it will go diagonal until one coord is met but this is for testing purposes only !
+    if X == "position" or Y == "position":
+        print('\n'"Current Coordinate: ", org)
+        print("Current Angle: ", ang_org)
+        continue
 
-    if X < Xg:
-        X += 0.5;
-    else:
-        X -= 0.5;
-    if Y < Yg:
-        Y += 0.5;
-    else:
-        Y -= 0.5;
-        #stop_all();
-    l1, l2, l3, l4 = swarmbody.get_lidar();
+    elif X == "command" or Y == "command":
+        commands()
+        continue
+
+    elif X == "" or Y == "":
+        continue
 
 
+    COMM = (float(X), float(Y))
 
-    if l1 < mml or l2 < mml or l3 < mml or l4 < mml:
-        ldtmer = 10;
+    result = best_route(COMM, org, ang_org)
 
-    if ldtmer > 0:
-        if lastcol == False:
-            stop_all();
-            back();
-            print("back")
-        #red Light
-        lastcol = True;
-        pycom.rgbled(0x7f0000)
-        print(ldtmer);
-        #back();
-        ldtmer-=1;
-    else:
-        if lastcol == True:
-            stop_all();
-            lastcol = False;
-            forward();
-            print("forward")
-        lastcol = False;
-        #Green light
-        pycom.rgbled(0x007f00)
-        #forward();
-        #print("forward")
+    ang_desired = result[2]
+
+
+    ## Rotational Movement ##
+    rot_mov = result[0]
+
+    t_rot = rot_mov[1] / w
+
+    if rot_mov[0] == 1:
+        clockwise()
+
+    elif rot_mov[0] == 0:
+        anti_clockwise()
+
+    while (chrono.read() < t_rot):
+        # Does nothing while rotating.
+        pass
+
+    stop_all()
+    chrono.stop()
+    chrono.reset()
+
+    time.sleep(1)  # Delay for stability.
+
+    ## Linear Movement ##
+    lin_mov = result[1]
+
+    t_lin = lin_mov[1] / v
+
+    ang_mov_thoug = ang_mov_through(lin_mov, ang_desired)
+
+    if lin_mov[0] == 1:
+        forward()
+
+    elif lin_mov[0] == 0:
+        back()
+
+    while (chrono.read() < t_lin):
+        c_loc = current_loc(COMM, org, ang_mov_thoug)
+        print("Robot's current Position is:", c_loc)
+        time.sleep(sr)
+        pass
+
+    stop_all()
+    chrono.stop()
+    chrono.reset()
+
+    ## Printing Movement Statistics ##
+    print('\n'"Orginal Coordinate: ", org)
+    print("New Coordinate: ", COMM)
+
+    print('\n'"Orignal Angle: ", ang_org)
+    print("New Angle: ", ang_desired)
+
+    print('\n'"Distance Moved: ", lin_mov[1])
+    print("Angle Moved Through: ", rot_mov[1])
+
+    print('\n'"Angles [Deg]")
+    print("Distances [m]")
+
+    ## Updates New Position and Absolute Angle ##
+    org = COMM
+    ang_org = ang_desired
