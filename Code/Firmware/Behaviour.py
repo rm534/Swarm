@@ -192,8 +192,9 @@ class SwarmBehaviour(Body.SwarmBody, Network.SwarmNetwork, Bluetooth_Comms.Swarm
 
 
     #Checks if the robot is in a new grid cell and if so executes required code
-
-
+    # IMPORTANT! ***************************************************************************************************************
+    #THIS FUNCTION DOES USE SENSORS, THIS IS THE FUNCTION THAT SHOULD BE CALLED NOT THE ONE ABOVE
+    #renaming these two functions would be nice.
     def Check_New_Grid_Cell_Handle(self,Swarmbot_obj,Bluetooth_obj):
         1==1;
         #If we are in a new Grid Cell

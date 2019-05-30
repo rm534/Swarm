@@ -1077,7 +1077,7 @@ def test_16_no_thread_beh():
 
 
 
-
+#Early test of PID and behaviour integration
 def test_14_integration_testing():
     swarmbody = Body.SwarmBody();
     swarmbody.battery = 100;
@@ -1120,6 +1120,10 @@ def test_14_integration_testing():
     #PID_thread = _thread.start_new_thread(swarmbody.PID_movement,((swarmbeh.Target_Destination[0]+4)*10,(swarmbeh.Target_Destination[1]+4)*10,(position[0], position[1]),position[2]))
     #PID_thread = _thread.start_new_thread(swarmbody.PID_movement,(50,50,(position[0], position[1]),position[2]))
 
+#Failed testing of a PID thread, rather than a bluetooth thread
+#If there are future problems with a bluetoothj thread this could be tried again
+#However testing showed that the PID would fail completely using this method
+#The robot would continue moving forward endlessly.
 def test_15_full_nt():
     swarmbody = Body.SwarmBody();
     swarmbody.battery = 100;
@@ -1172,7 +1176,8 @@ def test_15_full_nt():
             swarmbt.Handle_Bluetooth_Behaviour(swarmbeh,False);
             swarmbeh.Check_New_Grid_Cell_Handle(swarmbody,swarmbt);
 
-#gets solar panel readings
+
+#A simple test to get solar panel readings
 def test_17_solar_simple():
     while 1==1:
         swarmbody = Body.SwarmBody();
@@ -1180,127 +1185,7 @@ def test_17_solar_simple():
         vn = swarmbody.get_solar_panel_vol();
         print(vn);
 
-def test_18_behvnsolar():
-    body = Body.SwarmBody()
-    body.duty_cycle = 0.5;
-    body.battery = 100;
-    swarmbt = Bluetooth_Comms.SwarmBluetooth();
-    #Initialise a behaviour controller
-    swarmbeh = Behaviour.SwarmBehaviour();
-    swarmbt.test_transmit();
-    #Choose an initial destination
-    swarmbeh.Choose_Target_Square(swarmbt,body);
-
-    complete = False
-    print("[+] Setting Timer")
-
-    while complete == False:
-        time.sleep(1)
-
-        if body._get_pos == 1 and body.gyro_data != 0:
-
-
-            swarmbeh.Choose_Target_Square(swarmbt,body);
-            print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
-            #input("Enter character to find coordinate: ")
-            position = body.get_pos()
-            print(position)
-            body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-            position = body.get_pos()
-            print("Reached the coordinate! wooooo")
-            body.battery -= 21;
-            swarmbeh.Increment_Bounty_Tiles(1);
-            swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
-            swarmbeh.Check_New_Grid_Cell_Handle(body,swarmbt);
-            swarmbeh.Choose_Target_Square(swarmbt,body);
-            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-            #swarmbeh.Increment_Bounty_Tiles(1);
-            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
-            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
-            #break
-            print("Reached the coordinate! wooooo")
-            #complete = True;
-
-
-        else:
-            print("don't worry! I'm 22!!")
-'''
-def test_18b_original_solar():
-    body = SwarmBody()
-
-    complete = False
-    print("[+] Setting Timer")
-
-    while complete == False:
-        time.sleep(1)
-
-        if body._get_pos == 1 and body.gyro_data != 0:
-            complete = True
-
-
-            ## Analogue Solar Voltage Reading ##
-            adc = ADC(bits = 10)
-            apin = adc.channel(pin = 'P15')     #reads pin 15 for battery output voltage
-            ## Set ICS ##
-            vMax = 0
-            tMax = 0
-
-            Vin = apin()
-
-            # checks if the input from the solar panel is greater than / equal to the stored highest and stores the voltage and position.
-            if(Vin >= vMax):
-                vMax = Vin
-                light_pos = body.get_pos()
-                light_x = light_pos[0]
-                light_y = light_pos[1]
-
-
-
-         #check battery level - if lower than threshold go to coordinate
-           apin = adc.channel(pin = 'PXX')     #reads pin XX for battery output voltage
-           vBatt = apin()
-           vThresh = 716                       #threshold voltage is about 3.5v here which is 716 binary with a 5v adc (is the output from adc binary?)
-
-            #create moving average filter to smooth the battery voltage reading
-            #va5 = va4
-            #va4 = va3
-            #va3 = va2
-            #va2 = va1
-            #va1 = vBatt
-            #vFil = (va1+va2+va3+va4+va5)/5
-
-            #using arrays           unsure if this works properly       will have to put a delay on the battery level with this due to rise up
-                N = 5
-                for j in range(N-1):
-                    va[N-j] = va[j-1]       #start at va[5] & stop at va[1]
-                va[0] = vBatt
-                #finding moving average voltage
-                vo = 0
-                for h in range(N):      #calculates the moving average
-                    vo = vo + (va[h]/N)
-
-
-            #battery percentage
-            #battPerc = (vo/4)*100   #using full range of 0-4v
-            battPerc = ((vo-3.3)/0.7)*100    #using range between 3.3v and 4v as this is the operating region
-
-            if(vo < vThresh):
-                # move to latest light source coordinate
-                current_pos = body.get_pos()
-                current_angle = self.gyro_data
-                PID_movement(light_x,light_y, starting_coordinate = (current_pos[0],current_pos[1]),starting_angle = current_angle)
-        else:
-            print("don't worry! we're still here (in main)")
-
-'''
-#gets solar panel readings
-def test_17_solar_simple():
-    while 1==1:
-        swarmbody = Body.SwarmBody();
-
-        vn = swarmbody.get_solar_panel_vol();
-        print(vn);
-
+#An early test looking at moving towards light sources
 def test_18_behvnsolar():
     body = Body.SwarmBody()
     body.duty_cycle = 0.5;
@@ -1338,86 +1223,17 @@ def test_18_behvnsolar():
             swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
             swarmbeh.Check_New_Grid_Cell_Handle(body,swarmbt);
             swarmbeh.Choose_Target_Square(swarmbt,body);
-            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-            #swarmbeh.Increment_Bounty_Tiles(1);
-            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
-            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
-            #break
+
             print("Reached the coordinate! wooooo")
             #complete = True;
 
 
         else:
             print("don't worry! I'm 22!!")
-'''
-def test_18b_original_solar():
-        body = SwarmBody()
 
-    complete = False
-    print("[+] Setting Timer")
-
-    while complete == False:
-        time.sleep(1)
-
-        if body._get_pos == 1 and body.gyro_data != 0:
-            complete = True
-
-
-            ## Analogue Solar Voltage Reading ##
-
-            adc = ADC(bits = 10)
-            apin = adc.channel(pin = 'P15',attn = adc.ATTN_11D8)    #reads pin 15 for battery output voltage
-            ## Set ICS ##
-            vMax = 0
-            tMax = 0
-
-            Vin = apin()
-
-            # checks if the input from the solar panel is greater than / equal to the stored highest and stores the voltage and position.
-            if(Vin >= vMax):
-                vMax = Vin
-                light_pos = body.get_pos()
-                light_x = light_pos[0]
-                light_y = light_pos[1]
-
-
-
-         #check battery level - if lower than threshold go to coordinate
-           apin = adc.channel(pin = 'PXX')     #reads pin XX for battery output voltage
-           vBatt = apin()
-           vThresh = 716                       #threshold voltage is about 3.5v here which is 716 binary with a 5v adc (is the output from adc binary?)
-
-            #create moving average filter to smooth the battery voltage reading
-            #va5 = va4
-            #va4 = va3
-            #va3 = va2
-            #va2 = va1
-            #va1 = vBatt
-            #vFil = (va1+va2+va3+va4+va5)/5
-
-            #using arrays           unsure if this works properly       will have to put a delay on the battery level with this due to rise up
-                N = 5
-                for j in range(N-1):
-                    va[N-j] = va[j-1]       #start at va[5] & stop at va[1]
-                va[0] = vBatt
-                #finding moving average voltage
-                vo = 0
-                for h in range(N):      #calculates the moving average
-                    vo = vo + (va[h]/N)
-
-
-            #battery percentage
-            #battPerc = (vo/4)*100   #using full range of 0-4v
-            battPerc = ((vo-3.3)/0.7)*100    #using range between 3.3v and 4v as this is the operating region
-
-            if(vo < vThresh):
-                # move to latest light source coordinate
-                current_pos = body.get_pos()
-                current_angle = self.gyro_data
-                PID_movement(light_x,light_y, starting_coordinate = (current_pos[0],current_pos[1]),starting_angle = current_angle)
-
-'''
-
+#This test looked at having a robot move towards a light source when it was low on power
+#This function did work in the past but it is missing the starting of bluetooth behaviour on a thread
+#This should probably be addedl.
 def test_21_beh_solar():
     body = Body.SwarmBody()
     body.duty_cycle = 0.5;
@@ -1445,6 +1261,7 @@ def test_21_beh_solar():
             #input("Enter character to find coordinate: ")
             position = body.get_pos()
             print(position)
+            #These values potentially need to be 30?
             body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
             last_coord = position;
             position = body.get_pos()
@@ -1454,11 +1271,7 @@ def test_21_beh_solar():
             swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
             swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
             swarmbeh.Choose_Target_Square(swarmbt,body);
-            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-            #swarmbeh.Increment_Bounty_Tiles(1);
-            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
-            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
-            #break
+
             print("Reached the coordinate! wooooo")
             #complete = True;
 
@@ -1466,6 +1279,8 @@ def test_21_beh_solar():
         else:
             print("don't worry! I'm 22!!")
 
+# This test was used before there was threaded bluetooth BEHAVIOUR
+#Do not use this test
 def test_22_map():
     body = Body.SwarmBody()
     body.duty_cycle = 0.5;
@@ -1513,19 +1328,12 @@ def test_22_map():
             swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
             swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
             swarmbeh.Choose_Target_Square(swarmbt,body);
-            #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-            #swarmbeh.Increment_Bounty_Tiles(1);
-            #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
-            #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
-            #break
             print("Reached the coordinate! wooooo")
             #complete = True;
-
-
         else:
             print("don't worry! I'm 22!!")
 
-
+#This test just does normal mapping, more detailed comments are found in test 25.
 def test_23_mapping_with_bluetooth():
     body = Body.SwarmBody()
     body.duty_cycle = 0.4;
@@ -1535,6 +1343,7 @@ def test_23_mapping_with_bluetooth():
     swarmbeh = Behaviour.SwarmBehaviour();
     swarmbeh.Increment_Bounty_Tiles(100);
 
+    #This can be removed if you want the robots to explore the outer ring of the testing area.
     swarmbeh.Ring_Null();
 
 
@@ -1596,25 +1405,28 @@ def test_23_mapping_with_bluetooth():
         else:
             print("don't worry! I'm 22!!")
 
-
+#This test is used to observe the charge sharing BEHAVIOUR
+#On line 1649 there is code that says body.battery -=25;
+#This is the virtual battery of the robot which when goes below 0 the robot will call for charge sharing
+#It is important to modify this value for each robot so that perhaps one robot gets low on charge and another can respond,
+#rather than all robots getting low
 def test_25_mapping_with_bluetooth_CHARGECALLS():
     body = Body.SwarmBody()
+    #Setting duty cycle and virtual battery
     body.duty_cycle = 0.4;
     body.battery = 100;
     swarmbt = Bluetooth_Comms.SwarmBluetooth();
     #Initialise a behaviour controller
     swarmbeh = Behaviour.SwarmBehaviour();
     swarmbeh.Increment_Bounty_Tiles(100);
-
-    swarmbeh.Ring_Null();
-
-
     swarmbt.test_transmit();
+    #Sets the bounty of the outermost ring to zero
+    swarmbeh.Ring_Null();
 
     #Start Bluetooth handling thread
     Bt_Thread = _thread.start_new_thread(swarmbt.Handle_Bluetooth_Behaviour_Continuous,(swarmbeh,True));
-    #Choose an initial destination
-    #swarmbeh.Choose_Target_Square(swarmbt,body);
+
+    #A flag to allow initial code to be run after sensor initialisation
     one_flag = True;
     complete = False
     print("[+] Setting Timer")
@@ -1623,62 +1435,69 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
         time.sleep(1)
 
         if body._get_pos == 1 and body.gyro_data != 0:
-
+            #Initialises variables, sets internal position
             if one_flag == True:
                 one_flag = False;
                 last_coord = body.get_pos();
                 position = body.get_pos()
                 print("Xpos",position[0],"YPOS",position[1])
+                #Sets internal position robot thinks its at
                 swarmbeh.Set_InternalXY(position[0]*10,position[1]*10);
+                #Sets current grid cell
                 swarmbeh.Current_Grid_Cell_X = math.floor(position[0]*10/swarmbeh.Arena_Grid_Size_X);
                 swarmbeh.Current_Grid_Cell_Y = math.floor(position[1]*10/swarmbeh.Arena_Grid_Size_Y);
                 print("Startting:","X:",swarmbeh.Current_Grid_Cell_X,"Y:",swarmbeh.Current_Grid_Cell_Y)
-
+            #If a robot is not responding to a charge share request and is not giving charge
             if swarmbeh.Charge_Flag == False and swarmbeh.Give_Charge_Timer < 1:
-
+                #If the robot is low on power
                 if body.battery < 10:
+                    #Communicate a charge request
                     swarmbt.Call_For_Charge(swarmbeh,swarmbeh.Current_Grid_Cell_X,swarmbeh.Current_Grid_Cell_Y);
-                    #stall the robot endlessly
+                    #Freeze the robot so it doesnt move anymore
+                    #This needs to be modified so that after charge has been shared it goes back to normal Movement
+                    #e.g if body.battery > 60 --> break;
                     while True:
                         pass;
 
-
-
+                #Chooses a target destination
                 swarmbeh.Choose_Target_Square(swarmbt,body);
                 print("X:" + str(swarmbeh.Target_Destination[0]) + "Y:" + str(swarmbeh.Target_Destination[1]));
-                #input("Enter character to find coordinate: ")
                 position = body.get_pos()
                 print(position)
 
-                #THESE NEED TO BE REDUCED TO 30 !!!!
+                #Uses PID movement to move to a location using target destination variables
+                #These values are multiplied by 30 as the grid size is 30x30.
+                #These should really be set by global varaibles, and are in the behaviour.py;
+                #This author will not modify this right now as there is no way to test it and this author does not want to break the code.
+                #You probably want to do it though, I will try to point these out when I see them.
                 body.PID_movement((swarmbeh.Target_Destination[0]+0.5)*30, (swarmbeh.Target_Destination[1]+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
+                #(ABOVE) The PID function will return once the destination is reached, we then set our last position and get our new one.
                 last_coord = position;
                 position = body.get_pos()
-                #
+                # The point where the virtual battery is reduced (After each movement)
                 body.battery -= 25;
                 print("Reached the coordinate! wooooo")
+                #Bounty of each tile is increased, you can modifiy this value, testing this may be useful.
                 swarmbeh.Increment_Bounty_Tiles(1);
+                #Renulls external ring, keeps robos off the edge.
+                swarmbeh.Ring_Null();
 
-                swarmbeh.Ring_Null(); #############################################
-
-                #THESE NEED TO BE REDUCED TO 300 !!!!!!!!!!!
+                #The values of 300 here need to be set from behaviour variables, they represent a 30x30cm grid size.
+                #If you change the grid size and not these this thing aint gonna work
                 swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
                 swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
                 swarmbeh.Choose_Target_Square(swarmbt,body);
-                #body.PID_movement((swarmbeh.Target_Destination[0]+5)*10, (swarmbeh.Target_Destination[1]+5)*10, starting_coordinate=(position[0],position[1]), starting_angle=position[2])
-                #swarmbeh.Increment_Bounty_Tiles(1);
-                #swarmbeh.Set_InternalXY(swarmbeh.Target_Destination[0]*300,swarmbeh.Target_Destination[1]*300);
-                #swarmbeh.Check_New_Grid_Cell_Handle_NOSENSORS(body,swarmbt);
-                #break
+
                 print("Reached the coordinate! wooooo")
                 #complete = True;
-            #If Charge Flag == true
+            #If a robot has received a request to share charge
             elif swarmbeh.Charge_Flag == True and swarmbeh.Give_Charge_Timer < 1:
                 print("BEGGINING CHARGE SHARING BEHAVIOUR")
                 #Tranmit that we will give aid
                 swarmbt.Call_Charge_Handled();
                 #Set the flag False
                 swarmbeh.Charge_Flag = False;
+                #How long the robot will be charged for
                 swarmbeh.Give_Charge_Timer = 3000;
 
                 #Start PID to square
@@ -1687,6 +1506,9 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
 
                 C_X = swarmbeh.Charge_X;
 
+                #Go initially two tiles away from the robot left or right, based on what is viable.
+                #This has potential to cause collision if it doesnt not look at the intent of other robots
+                #Consider fixing this *FIX*
                 if C_X - 2 > 0:
                     TRX = C_X - 2
                 elif C_X + 2 < math.floor(Swarmbehv_obj.Arena_X_Mm/Swarmbehv_obj.Arena_Grid_Size_X):
@@ -1694,27 +1516,27 @@ def test_25_mapping_with_bluetooth_CHARGECALLS():
                 else:
                     pass
 
-
                 body.PID_movement((TRX+0.5)*30, (swarmbeh.Charge_Y+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
                 last_coord = position;
                 position = body.get_pos()
 
-                #Drive into the other robot kinda :/
-
+                #Drive into the other robot
                 body.PID_movement((swarmbeh.Charge_X+0.5)*30, (swarmbeh.Charge_Y+0.5)*30, starting_coordinate=(position[0],position[1]), starting_angle=position[2],previous_coordinate = (last_coord[0],last_coord[1]))
                 last_coord = position;
                 position = body.get_pos()
                 #Set giving_charge state to true
+
             #If charging another robot
             else:
-                #Do nothing, no way to stop charging robot
+
+                #Charge timer is redced
                 swarmbeh.Give_Charge_Timer -= 1;
                 print("CHARGING OTHER ROBO : ",swarmbeh.Give_Charge_Timer);
                 pass
 
 
 
-
+        #Print out this message while sensors are initialising
         else:
             print("don't worry! I'm 22!!")
 
